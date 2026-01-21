@@ -1,20 +1,24 @@
+mod db;
+mod ui;
+
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use colored::Colorize;
-use serde_json::Value;
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
+use db::{Database, NewClient, NewProject, NewDocument};
+use ui::InteractiveUI;
+
 #[derive(Parser)]
 #[command(name = "docgen")]
 #[command(author = "Typst Business Templates")]
-#[command(version = "0.1.0")]
+#[command(version = "0.2.0")]
 #[command(about = "Generate professional business documents with Typst", long_about = None)]
 struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
@@ -28,7 +32,7 @@ enum Commands {
     Compile {
         /// Path to JSON data file
         input: PathBuf,
-        /// Output PDF path (optional, defaults to same name as input)
+        /// Output PDF path (optional)
         #[arg(short, long)]
         output: Option<PathBuf>,
         /// Template type (invoice, offer, credentials, concept)
@@ -37,8 +41,8 @@ enum Commands {
     },
     /// Build all documents in a directory
     Build {
-        /// Directory containing JSON files (default: current directory)
-        #[arg(default_value = ".")]
+        /// Directory containing JSON files
+        #[arg(default_value = "documents")]
         path: PathBuf,
         /// Output directory for PDFs
         #[arg(short, long, default_value = "output")]
@@ -46,21 +50,52 @@ enum Commands {
     },
     /// Watch for changes and rebuild automatically
     Watch {
-        /// Directory to watch (default: current directory)
-        #[arg(default_value = ".")]
+        /// Directory to watch
+        #[arg(default_value = "documents")]
         path: PathBuf,
     },
-    /// Validate JSON files against schemas
-    Validate {
-        /// Path to JSON file or directory
-        input: PathBuf,
+    /// Client management
+    Client {
+        #[command(subcommand)]
+        action: ClientAction,
     },
-    /// Create a new document from template
-    New {
-        /// Document type (invoice, offer, credentials, concept)
-        doc_type: String,
-        /// Document ID/number
+    /// Project management  
+    Project {
+        #[command(subcommand)]
+        action: ProjectAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum ClientAction {
+    /// List all clients
+    List,
+    /// Add a new client
+    Add {
+        /// Client name
+        #[arg(short, long)]
+        name: Option<String>,
+    },
+    /// Show client details
+    Show {
+        /// Client number (e.g., 1) or K-number (e.g., K-001)
         id: String,
+    },
+}
+
+#[derive(Subcommand)]
+enum ProjectAction {
+    /// List projects for a client
+    List {
+        /// Client ID or number
+        client: String,
+    },
+    /// Add a new project
+    Add {
+        /// Client ID or number
+        client: String,
+        /// Project name
+        name: String,
     },
 }
 
@@ -68,44 +103,185 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Init { name } => init_project(&name),
-        Commands::Compile { input, output, template } => compile_document(&input, output, template),
-        Commands::Build { path, output } => build_all(&path, &output),
-        Commands::Watch { path } => watch_directory(&path),
-        Commands::Validate { input } => validate_json(&input),
-        Commands::New { doc_type, id } => create_new_document(&doc_type, &id),
+        // No command = interactive mode
+        None => {
+            let db = Database::open_default()?;
+            let mut ui = InteractiveUI::new(db);
+            ui.run()
+        }
+        Some(Commands::Init { name }) => init_project(&name),
+        Some(Commands::Compile { input, output, template }) => compile_document(&input, output, template),
+        Some(Commands::Build { path, output }) => build_all(&path, &output),
+        Some(Commands::Watch { path }) => watch_directory(&path),
+        Some(Commands::Client { action }) => handle_client(action),
+        Some(Commands::Project { action }) => handle_project(action),
     }
 }
 
+fn handle_client(action: ClientAction) -> Result<()> {
+    let db = Database::open_default()?;
+    
+    match action {
+        ClientAction::List => {
+            let clients = db.list_clients()?;
+            if clients.is_empty() {
+                println!("Keine Kunden vorhanden.");
+                println!("Erstellen Sie einen mit: docgen client add");
+                return Ok(());
+            }
+            
+            println!("{}", "Kunden".bold());
+            println!("{:-<60}", "");
+            for c in clients {
+                println!("{:8} │ {:30} │ {}", 
+                    c.formatted_number().cyan(),
+                    c.display_name(),
+                    c.city.unwrap_or_default()
+                );
+            }
+        }
+        ClientAction::Add { name } => {
+            let name = match name {
+                Some(n) => n,
+                None => {
+                    use dialoguer::Input;
+                    Input::new().with_prompt("Name").interact_text()?
+                }
+            };
+            
+            let new_client = NewClient {
+                name,
+                ..Default::default()
+            };
+            
+            let client = db.add_client(&new_client)?;
+            println!("{} Kunde {} angelegt", "✓".green(), client.formatted_number().cyan());
+        }
+        ClientAction::Show { id } => {
+            let client_id = parse_client_id(&db, &id)?;
+            let client = db.get_client(client_id)?;
+            let projects = db.list_projects_for_client(client_id)?;
+            let documents = db.list_documents_for_client(client_id)?;
+            
+            println!();
+            println!("{} {}", client.formatted_number().cyan(), client.display_name().bold());
+            println!("{}", client.full_address());
+            if let Some(email) = &client.email {
+                println!("{}", email);
+            }
+            
+            if !projects.is_empty() {
+                println!();
+                println!("{}", "Projekte:".bold());
+                for p in projects {
+                    println!("  {} │ {} │ {}", 
+                        p.formatted_number(client.number),
+                        p.name,
+                        p.status
+                    );
+                }
+            }
+            
+            if !documents.is_empty() {
+                println!();
+                println!("{}", "Letzte Dokumente:".bold());
+                for d in documents.iter().take(5) {
+                    println!("  {} │ {} │ {}", 
+                        d.doc_number,
+                        d.type_display(),
+                        d.status_display()
+                    );
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn handle_project(action: ProjectAction) -> Result<()> {
+    let db = Database::open_default()?;
+    
+    match action {
+        ProjectAction::List { client } => {
+            let client_id = parse_client_id(&db, &client)?;
+            let client = db.get_client(client_id)?;
+            let projects = db.list_projects_for_client(client_id)?;
+            
+            println!("{} - {}", "Projekte für".bold(), client.display_name());
+            println!("{:-<60}", "");
+            
+            if projects.is_empty() {
+                println!("Keine Projekte vorhanden.");
+            } else {
+                for p in projects {
+                    println!("{:12} │ {:30} │ {}", 
+                        p.formatted_number(client.number).cyan(),
+                        p.name,
+                        p.status
+                    );
+                }
+            }
+        }
+        ProjectAction::Add { client, name } => {
+            let client_id = parse_client_id(&db, &client)?;
+            let client_data = db.get_client(client_id)?;
+            
+            let new_project = NewProject::new(client_id, name);
+            let project = db.add_project(&new_project)?;
+            
+            println!("{} Projekt {} angelegt", 
+                "✓".green(), 
+                project.formatted_number(client_data.number).cyan()
+            );
+        }
+    }
+    Ok(())
+}
+
+fn parse_client_id(db: &Database, input: &str) -> Result<i64> {
+    // Try direct number
+    if let Ok(num) = input.parse::<i64>() {
+        // Check if it's a client number or ID
+        let clients = db.list_clients()?;
+        if let Some(c) = clients.iter().find(|c| c.number == num || c.id == num) {
+            return Ok(c.id);
+        }
+    }
+    
+    // Try K-XXX format
+    if input.to_uppercase().starts_with("K-") {
+        if let Ok(num) = input[2..].parse::<i64>() {
+            let clients = db.list_clients()?;
+            if let Some(c) = clients.iter().find(|c| c.number == num) {
+                return Ok(c.id);
+            }
+        }
+    }
+    
+    anyhow::bail!("Kunde nicht gefunden: {}", input)
+}
+
 fn init_project(name: &str) -> Result<()> {
-    println!("{} Initializing new document project: {}", "→".blue(), name.green());
+    println!("{} Initialisiere Projekt: {}", "→".blue(), name.green());
     
     let base = Path::new(name);
     
-    // Create directory structure
-    let dirs = [
-        "data",
-        "invoices",
-        "offers", 
-        "credentials",
-        "concepts",
-        "output",
-        "templates/common",
-    ];
+    let dirs = ["data", "documents/invoices", "documents/offers", 
+                "documents/credentials", "documents/concepts", 
+                "output", "templates"];
     
     for dir in dirs {
-        fs::create_dir_all(base.join(dir))
-            .with_context(|| format!("Failed to create directory: {}", dir))?;
+        std::fs::create_dir_all(base.join(dir))?;
     }
     
-    // Create company.json template
-    let company_template = r#"{
-  "name": "Your Company Name",
+    // Create company.json
+    let company = r#"{
+  "name": "Ihre Firma",
   "address": {
-    "street": "Street Name",
-    "house_number": "123",
+    "street": "Straße",
+    "house_number": "1",
     "postal_code": "12345",
-    "city": "City",
+    "city": "Stadt",
     "country": "Deutschland"
   },
   "contact": {
@@ -115,80 +291,65 @@ fn init_project(name: &str) -> Result<()> {
   },
   "tax_id": "123/456/78901",
   "vat_id": "DE123456789",
-  "business_owner": "Your Name",
+  "business_owner": "Ihr Name",
   "bank_account": {
-    "bank_name": "Bank Name",
-    "account_holder": "Your Company Name",
-    "iban": "DE89 3704 0044 0532 0130 00",
-    "bic": "COBADEFFXXX"
+    "bank_name": "Bank",
+    "account_holder": "Ihre Firma",
+    "iban": "DE00 0000 0000 0000 0000 00",
+    "bic": "BANKDEFFXXX"
   }
 }"#;
-    
-    fs::write(base.join("data/company.json"), company_template)?;
+    std::fs::write(base.join("data/company.json"), company)?;
     
     // Create .gitignore
-    let gitignore = "output/*.pdf\n*.pdf\n.DS_Store\n";
-    fs::write(base.join(".gitignore"), gitignore)?;
+    std::fs::write(base.join(".gitignore"), "output/*.pdf\ndata/docgen.db\n")?;
     
-    println!("{} Project created successfully!", "✓".green());
-    println!("\nNext steps:");
-    println!("  1. Edit {}/data/company.json with your company data", name);
-    println!("  2. Copy templates from typst-business-templates to {}/templates", name);
-    println!("  3. Create documents with: docgen new invoice INV-2025-001");
-    println!("  4. Compile with: docgen compile invoices/INV-2025-001.json");
+    println!("{} Projekt erstellt!", "✓".green());
+    println!();
+    println!("Nächste Schritte:");
+    println!("  cd {}", name);
+    println!("  # Firmendaten bearbeiten:");
+    println!("  nano data/company.json");
+    println!("  # Interaktiv starten:");
+    println!("  docgen");
     
     Ok(())
 }
 
 fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<String>) -> Result<()> {
     if !input.exists() {
-        anyhow::bail!("Input file not found: {}", input.display());
+        anyhow::bail!("Datei nicht gefunden: {}", input.display());
     }
     
-    // Determine template type from filename or argument
-    let doc_type = template.unwrap_or_else(|| {
-        detect_document_type(input).unwrap_or_else(|| "invoice".to_string())
-    });
-    
+    let doc_type = template.unwrap_or_else(|| detect_document_type(input).unwrap_or("invoice".to_string()));
     let template_path = format!("templates/{}/default.typ", doc_type);
+    let output_path = output.unwrap_or_else(|| input.with_extension("pdf"));
     
-    // Determine output path
-    let output_path = output.unwrap_or_else(|| {
-        input.with_extension("pdf")
-    });
-    
-    println!("{} Compiling {} → {}", 
+    println!("{} Kompiliere {} → {}", 
         "→".blue(), 
         input.display().to_string().cyan(),
         output_path.display().to_string().green()
     );
     
-    // Build typst command
     let data_path = format!("/{}", input.display());
     
     let status = Command::new("typst")
-        .args([
-            "compile",
-            "--root", ".",
-            &template_path,
-            "--input", &format!("data={}", data_path),
-            &output_path.to_string_lossy(),
-        ])
+        .args(["compile", "--root", ".", &template_path, "--input", &format!("data={}", data_path), &output_path.to_string_lossy()])
         .status()
-        .context("Failed to execute typst. Is Typst installed?")?;
+        .context("Typst nicht gefunden. Ist Typst installiert?")?;
     
     if status.success() {
-        println!("{} Document compiled successfully!", "✓".green());
+        println!("{} Erfolgreich kompiliert!", "✓".green());
         Ok(())
     } else {
-        anyhow::bail!("Typst compilation failed")
+        anyhow::bail!("Kompilierung fehlgeschlagen")
     }
 }
 
 fn build_all(path: &Path, output: &Path) -> Result<()> {
-    println!("{} Building all documents in {}", "→".blue(), path.display());
+    println!("{} Baue alle Dokumente in {}", "→".blue(), path.display());
     
-    fs::create_dir_all(output)?;
+    std::fs::create_dir_all(output)?;
     
     let mut count = 0;
     let mut errors = 0;
@@ -197,8 +358,6 @@ fn build_all(path: &Path, output: &Path) -> Result<()> {
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
-        .filter(|e| !e.path().to_string_lossy().contains("schema"))
-        .filter(|e| !e.path().to_string_lossy().contains("company.json"))
     {
         let input = entry.path();
         let output_file = output.join(input.file_stem().unwrap()).with_extension("pdf");
@@ -206,16 +365,16 @@ fn build_all(path: &Path, output: &Path) -> Result<()> {
         match compile_document(input, Some(output_file), None) {
             Ok(_) => count += 1,
             Err(e) => {
-                eprintln!("{} Error compiling {}: {}", "✗".red(), input.display(), e);
+                eprintln!("{} Fehler bei {}: {}", "✗".red(), input.display(), e);
                 errors += 1;
             }
         }
     }
     
-    println!("\n{} Built {} documents ({} errors)", 
+    println!();
+    println!("{} {} Dokumente erstellt ({} Fehler)", 
         if errors == 0 { "✓".green() } else { "!".yellow() },
-        count,
-        errors
+        count, errors
     );
     
     Ok(())
@@ -226,11 +385,9 @@ fn watch_directory(path: &Path) -> Result<()> {
     use std::sync::mpsc::channel;
     use std::time::Duration;
     
-    println!("{} Watching for changes in {}", "→".blue(), path.display());
-    println!("Press Ctrl+C to stop\n");
+    println!("{} Überwache {} (Strg+C zum Beenden)", "→".blue(), path.display());
     
     let (tx, rx) = channel();
-    
     let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
     watcher.watch(path, RecursiveMode::Recursive)?;
     
@@ -240,77 +397,24 @@ fn watch_directory(path: &Path) -> Result<()> {
                 if matches!(event.kind, EventKind::Modify(_) | EventKind::Create(_)) {
                     for path in event.paths {
                         if path.extension().map_or(false, |ext| ext == "json") {
-                            println!("\n{} Change detected: {}", "⟳".yellow(), path.display());
+                            println!();
+                            println!("{} Änderung: {}", "⟳".yellow(), path.display());
                             let _ = compile_document(&path, None, None);
                         }
                     }
                 }
             }
-            Ok(Err(e)) => eprintln!("Watch error: {}", e),
-            Err(_) => {} // Timeout, continue
+            Ok(Err(e)) => eprintln!("Fehler: {}", e),
+            Err(_) => {}
         }
     }
 }
 
-fn validate_json(input: &Path) -> Result<()> {
-    println!("{} Validating {}", "→".blue(), input.display());
-    
-    let content = fs::read_to_string(input)?;
-    let json: Value = serde_json::from_str(&content)
-        .context("Invalid JSON syntax")?;
-    
-    // Basic validation
-    if json.get("metadata").is_none() {
-        println!("{} Warning: No 'metadata' field found", "!".yellow());
-    }
-    
-    println!("{} JSON is valid", "✓".green());
-    Ok(())
-}
-
-fn create_new_document(doc_type: &str, id: &str) -> Result<()> {
-    let template = match doc_type {
-        "invoice" => include_str!("../templates/invoice.json"),
-        "offer" => include_str!("../templates/offer.json"),
-        "credentials" => include_str!("../templates/credentials.json"),
-        "concept" => include_str!("../templates/concept.json"),
-        _ => anyhow::bail!("Unknown document type: {}. Use: invoice, offer, credentials, concept", doc_type),
-    };
-    
-    // Replace placeholder ID
-    let content = template.replace("DOCUMENT_ID", id);
-    
-    let dir = match doc_type {
-        "invoice" => "invoices",
-        "offer" => "offers",
-        "credentials" => "credentials",
-        "concept" => "concepts",
-        _ => doc_type,
-    };
-    
-    fs::create_dir_all(dir)?;
-    let output_path = format!("{}/{}.json", dir, id);
-    
-    fs::write(&output_path, content)?;
-    
-    println!("{} Created {}", "✓".green(), output_path.cyan());
-    println!("Edit the file and run: docgen compile {}", output_path);
-    
-    Ok(())
-}
-
 fn detect_document_type(path: &Path) -> Option<String> {
-    let path_str = path.to_string_lossy().to_lowercase();
-    
-    if path_str.contains("invoice") || path_str.contains("rechnung") {
-        Some("invoice".to_string())
-    } else if path_str.contains("offer") || path_str.contains("angebot") {
-        Some("offer".to_string())
-    } else if path_str.contains("credential") || path_str.contains("zugang") || path_str.contains("acc-") {
-        Some("credentials".to_string())
-    } else if path_str.contains("concept") || path_str.contains("konzept") || path_str.contains("kon-") {
-        Some("concept".to_string())
-    } else {
-        None
-    }
+    let s = path.to_string_lossy().to_lowercase();
+    if s.contains("invoice") || s.contains("rechnung") || s.contains("/re-") { Some("invoice".to_string()) }
+    else if s.contains("offer") || s.contains("angebot") || s.contains("/an-") { Some("offer".to_string()) }
+    else if s.contains("credential") || s.contains("zugang") || s.contains("/zd-") { Some("credentials".to_string()) }
+    else if s.contains("concept") || s.contains("konzept") || s.contains("/ko-") { Some("concept".to_string()) }
+    else { None }
 }

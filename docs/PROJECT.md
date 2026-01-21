@@ -6,7 +6,7 @@ Ein Open-Source-Framework zur Erstellung professioneller Geschäftsdokumente mit
 
 **Kernidee:** Daten (JSON) + Template (Typst) = PDF
 
-## Aktueller Stand (v0.1.0)
+## Aktueller Stand (v0.2.0)
 
 ### Templates
 
@@ -21,172 +21,191 @@ Ein Open-Source-Framework zur Erstellung professioneller Geschäftsdokumente mit
 
 | Befehl | Beschreibung | Status |
 |--------|--------------|--------|
+| `docgen` (ohne Argument) | **Interaktiver Modus** | ✅ Neu |
 | `docgen init` | Projekt initialisieren | ✅ Fertig |
-| `docgen new` | Dokument aus Vorlage | ✅ Fertig |
 | `docgen compile` | JSON → PDF | ✅ Fertig |
 | `docgen build` | Alle Dokumente bauen | ✅ Fertig |
 | `docgen watch` | Auto-Rebuild | ✅ Fertig |
-| `docgen validate` | JSON validieren | ✅ Basis |
+| `docgen client list` | Kunden auflisten | ✅ Neu |
+| `docgen client add` | Kunde anlegen | ✅ Neu |
+| `docgen client show` | Kundendetails | ✅ Neu |
+| `docgen project list` | Projekte auflisten | ✅ Neu |
+| `docgen project add` | Projekt anlegen | ✅ Neu |
 
 ### Infrastruktur
 
+- **SQLite-Datenbank** für Kunden, Projekte, Dokument-Index
+- Automatische fortlaufende Nummerierung
 - JSON Schemas für Validierung
 - Beispieldateien
 - Typst Package Struktur (`typst.toml`)
 - MIT Lizenz
 
+## Interaktiver Modus
+
+Starte `docgen` ohne Argumente für eine übersichtliche Terminal-UI:
+
+```
+╔═══════════════════════════════════════════════════════╗
+║  DOCGEN - Dokumentenverwaltung                        ║
+╚═══════════════════════════════════════════════════════╝
+
+Kunden (3)
+
+┌───┬────────┬──────────────────────┬────────────┬─────────────────┐
+│ # │ Nr.    │ Name                 │ Ort        │ E-Mail          │
+├───┼────────┼──────────────────────┼────────────┼─────────────────┤
+│ 1 │ K-001  │ Kunde GmbH           │ Hamburg    │ info@kunde.de   │
+│ 2 │ K-002  │ Max Müller           │ Berlin     │ max@example.de  │
+│ 3 │ K-003  │ Stadtwerke Rostock   │ Rostock    │ sw@rostock.de   │
+└───┴────────┴──────────────────────┴────────────┴─────────────────┘
+
+> Auswahl: [1-3] Kunde wählen, + Neuer Kunde, q Beenden
+```
+
+Nach Kundenauswahl:
+
+```
+╔═══════════════════════════════════════════════════════╗
+║  Kunde GmbH                                    K-001  ║
+║  Musterstraße 42, 12345 Hamburg                       ║
+║  info@kunde.de                                        ║
+╚═══════════════════════════════════════════════════════╝
+
+Projekte (2)
+┌──────────────┬──────────────────────┬────────┐
+│ Nr.          │ Name                 │ Status │
+├──────────────┼──────────────────────┼────────┤
+│ P-001-01     │ Website Relaunch     │ active │
+│ P-001-02     │ App Entwicklung      │ active │
+└──────────────┴──────────────────────┴────────┘
+
+Dokumente (letzte 10)
+┌─────────────┬───────────┬────────────┬───────────┬─────────┐
+│ Nummer      │ Typ       │ Datum      │ Betrag    │ Status  │
+├─────────────┼───────────┼────────────┼───────────┼─────────┤
+│ RE-2025-012 │ Rechnung  │ 2025-01-15 │ 1.250 €   │ offen   │
+│ AN-2025-003 │ Angebot   │ 2025-01-10 │ 3.500 €   │ gesendet│
+└─────────────┴───────────┴────────────┴───────────┴─────────┘
+
+> Aktion: [r] Rechnung  [a] Angebot  [z] Zugangsdaten  [k] Konzept
+          [p] Projekt   [←] Zurück
+```
+
+## Datenbank
+
+SQLite (`data/docgen.db`) für konsistente Datenhaltung:
+
+### Tabellen
+
+**clients** - Kundenstammdaten
+- Automatische Nummerierung (K-001, K-002, ...)
+- Adresse, Kontakt, Notizen
+
+**projects** - Projekte pro Kunde
+- Nummerierung pro Kunde (P-001-01, P-001-02, ...)
+- Stundensatz, Status
+
+**documents** - Dokument-Index
+- Fortlaufende Nummern pro Typ (RE-2025-001, AN-2025-002, ...)
+- Verknüpfung zu Kunde und Projekt
+- Status-Tracking (Entwurf, Gesendet, Bezahlt, ...)
+
+**counters** - Nummernkreise
+- Atomare Operationen für sichere Nummerierung
+
 ## Was fehlt
 
-### Priorität 1: Kunden- und Projektverwaltung
+### Priorität 1: Erweiterungen Kunden/Projekte
 
-Aktuell muss man Kundendaten in jeder JSON-Datei wiederholen. Besser wäre:
+- [ ] `docgen client edit` - Kunde bearbeiten
+- [ ] `docgen client delete` - Kunde löschen (mit Sicherheitsabfrage)
+- [ ] `docgen project edit/delete`
+- [ ] Suche in Kunden/Projekten
 
-```
-data/
-├── company.json      # Eigene Firmendaten
-├── clients/
-│   ├── kunde-a.json
-│   └── kunde-b.json
-└── projects/
-    ├── projekt-1.json  # Referenziert Client
-    └── projekt-2.json
-```
+### Priorität 2: Dokumenten-Features
 
-**Geplante CLI-Befehle:**
-- `docgen client add "Kunde GmbH"`
-- `docgen client list`
-- `docgen project add "Website Relaunch" --client kunde-a`
+- [ ] `docgen invoice status RE-2025-001 paid` - Status ändern
+- [ ] `docgen stats` - Umsatzübersicht
+- [ ] `docgen unpaid` - Offene Rechnungen
+- [ ] Automatische Mahnungen
 
-### Priorität 2: Weitere Templates
+### Priorität 3: Weitere Templates
 
 - [ ] Lieferschein (Delivery Note)
-- [ ] Gutschrift (Credit Note)
+- [ ] Gutschrift (Credit Note)  
 - [ ] Mahnung (Payment Reminder)
-- [ ] Protokoll (Meeting Minutes)
 - [ ] Zeiterfassung (Timesheet)
-
-### Priorität 3: Erweiterte Features
-
-- [ ] Template-Varianten (minimal, detailed, modern)
-- [ ] Mehrsprachigkeit (DE/EN)
-- [ ] Logo-Integration vereinfachen
-- [ ] PDF-Metadaten (Autor, Titel)
-- [ ] Automatische Nummernvergabe
 
 ### Priorität 4: Integration
 
 - [ ] Typst Universe Package veröffentlichen
-- [ ] Homebrew Formula für CLI
-- [ ] GitHub Actions für CI/CD
-- [ ] VS Code Extension
+- [ ] Homebrew Formula
+- [ ] E-Rechnung Export (ZUGFeRD/XRechnung)
 
 ## Ideen
 
-### Dokumenten-Workflow
+### Zeiterfassung
 
-```
-docgen new invoice --client kunde-a --project projekt-1
-# → Erstellt invoices/RE-2025-001.json mit vorausgefüllten Daten
-```
-
-### Recurring Documents
-
-```json
-{
-  "type": "recurring",
-  "template": "invoice",
-  "schedule": "monthly",
-  "client": "kunde-a",
-  "items": [...]
-}
+```bash
+docgen time add --project P-001-01 --hours 4 --desc "Frontend"
+docgen time list --project P-001-01
+docgen invoice from-time --project P-001-01 --month 01
 ```
 
-### Export-Formate
+### Recurring
 
-- PDF (aktuell)
-- E-Rechnung (ZUGFeRD/XRechnung)
-- HTML Preview
-
-### Verknüpfung mit Zeiterfassung
-
-```
-docgen timesheet add --project projekt-1 --hours 8 --description "Frontend"
-docgen invoice generate --from-timesheet --project projekt-1
+```bash
+docgen recurring add --type invoice --client K-001 --monthly
+docgen recurring run  # Erstellt alle fälligen Dokumente
 ```
 
-## Technische Entscheidungen
+### Reports
 
-### Warum JSON?
+```bash
+docgen report revenue --year 2025
+docgen report client K-001
+```
 
-- Einfach zu lesen und schreiben
-- Validierbar mit JSON Schema
-- Überall unterstützt
-- Git-freundlich (diffbar)
+## Technische Architektur
 
-### Warum Rust CLI?
+```
+docgen (Rust CLI)
+    │
+    ├── Interaktiver Modus (dialoguer, comfy-table)
+    │
+    ├── SQLite Datenbank (rusqlite)
+    │   └── data/docgen.db
+    │
+    ├── JSON Dokument-Daten
+    │   └── documents/{type}/{number}.json
+    │
+    └── Typst Kompilierung
+        └── typst compile --root . ...
+```
 
-- Single Binary (keine Runtime)
+### Warum diese Entscheidungen?
+
+**SQLite statt JSON für Stammdaten:**
+- Atomare Nummerierung (keine Race Conditions)
+- Relationen (Projekt → Kunde)
+- Queries (alle Rechnungen für Kunde X)
+- Transaktionen garantieren Konsistenz
+
+**JSON für Dokument-Inhalte:**
+- Git-trackbar (Diff sichtbar)
+- Einfach zu bearbeiten
+- Template-unabhängig
+
+**Rust:**
+- Single Binary
 - Schnell
 - Cross-Platform
-- Gute Ecosystem (clap, serde, notify)
-
-### Warum Typst?
-
-- Modernes LaTeX-Alternative
-- Schnelle Kompilierung
-- Einfache Syntax
-- Aktive Entwicklung
-
-## Datenbank-Optionen für Kunden/Projekte
-
-Für eine lokale, dokumentenbasierte Lösung gibt es mehrere Optionen:
-
-### Option A: SQLite (Empfohlen)
-
-```
-data/docgen.db
-```
-
-- Einzelne Datei, keine Installation
-- SQL-Queries, Relations
-- Rust: `rusqlite` crate
-- Backup = Datei kopieren
-
-### Option B: JSON-Dateien (Aktuell)
-
-```
-data/clients/*.json
-data/projects/*.json
-```
-
-- Maximal einfach
-- Git-freundlich
-- Keine echten Relations
-- Bei vielen Einträgen unübersichtlich
-
-### Option C: SurrealDB (Modern)
-
-```
-data/surreal.db
-```
-
-- Document + Graph + SQL
-- Embedded oder Server
-- Rust-native
-- Relationen möglich
-
-### Empfehlung
-
-**SQLite** für Kunden/Projekte, **JSON** für Dokumente.
-
-Gründe:
-- Clients/Projects haben Relationen (Projekt gehört zu Kunde)
-- Queries nötig (alle Rechnungen für Kunde X)
-- Dokument-JSONs bleiben Git-trackbar
-- SQLite ist überall verfügbar
+- Gutes Ökosystem
 
 ## Mitwirken
 
-Contributions willkommen! Siehe [CONTRIBUTING.md](CONTRIBUTING.md) (TODO).
+Contributions willkommen! 
 
-Kontakt: GitHub Issues oder joern.seidel@casoon.de
+- Issues: https://github.com/casoon/typst-business-templates/issues
+- Pull Requests gerne gesehen
