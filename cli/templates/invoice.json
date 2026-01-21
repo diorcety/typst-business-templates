@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "invoice_number": "DOCUMENT_ID",
+    "invoice_date": "01.01.2025",
+    "due_date": "15.01.2025",
+    "customer_number": null
+  },
+  "recipient": {
+    "name": "Kundenname",
+    "company": null,
+    "address": {
+      "street": "Straße",
+      "house_number": "1",
+      "postal_code": "12345",
+      "city": "Stadt"
+    }
+  },
+  "items": [
+    {
+      "description": "Leistungsbeschreibung",
+      "quantity": 1,
+      "unit": "Stück",
+      "unit_price": "0,00 EUR",
+      "total_price": "0,00 EUR"
+    }
+  ],
+  "totals": {
+    "subtotal": "0,00 EUR",
+    "tax_rate": "19%",
+    "tax_amount": "0,00 EUR",
+    "total": "0,00 EUR"
+  },
+  "notes": null,
+  "terms": null
+}

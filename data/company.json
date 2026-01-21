@@ -1,0 +1,24 @@
+{
+  "name": "Muster GmbH",
+  "address": {
+    "street": "Musterstraße",
+    "house_number": "123",
+    "postal_code": "12345",
+    "city": "Musterstadt",
+    "country": "Deutschland"
+  },
+  "contact": {
+    "phone": "+49 123 456789",
+    "email": "info@musterfirma.de",
+    "website": "www.musterfirma.de"
+  },
+  "tax_id": "123/456/78901",
+  "vat_id": "DE123456789",
+  "business_owner": "Max Mustermann",
+  "bank_account": {
+    "bank_name": "Musterbank AG",
+    "account_holder": "Muster GmbH",
+    "iban": "DE89 3704 0044 0532 0130 00",
+    "bic": "COBADEFFXXX"
+  }
+}

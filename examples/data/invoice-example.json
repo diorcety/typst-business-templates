@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "invoice_number": "RE-2025-001",
+    "invoice_date": "15.01.2025",
+    "due_date": "29.01.2025",
+    "customer_number": "K-12345"
+  },
+  "recipient": {
+    "name": "Max Mustermann",
+    "company": "Musterkunde GmbH",
+    "address": {
+      "street": "Kundenstraße",
+      "house_number": "42",
+      "postal_code": "54321",
+      "city": "Kundenstadt"
+    }
+  },
+  "items": [
+    {
+      "description": "Webentwicklung - Frontend Implementierung",
+      "quantity": 16,
+      "unit": "Stunden",
+      "unit_price": "95,00 EUR",
+      "total_price": "1.520,00 EUR"
+    },
+    {
+      "description": "Webentwicklung - Backend API",
+      "quantity": 8,
+      "unit": "Stunden",
+      "unit_price": "95,00 EUR",
+      "total_price": "760,00 EUR"
+    },
+    {
+      "description": "Hosting Setup & Konfiguration",
+      "quantity": 1,
+      "unit": "Pauschal",
+      "unit_price": "250,00 EUR",
+      "total_price": "250,00 EUR"
+    }
+  ],
+  "totals": {
+    "subtotal": "2.530,00 EUR",
+    "tax_rate": "19%",
+    "tax_amount": "480,70 EUR",
+    "total": "3.010,70 EUR"
+  },
+  "notes": "Vielen Dank für die gute Zusammenarbeit bei diesem Projekt.",
+  "terms": null
+}

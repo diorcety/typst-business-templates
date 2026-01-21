@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/casoon/typst-business-templates/schema/invoice.schema.json",
+  "title": "Invoice",
+  "description": "Schema for invoice documents",
+  "type": "object",
+  "required": ["metadata", "recipient", "items", "totals"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["invoice_number", "invoice_date", "due_date"],
+      "properties": {
+        "invoice_number": { "type": "string", "description": "Unique invoice number" },
+        "invoice_date": { "type": "string", "description": "Invoice date (DD.MM.YYYY)" },
+        "due_date": { "type": "string", "description": "Payment due date (DD.MM.YYYY)" },
+        "customer_number": { "type": ["string", "null"], "description": "Customer reference number" }
+      }
+    },
+    "recipient": {
+      "type": "object",
+      "required": ["name", "address"],
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": ["string", "null"] },
+        "address": {
+          "type": "object",
+          "required": ["street", "house_number", "postal_code", "city"],
+          "properties": {
+            "street": { "type": "string" },
+            "house_number": { "type": "string" },
+            "postal_code": { "type": "string" },
+            "city": { "type": "string" }
+          }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "quantity", "unit", "unit_price", "total_price"],
+        "properties": {
+          "description": { "type": "string" },
+          "quantity": { "type": ["number", "string"] },
+          "unit": { "type": "string" },
+          "unit_price": { "type": "string" },
+          "total_price": { "type": "string" }
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "required": ["subtotal", "tax_rate", "tax_amount", "total"],
+      "properties": {
+        "subtotal": { "type": "string" },
+        "tax_rate": { "type": "string" },
+        "tax_amount": { "type": "string" },
+        "total": { "type": "string" }
+      }
+    },
+    "notes": { "type": ["string", "null"] },
+    "terms": { "type": ["string", "null"] }
+  }
+}
