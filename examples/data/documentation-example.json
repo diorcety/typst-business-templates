@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "document_number": "DOC-2025-001",
+    "title": "REST API Dokumentation",
+    "subject": "Mustermann API v1.0",
+    "client_name": "Mustermann IT-Services",
+    "project_name": "Backend API",
+    "doc_type": "Dokumentation",
+    "version": "1.0",
+    "status": "final",
+    "created_at": {
+      "date": "2025-01-22"
+    },
+    "tags": ["API", "REST", "Backend", "JSON"],
+    "authors": ["Max Mustermann"],
+    "show_toc": true
+  },
+  "content_file": "/examples/data/documentation-content.typ"
+}
