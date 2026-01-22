@@ -1,0 +1,187 @@
+{
+  "metadata": {
+    "offer_number": "AN-2025-015",
+    "offer_date": {
+      "date": "2025-01-08"
+    },
+    "valid_until": {
+      "date": "2025-02-28"
+    },
+    "customer_number": "K-023",
+    "project_reference": "IT-Security Audit & Härtung"
+  },
+  "recipient": {
+    "name": "Thomas Richter",
+    "company": "Richter & Partner Rechtsanwälte",
+    "address": {
+      "street": "Kurfürstendamm",
+      "house_number": "195",
+      "postal_code": "10707",
+      "city": "Berlin",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "title": "Security Assessment",
+      "description": "Umfassende Analyse Ihrer IT-Infrastruktur auf Sicherheitslücken.",
+      "sub_items": [
+        "- Analyse der IT-Infrastruktur und Netzwerktopologie",
+        "- Schwachstellenscan aller Systeme",
+        "- Überprüfung der Zugriffsrechte und Benutzerkonten",
+        "- Bewertung der Datensicherungskonzepte"
+      ],
+      "quantity": "3",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1400",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "4200",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "title": "Penetration Test",
+      "description": "Simulierte Angriffe zur Identifikation von Schwachstellen.",
+      "sub_items": [
+        "- Externer Pentest der öffentlichen Systeme",
+        "- Interner Pentest aus dem Firmennetzwerk",
+        "- Social Engineering Simulation (Phishing)",
+        "- Detaillierter Bericht mit Findings"
+      ],
+      "quantity": "4",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1600",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "6400",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "title": "DSGVO-Compliance Check",
+      "description": "Prüfung der Datenschutzkonformität speziell für Kanzleien.",
+      "sub_items": [
+        "- Prüfung der Datenverarbeitung auf DSGVO-Konformität",
+        "- Analyse der Auftragsverarbeitungsverträge",
+        "- Mandantendaten-Handling und Verschlüsselung",
+        "- Gap-Analyse mit Handlungsempfehlungen"
+      ],
+      "quantity": "2",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1400",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "2800",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "title": "Härtungsmaßnahmen",
+      "description": "Umsetzung der kritischen Sicherheitsverbesserungen.",
+      "sub_items": [
+        "- Implementierung der kritischen Findings",
+        "- Firewall-Optimierung",
+        "- Einrichtung MFA für alle Benutzer",
+        "- E-Mail-Security (SPF, DKIM, DMARC)"
+      ],
+      "quantity": "5",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1400",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "7000",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 5,
+      "title": "Awareness-Schulung",
+      "description": "Workshop zur Sensibilisierung Ihrer Mitarbeiter.",
+      "sub_items": [
+        "- 3-stündiger Workshop für alle Mitarbeiter",
+        "- Themen: Phishing, Passwörter, Social Engineering",
+        "- Schulungsunterlagen und Merkblätter"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "890",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "890",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 6,
+      "title": "Dokumentation & Abschlussbericht",
+      "description": "Vollständige Dokumentation und Handlungsempfehlungen.",
+      "sub_items": [
+        "- Management Summary für Kanzleileitung",
+        "- Technischer Detailbericht",
+        "- IT-Sicherheitsrichtlinie (Entwurf)",
+        "- Notfallplan bei Cyberangriffen"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "1200",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "1200",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": "22490",
+      "currency": "EUR"
+    },
+    "vat_breakdown": [
+      {
+        "rate": {
+          "code": "Standard",
+          "percentage": "19"
+        },
+        "base": {
+          "amount": "22490",
+          "currency": "EUR"
+        },
+        "amount": {
+          "amount": "4273.10",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "vat_total": {
+      "amount": "4273.10",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "26763.10",
+      "currency": "EUR"
+    }
+  },
+  "terms": {
+    "validity": "Dieses Angebot ist gültig bis zum 28.02.2025",
+    "payment_terms": "Zahlbar innerhalb von 30 Tagen nach Rechnungsstellung",
+    "delivery_terms": "Durchführung kann innerhalb von 2 Wochen nach Beauftragung beginnen. Gesamtdauer ca. 4-6 Wochen."
+  },
+  "notes": "Sehr geehrter Herr Richter,\n\nvielen Dank für Ihr Vertrauen. Alle Findings werden selbstverständlich streng vertraulich behandelt. Auf Wunsch unterzeichnen wir gerne eine separate Vertraulichkeitsvereinbarung."
+}

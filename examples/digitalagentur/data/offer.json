@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "offer_number": "AN-2025-008",
+    "offer_date": {
+      "date": "2025-01-15"
+    },
+    "valid_until": {
+      "date": "2025-02-15"
+    },
+    "customer_number": "K-015",
+    "project_reference": "Online-Shop für Bio-Hofladen"
+  },
+  "recipient": {
+    "name": "Maria Hofbauer",
+    "company": "Hofbauer's Biohof",
+    "address": {
+      "street": "Am Sonnenhang",
+      "house_number": "3",
+      "postal_code": "53347",
+      "city": "Alfter",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "title": "Shopware 6 Online-Shop",
+      "description": "Kompletter E-Commerce Shop für Ihren Hofladen mit regionaler Lieferfunktion.",
+      "sub_items": [
+        "- Einrichtung und Konfiguration Shopware 6",
+        "- Individuelles Theme passend zum Hofladen-Charakter",
+        "- Produktkategorien: Gemüse, Obst, Milchprodukte, Fleisch, Eier",
+        "- Abo-Box Funktion für wöchentliche Lieferungen"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "4800",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "4800",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "title": "Produktfotografie",
+      "description": "Professionelle Fotos Ihrer Produkte und Stimmungsbilder vom Hof.",
+      "sub_items": [
+        "- Professionelle Fotos aller Produkte (ca. 50 Artikel)",
+        "- Stimmungsbilder vom Hof und der Produktion",
+        "- Bildbearbeitung und Optimierung für Web"
+      ],
+      "quantity": "1",
+      "unit": "Tag",
+      "unit_price": {
+        "amount": "890",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "890",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "title": "Zahlungs- und Versandintegration",
+      "description": "Anbindung aller gängigen Zahlungsarten und regionaler Lieferlogik.",
+      "sub_items": [
+        "- PayPal, Kreditkarte, Sofortüberweisung, Rechnung",
+        "- Lokale Abholung am Hofladen",
+        "- Liefergebiete mit Postleitzahlen-Prüfung",
+        "- Automatische Versandbenachrichtigungen"
+      ],
+      "quantity": "12",
+      "unit": "Stunden",
+      "unit_price": {
+        "amount": "95",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "1140",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "title": "Schulung & Dokumentation",
+      "description": "Einweisung in die Shop-Verwaltung und Benutzerhandbuch.",
+      "sub_items": [
+        "- 3-stündige Einweisung in die Shop-Verwaltung",
+        "- Benutzerhandbuch mit Screenshots",
+        "- Video-Tutorials für häufige Aufgaben"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "450",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "450",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 5,
+      "title": "Hosting & Wartung (12 Monate)",
+      "description": "Rundum-sorglos-Paket für technischen Betrieb und Support.",
+      "sub_items": [
+        "- Managed Shopware Hosting",
+        "- Monatliche Sicherheitsupdates",
+        "- SSL-Zertifikat inklusive",
+        "- 2 Stunden Support pro Monat inklusive"
+      ],
+      "quantity": "12",
+      "unit": "Monate",
+      "unit_price": {
+        "amount": "79",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "948",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": "8228",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "8228",
+      "currency": "EUR"
+    }
+  },
+  "terms": {
+    "validity": "Dieses Angebot ist gültig bis zum 15.02.2025",
+    "payment_terms": "50% bei Auftragserteilung, 50% bei Fertigstellung",
+    "delivery_terms": "Geschätzte Projektdauer: 6-8 Wochen nach Auftragserteilung. Gerne können wir rechtzeitig vor der Spargelsaison live gehen!"
+  },
+  "notes": "Sehr geehrte Frau Hofbauer,\n\nvielen Dank für das angenehme Gespräch letzte Woche auf Ihrem wunderschönen Hof. Bei Fragen stehe ich Ihnen jederzeit zur Verfügung."
+}

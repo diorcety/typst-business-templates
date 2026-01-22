@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "offer_number": "AN-2025-002",
+    "offer_date": {
+      "date": "2025-01-10"
+    },
+    "valid_until": {
+      "date": "2025-02-10"
+    },
+    "customer_number": "K-011",
+    "project_reference": "Packaging Design Teelinie"
+  },
+  "recipient": {
+    "name": "Anna Bergmann",
+    "company": "Bergmann Teemanufaktur",
+    "address": {
+      "street": "Elbchaussee",
+      "house_number": "215",
+      "postal_code": "22605",
+      "city": "Hamburg",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "title": "Packaging-Konzept",
+      "description": "Entwicklung der visuellen Richtung für Ihre neue Premium-Teelinie.",
+      "sub_items": [
+        "- Recherche und Moodboard-Erstellung",
+        "- 2 unterschiedliche Designrichtungen",
+        "- Präsentation mit Mockups"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "980",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "980",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "title": "Verpackungsdesign 6 Teesorten",
+      "description": "Individuelle Verpackungen für jede Teesorte mit einheitlichem Designsystem.",
+      "sub_items": [
+        "- Einheitliches Designsystem für alle Sorten",
+        "- Individuelle Farbwelt pro Sorte",
+        "- Vorder- und Rückseite",
+        "- Druckfertige Daten (CMYK, Schnittmarken)"
+      ],
+      "quantity": "6",
+      "unit": "Sorten",
+      "unit_price": {
+        "amount": "420",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "2520",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "title": "Geschenkbox-Design",
+      "description": "Premium-Verpackung für das 3er-Geschenkset.",
+      "sub_items": [
+        "- Premium-Geschenkverpackung für 3er-Set",
+        "- Innenleben mit Seidenpapier",
+        "- Banderole"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "650",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "650",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "title": "Druckbegleitung",
+      "description": "Betreuung der Produktion bis zum fertigen Produkt.",
+      "sub_items": [
+        "- Abstimmung mit Ihrer Druckerei",
+        "- Farbproof-Kontrolle",
+        "- Korrekturen falls nötig"
+      ],
+      "quantity": "4",
+      "unit": "Stunden",
+      "unit_price": {
+        "amount": "85",
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": "340",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": "4490",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "4490",
+      "currency": "EUR"
+    }
+  },
+  "terms": {
+    "validity": "Dieses Angebot ist gültig bis zum 10.02.2025",
+    "payment_terms": "30% Anzahlung bei Auftragserteilung, Rest bei Fertigstellung",
+    "delivery_terms": "Projektdauer ca. 4-5 Wochen"
+  },
+  "notes": "Liebe Frau Bergmann,\n\nvielen Dank für die Anfrage zu Ihrer neuen Premium-Teelinie. Ich freue mich auf Ihre Rückmeldung!\n\nGemäß §19 UStG wird keine Umsatzsteuer berechnet."
+}

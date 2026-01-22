@@ -1,0 +1,32 @@
+{
+  "language": "de",
+  "name": "Pixelwerk Digitalagentur",
+  "logo": "logo.png",
+  "logo_width": "3cm",
+  "branding": {
+    "accent_color": "#FF6B35",
+    "primary_color": "#1A1A2E",
+    "font_preset": "inter"
+  },
+  "address": {
+    "street": "Kreativstraße",
+    "house_number": "42",
+    "postal_code": "50667",
+    "city": "Köln",
+    "country": "Deutschland"
+  },
+  "contact": {
+    "phone": "+49 221 98765432",
+    "email": "hello@pixelwerk.de",
+    "website": "www.pixelwerk.de"
+  },
+  "tax_id": "215/5678/1234",
+  "vat_id": "DE298765432",
+  "business_owner": "Sarah Weber",
+  "bank_account": {
+    "bank_name": "GLS Bank",
+    "account_holder": "Pixelwerk Digitalagentur",
+    "iban": "DE75 4306 0967 1234 5678 00",
+    "bic": "GENODEM1GLS"
+  }
+}

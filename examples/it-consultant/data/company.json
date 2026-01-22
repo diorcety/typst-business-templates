@@ -1,0 +1,32 @@
+{
+  "language": "de",
+  "name": "TechVision Consulting",
+  "logo": "logo.png",
+  "logo_width": "3cm",
+  "branding": {
+    "accent_color": "#00B894",
+    "primary_color": "#2D3436",
+    "font_preset": "source-sans"
+  },
+  "address": {
+    "street": "Friedrichstraße",
+    "house_number": "123",
+    "postal_code": "10117",
+    "city": "Berlin",
+    "country": "Deutschland"
+  },
+  "contact": {
+    "phone": "+49 30 12345678",
+    "email": "info@techvision-consulting.de",
+    "website": "www.techvision-consulting.de"
+  },
+  "tax_id": "27/456/12345",
+  "vat_id": "DE345678901",
+  "business_owner": "Dr. Michael Hoffmann",
+  "bank_account": {
+    "bank_name": "Deutsche Bank",
+    "account_holder": "TechVision Consulting GmbH",
+    "iban": "DE89 1007 0024 0123 4567 89",
+    "bic": "DEUTDEDB101"
+  }
+}

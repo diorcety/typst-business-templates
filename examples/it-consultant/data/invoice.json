@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "invoice_number": "RE-2025-042",
+    "invoice_date": {
+      "date": "2025-01-22"
+    },
+    "due_date": {
+      "date": "2025-02-21"
+    },
+    "customer_number": "K-007",
+    "project_reference": "P-007-02 AWS Cloud Migration",
+    "performance_period": "01/2025"
+  },
+  "recipient": {
+    "name": "Dr. Petra Schmidt",
+    "company": "MedTech Solutions AG",
+    "address": {
+      "street": "Potsdamer Platz",
+      "house_number": "1",
+      "postal_code": "10785",
+      "city": "Berlin",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "description": "Cloud-Architektur & Konzeption",
+      "sub_items": [
+        "- Analyse der bestehenden On-Premise-Infrastruktur",
+        "- Erstellung der Ziel-Architektur auf AWS",
+        "- Sicherheits- und Compliance-Konzept (DSGVO, ISO 27001)",
+        "- Kosten-Nutzen-Analyse und TCO-Berechnung"
+      ],
+      "quantity": "5",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1400",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "7000",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "description": "Migration Phase 1 - Datenbanken",
+      "sub_items": [
+        "- Migration PostgreSQL zu Amazon RDS",
+        "- Setup Multi-AZ für High Availability",
+        "- Datenmigration mit AWS DMS",
+        "- Performance-Optimierung und Testing"
+      ],
+      "quantity": "8",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1400",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "11200",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "description": "Migration Phase 2 - Applikationen",
+      "sub_items": [
+        "- Containerisierung mit Docker/ECS",
+        "- Setup CI/CD Pipeline mit AWS CodePipeline",
+        "- Terraform Infrastructure as Code",
+        "- Blue-Green Deployment Strategie"
+      ],
+      "quantity": "10",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1400",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "14000",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "description": "Schulung IT-Team",
+      "sub_items": [
+        "- 2-tägiger AWS-Workshop für Entwickler",
+        "- Schulungsunterlagen und Hands-on Labs",
+        "- Best Practices für Cloud Operations"
+      ],
+      "quantity": "2",
+      "unit": "Tage",
+      "unit_price": {
+        "amount": "1600",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "3200",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 5,
+      "description": "Go-Live Support & Hypercare",
+      "sub_items": [
+        "- Begleitung des Produktiv-Umzugs",
+        "- 24/7 Rufbereitschaft während Go-Live",
+        "- 2 Wochen Hypercare-Phase"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "4500",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "4500",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": "39900",
+      "currency": "EUR"
+    },
+    "vat_breakdown": [
+      {
+        "rate": {
+          "code": "Standard",
+          "percentage": "19"
+        },
+        "base": {
+          "amount": "39900",
+          "currency": "EUR"
+        },
+        "amount": {
+          "amount": "7581",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "vat_total": {
+      "amount": "7581",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "47481",
+      "currency": "EUR"
+    }
+  },
+  "payment": {
+    "payment_terms": "Zahlbar innerhalb von 30 Tagen netto",
+    "due_date": {
+      "date": "2025-02-21"
+    },
+    "bank_account": {
+      "bank_name": "Deutsche Bank",
+      "account_holder": "TechVision Consulting GmbH",
+      "iban": "DE89 1007 0024 0123 4567 89",
+      "bic": "DEUTDEDB101"
+    },
+    "payment_methods": ["BankTransfer"]
+  },
+  "salutation": {
+    "greeting": "Sehr geehrte Frau Dr. Schmidt,",
+    "introduction": "wie vereinbart stellen wir Ihnen hiermit die Leistungen für Januar 2025 im Rahmen des Cloud-Migrationsprojekts in Rechnung:"
+  }
+}

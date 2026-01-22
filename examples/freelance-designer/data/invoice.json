@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "invoice_number": "RE-2025-003",
+    "invoice_date": {
+      "date": "2025-01-18"
+    },
+    "due_date": {
+      "date": "2025-02-01"
+    },
+    "customer_number": "K-008",
+    "project_reference": "Corporate Design BrewBuddy",
+    "performance_period": "11/2024 - 01/2025"
+  },
+  "recipient": {
+    "name": "Maximilian Brauer",
+    "company": "BrewBuddy GmbH",
+    "address": {
+      "street": "Speicherstadt",
+      "house_number": "12",
+      "postal_code": "20457",
+      "city": "Hamburg",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "description": "Logo-Design",
+      "sub_items": [
+        "- Entwicklung von 3 Logo-Konzepten",
+        "- 2 Korrekturschleifen",
+        "- Finales Logo in allen Formaten (SVG, PNG, EPS)",
+        "- Animiertes Logo für Social Media"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "1800",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Kleinunternehmer",
+        "percentage": "0"
+      },
+      "total": {
+        "amount": "1800",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "description": "Geschäftsausstattung",
+      "sub_items": [
+        "- Visitenkarten (Vorder- und Rückseite)",
+        "- Briefpapier DIN A4",
+        "- E-Mail-Signatur",
+        "- Rechnungsvorlage"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "950",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Kleinunternehmer",
+        "percentage": "0"
+      },
+      "total": {
+        "amount": "950",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "description": "Brand Guidelines",
+      "sub_items": [
+        "- 20-seitiges Brand Manual (PDF)",
+        "- Farbpalette mit HEX, RGB, CMYK",
+        "- Typografie-Vorgaben",
+        "- Logo-Anwendungsregeln",
+        "- Bildsprache und Beispiele"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "1200",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Kleinunternehmer",
+        "percentage": "0"
+      },
+      "total": {
+        "amount": "1200",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "description": "Social Media Templates",
+      "sub_items": [
+        "- 10 Instagram Post-Vorlagen",
+        "- 5 Instagram Story-Vorlagen",
+        "- LinkedIn Banner",
+        "- Bearbeitbare Figma-Datei"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "750",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Kleinunternehmer",
+        "percentage": "0"
+      },
+      "total": {
+        "amount": "750",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": "4700",
+      "currency": "EUR"
+    },
+    "vat_breakdown": [],
+    "vat_total": {
+      "amount": "0",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "4700",
+      "currency": "EUR"
+    }
+  },
+  "payment": {
+    "payment_terms": "Zahlbar innerhalb von 14 Tagen",
+    "due_date": {
+      "date": "2025-02-01"
+    },
+    "bank_account": {
+      "bank_name": "N26 Bank",
+      "account_holder": "Lisa Chen",
+      "iban": "DE45 1001 1001 2345 6789 01",
+      "bic": "NTSBDEB1XXX"
+    },
+    "payment_methods": ["BankTransfer"]
+  },
+  "salutation": {
+    "greeting": "Hallo Max,",
+    "introduction": "es hat richtig Spaß gemacht, die Markenidentität für BrewBuddy zu entwickeln! Hier die finale Rechnung:"
+  },
+  "terms": "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
+}

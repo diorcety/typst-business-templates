@@ -212,60 +212,57 @@ Automatic, consistent numbering managed by SQLite:
 
 ## Examples
 
-The `examples/` directory contains complete, ready-to-use examples for all document types. Each example includes realistic data and a pre-generated PDF so you can see exactly what the output looks like.
+The `examples/` directory contains complete, ready-to-use example projects for different types of businesses. Each project includes company data, sample documents, and pre-generated PDFs.
 
-### Available Examples
+### Example Projects
 
-| Document | JSON Data | Generated PDF |
-|----------|-----------|---------------|
-| Invoice | [`examples/data/invoice-example.json`](examples/data/invoice-example.json) | [`output/invoice-example.pdf`](output/invoice-example.pdf) |
-| Offer | [`examples/data/offer-example.json`](examples/data/offer-example.json) | [`output/offer-example.pdf`](output/offer-example.pdf) |
-| Credentials | [`examples/data/credentials-example.json`](examples/data/credentials-example.json) | [`output/credentials-example.pdf`](output/credentials-example.pdf) |
-| Concept | [`examples/data/concept-example.json`](examples/data/concept-example.json) | [`output/concept-example.pdf`](output/concept-example.pdf) |
-| Documentation | [`examples/data/documentation-example.json`](examples/data/documentation-example.json) | [`output/documentation-example.pdf`](output/documentation-example.pdf) |
+#### 1. Digitalagentur (Web Agency)
+**Pixelwerk Digitalagentur** - Full-service web agency from Cologne
+
+| Document | Description | PDF |
+|----------|-------------|-----|
+| [Invoice](examples/digitalagentur/data/invoice.json) | Website relaunch for a carpentry shop (12,066.60 EUR) | [PDF](examples/digitalagentur/output/invoice.pdf) |
+| [Offer](examples/digitalagentur/data/offer.json) | E-commerce shop for organic farm (9,791.32 EUR) | [PDF](examples/digitalagentur/output/offer.pdf) |
+
+#### 2. Freelance Designer
+**Lisa Chen Design** - Freelance graphic designer from Hamburg (Kleinunternehmer)
+
+| Document | Description | PDF |
+|----------|-------------|-----|
+| [Invoice](examples/freelance-designer/data/invoice.json) | Corporate design for startup (4,700 EUR, no VAT) | [PDF](examples/freelance-designer/output/invoice.pdf) |
+| [Offer](examples/freelance-designer/data/offer.json) | Packaging design for tea brand (4,490 EUR) | [PDF](examples/freelance-designer/output/offer.pdf) |
+
+#### 3. IT Consultant
+**TechVision Consulting** - IT consulting firm from Berlin
+
+| Document | Description | PDF |
+|----------|-------------|-----|
+| [Invoice](examples/it-consultant/data/invoice.json) | AWS cloud migration project (47,481 EUR) | [PDF](examples/it-consultant/output/invoice.pdf) |
+| [Offer](examples/it-consultant/data/offer.json) | IT security audit for law firm (26,763.10 EUR) | [PDF](examples/it-consultant/output/offer.pdf) |
 
 ### Try It Yourself
 
 ```bash
 # Compile an example (with bundled fonts)
 typst compile --root . --font-path fonts templates/invoice/default.typ output/my-invoice.pdf \
-  --input data=/examples/data/invoice-example.json
+  --input data=/examples/digitalagentur/data/invoice.json \
+  --input company=/examples/digitalagentur/data/company.json
 
 # Or use the CLI
-docgen compile examples/data/invoice-example.json
+docgen compile examples/digitalagentur/data/invoice.json
 ```
 
-### Example Scenarios
+### Basic Examples
 
-**Invoice Example (RE-2025-001)**
-- Client: Steuerberatung Beispiel
-- Services: Website redesign, backend development, content migration, hosting
-- Total: 5,484.71 EUR (incl. 19% VAT)
+The `examples/data/` directory also contains basic template examples:
 
-**Offer Example (AN-2025-003)**
-- Client: Arztpraxis Beispiel
-- Project: Online appointment booking system with practice software integration
-- 4 positions with detailed sub-items
-- Total: 8,863.12 EUR
-
-**Credentials Example (ZD-2025-001)**
-- Client: Beispiel Outdoor GmbH
-- E-commerce project with Shopware 6
-- 5 services: Production shop, staging, database, email, payment provider
-- Complete access documentation with security warnings
-
-**Concept Example (KO-2025-001)**
-- Client: Tischlerei Beispiel
-- Digitalization concept for a carpentry business
-- 3-phase implementation plan
-- Investment overview and ROI calculation
-- 10 pages with table of contents
-
-**Documentation Example (DOC-2025-001)**
-- REST API documentation
-- Authentication, endpoints, error handling
-- Rate limiting, webhooks, changelog
-- Code examples with syntax highlighting
+| Document | JSON Data |
+|----------|-----------|
+| Invoice | [`examples/data/invoice-example.json`](examples/data/invoice-example.json) |
+| Offer | [`examples/data/offer-example.json`](examples/data/offer-example.json) |
+| Credentials | [`examples/data/credentials-example.json`](examples/data/credentials-example.json) |
+| Concept | [`examples/data/concept-example.json`](examples/data/concept-example.json) |
+| Documentation | [`examples/data/documentation-example.json`](examples/data/documentation-example.json) |
 
 ## Template Customization
 

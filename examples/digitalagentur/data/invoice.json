@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "invoice_number": "RE-2025-017",
+    "invoice_date": {
+      "date": "2025-01-20"
+    },
+    "due_date": {
+      "date": "2025-02-03"
+    },
+    "customer_number": "K-012",
+    "project_reference": "P-012-03 Website Relaunch",
+    "performance_period": "12/2024 - 01/2025"
+  },
+  "recipient": {
+    "name": "Klaus Zimmermann",
+    "company": "Zimmermann Schreinerei GmbH",
+    "address": {
+      "street": "Handwerkerweg",
+      "house_number": "8",
+      "postal_code": "51465",
+      "city": "Bergisch Gladbach",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "description": "Konzeption & Wireframes",
+      "sub_items": [
+        "- Analyse der bestehenden Website und Wettbewerber",
+        "- Erstellung von Wireframes für 8 Seitentypen",
+        "- 2 Konzeptpräsentationen mit Feedbackrunden"
+      ],
+      "quantity": "16",
+      "unit": "Stunden",
+      "unit_price": {
+        "amount": "110",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "1760",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "description": "Webdesign & UI/UX",
+      "sub_items": [
+        "- Individuelles Design im modernen Handwerker-Look",
+        "- Responsive Layouts für Desktop, Tablet, Mobile",
+        "- Bildergalerie für Referenzprojekte",
+        "- Interaktive Projektanfrage-Formular"
+      ],
+      "quantity": "28",
+      "unit": "Stunden",
+      "unit_price": {
+        "amount": "110",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "3080",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "description": "WordPress-Entwicklung",
+      "sub_items": [
+        "- Custom Theme Entwicklung (keine Fertig-Templates)",
+        "- ACF Pro für flexible Inhaltsbearbeitung",
+        "- WooCommerce-Anbindung für Holzpflegeprodukte",
+        "- DSGVO-konforme Cookie-Lösung"
+      ],
+      "quantity": "40",
+      "unit": "Stunden",
+      "unit_price": {
+        "amount": "95",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "3800",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "description": "Content-Erstellung",
+      "sub_items": [
+        "- SEO-optimierte Texte für alle Hauptseiten",
+        "- Bildbearbeitung und -optimierung (24 Bilder)",
+        "- Einpflegen aller Inhalte ins CMS"
+      ],
+      "quantity": "12",
+      "unit": "Stunden",
+      "unit_price": {
+        "amount": "85",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "1020",
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 5,
+      "description": "Hosting & Go-Live",
+      "sub_items": [
+        "- Managed WordPress Hosting (1 Jahr)",
+        "- SSL-Zertifikat inkl.",
+        "- Domain-Umzug und DNS-Konfiguration",
+        "- Go-Live Begleitung"
+      ],
+      "quantity": "1",
+      "unit": "Pauschal",
+      "unit_price": {
+        "amount": "480",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "480",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": "10140",
+      "currency": "EUR"
+    },
+    "vat_breakdown": [
+      {
+        "rate": {
+          "code": "Standard",
+          "percentage": "19"
+        },
+        "base": {
+          "amount": "10140",
+          "currency": "EUR"
+        },
+        "amount": {
+          "amount": "1926.60",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "vat_total": {
+      "amount": "1926.60",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "12066.60",
+      "currency": "EUR"
+    }
+  },
+  "payment": {
+    "payment_terms": "Zahlbar innerhalb von 14 Tagen ohne Abzug",
+    "due_date": {
+      "date": "2025-02-03"
+    },
+    "bank_account": {
+      "bank_name": "GLS Bank",
+      "account_holder": "Pixelwerk Digitalagentur",
+      "iban": "DE75 4306 0967 1234 5678 00",
+      "bic": "GENODEM1GLS"
+    },
+    "payment_methods": ["BankTransfer"]
+  },
+  "salutation": {
+    "greeting": "Sehr geehrter Herr Zimmermann,",
+    "introduction": "vielen Dank für die tolle Zusammenarbeit! Hiermit stellen wir Ihnen die vereinbarten Leistungen für den Website Relaunch in Rechnung:"
+  }
+}
