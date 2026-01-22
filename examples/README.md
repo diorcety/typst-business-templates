@@ -8,9 +8,11 @@ Complete example setups for different business types, each with company data, sa
 
 | Directory | Business Type | Documents |
 |-----------|--------------|-----------|
-| [digitalagentur/](digitalagentur/) | Web Agency (Cologne) | Invoice, Offer |
-| [freelance-designer/](freelance-designer/) | Graphic Designer, Kleinunternehmer (Hamburg) | Invoice, Offer |
-| [it-consultant/](it-consultant/) | IT Consulting (Berlin) | Invoice, Offer |
+| [digitalagentur/](digitalagentur/) | Web Agency (Cologne) | Invoice, Offer, Credentials, Concept, Documentation |
+| [freelance-designer/](freelance-designer/) | Graphic Designer, Kleinunternehmer (Hamburg) | Invoice, Offer, Credentials, Concept, Documentation |
+| [it-consultant/](it-consultant/) | IT Consulting (Berlin) | Invoice, Offer, Credentials, Concept, Documentation |
+
+Each project contains all 5 document types with realistic, industry-specific content and pre-generated PDFs.
 
 ### Usage
 
@@ -30,7 +32,7 @@ typst compile --root . --font-path fonts templates/invoice/default.typ output/in
 
 ## Template References
 
-The `data/` directory contains reference examples for all document types, including templates not covered by the example projects.
+The `data/` directory contains basic reference examples for all document types.
 
 | Template | JSON | Content File |
 |----------|------|--------------|
