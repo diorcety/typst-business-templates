@@ -48,10 +48,39 @@ An AI assistant (we recommend [Claude](https://claude.ai)) generates the JSON, y
 
 ### Prerequisites
 
-1. Install [Typst](https://github.com/typst/typst#installation)
-2. Install [Rust](https://rustup.rs/) (for building the CLI)
+Install [Typst](https://github.com/typst/typst#installation) (required for PDF generation)
 
 ### Installation
+
+#### Option 1: Homebrew (macOS/Linux)
+
+```bash
+# Add the tap
+brew tap casoon/tap
+
+# Install docgen
+brew install docgen
+```
+
+#### Option 2: Install Script (macOS/Linux)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/casoon/typst-business-templates/main/install.sh | bash
+```
+
+#### Option 3: Download Binary
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/casoon/typst-business-templates/releases).
+
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | `docgen-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `docgen-x86_64-apple-darwin.tar.gz` |
+| Linux (x64) | `docgen-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `docgen-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows (x64) | `docgen-x86_64-pc-windows-msvc.zip` |
+
+#### Option 4: Build from Source
 
 ```bash
 # Clone repository
@@ -248,10 +277,11 @@ Templates are written in [Typst](https://typst.app/docs), a modern alternative t
 
 ### Branding Configuration
 
-Customize colors and fonts in `data/company.json`:
+Customize colors, fonts, and language in `data/company.json`:
 
 ```json
 {
+  "language": "en",
   "branding": {
     "accent_color": "#E94B3C",
     "primary_color": "#2c3e50",
@@ -259,6 +289,22 @@ Customize colors and fonts in `data/company.json`:
   }
 }
 ```
+
+### Multi-Language Support
+
+Both the CLI and document templates support 7 languages:
+
+| Code | Language |
+|------|----------|
+| `de` | Deutsch (German) |
+| `en` | English |
+| `fr` | Français (French) |
+| `es` | Español (Spanish) |
+| `it` | Italiano (Italian) |
+| `nl` | Nederlands (Dutch) |
+| `pt` | Português (Portuguese) |
+
+Set the `language` field in `company.json` to change all labels, headings, and CLI output.
 
 ### Font Presets
 
