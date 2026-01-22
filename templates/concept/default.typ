@@ -104,7 +104,7 @@
   }
 
   // ============================================================================
-  // TITLE PAGE
+  // TITLE PAGE (centered layout like casoon-documents)
   // ============================================================================
 
   page(
@@ -112,85 +112,56 @@
     header: none,
     footer: none,
   )[
-    // Logo (right side, top)
-    #place(
-      right + top,
-      dx: 0pt,
-      dy: 0pt,
-    )[
+    #align(center)[
+      #v(50pt)
+
+      // Logo
       #if "logo" in company and company.logo != none [
         #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
         #image("../../" + company.logo, width: logo-width)
+        #v(30pt)
       ]
-    ]
 
-    #v(120pt)
+      // Title
+      #text(size: 24pt, weight: "bold")[#title]
 
-    // Document type
-    #align(left)[
-      #set text(size: size-xlarge, fill: color-text-light)
-      KONZEPT
-    ]
-
-    #v(10pt)
-
-    // Title
-    #align(left)[
-      #set text(size: size-title, weight: "bold")
-      #title
-    ]
-
-    #v(30pt)
-
-    // Project and Client
-    #align(left)[
-      #set text(size: size-large)
-      #set par(leading: 0.8em)
-
-      #strong[Projekt:] #project_name #linebreak()
-      #strong[Kunde:] #client_name
-    ]
-
-    #v(60pt)
-
-    // Metadata table
-    #align(left)[
-      #set text(size: size-medium)
-      #table(
-        columns: (110pt, 1fr),
-        stroke: none,
-        inset: (x: 0pt, y: 6pt),
-        align: (left, left),
-
-        [Dokumentnummer:], [#document_number],
-        [Version:], [#version],
-        [Datum:], [#if created_at != none [#created_at]],
-        [Status:], [#status],
-
-        ..if authors.len() > 0 {
-          ([Erstellt von:], [#authors.join(", ")])
-        } else {
-          ()
-        },
-      )
-    ]
-
-    #v(1fr)
-
-    // Tags
-    #if tags.len() > 0 [
-      #for tag in tags [
-        #pill(tag)
-        #h(8pt)
-      ]
       #v(20pt)
-    ]
 
-    // Company footer
-    #align(center)[
-      #set text(size: size-small, fill: color-text-light)
-      #company.name #if "business_owner" in company and company.business_owner != none [ · #company.business_owner] · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city #linebreak()
-      Tel.: #company.contact.phone · Email: #company.contact.email #if "website" in company.contact [ · Web: #company.contact.website]
+      // Document type and number
+      #text(size: size-xlarge, fill: color-accent, weight: "bold")[KONZEPT]
+      #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
+
+      #v(30pt)
+
+      // Metadata grid
+      #grid(
+        columns: (auto, auto),
+        column-gutter: 20pt,
+        row-gutter: 14pt,
+        align: (right, left),
+
+        [*Projekt:*], [#project_name],
+        [*Kunde:*], [#client_name],
+        [*Version:*], [#version],
+        [*Status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
+        ..if created_at != none {
+          ([*Erstellt:*], [#created_at])
+        } else { () },
+        ..if authors.len() > 0 {
+          ([*Autoren:*], [#authors.join(", ")])
+        } else { () },
+      )
+
+      #v(1fr)
+
+      // Tags
+      #if tags.len() > 0 [
+        #for tag in tags [
+          #pill(tag)
+          #h(8pt)
+        ]
+        #v(40pt)
+      ]
     ]
   ]
 
