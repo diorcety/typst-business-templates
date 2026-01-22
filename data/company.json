@@ -1,6 +1,6 @@
 {
   "name": "Mustermann IT-Services",
-  "logo": null,
+  "logo": "data/logo.png",
   "logo_width": "3cm",
   "branding": {
     "accent_color": "#E94B3C",
