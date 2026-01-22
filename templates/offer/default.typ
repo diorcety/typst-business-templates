@@ -14,26 +14,7 @@
   paper: "a4",
   margin: (left: 2.5cm, right: 2cm, top: 2cm, bottom: 2cm),
   footer: [
-    #line(length: 100%, stroke: border-thin + color-border)
-    #v(0.3em)
-    #set text(size: size-xs)
-    #grid(
-      columns: (1fr, 1fr, 1fr),
-      align: (left, center, right),
-      [
-        #company.name #linebreak()
-        #company.address.street #company.address.house_number #linebreak()
-        #company.address.postal_code #company.address.city
-      ],
-      [
-        Tel: #company.contact.phone #linebreak()
-        E-Mail: #company.contact.email
-      ],
-      [
-        #if "tax_id" in company and company.tax_id != none [Steuernr: #company.tax_id #linebreak()]
-        #if "vat_id" in company and company.vat_id != none [USt-IdNr: #company.vat_id]
-      ]
-    )
+    #company-footer(company)
   ]
 )
 

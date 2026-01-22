@@ -28,27 +28,7 @@
     ]
   },
   footer: [
-    #line(length: 100%, stroke: border-thin + color-border)
-    #v(0.3em)
-    #set text(size: size-xs)
-    #grid(
-      columns: (1fr, 1fr, 1fr),
-      align: (left, center, right),
-      [
-        #company.name #linebreak()
-        #company.address.street #company.address.house_number #linebreak()
-        #company.address.postal_code #company.address.city
-      ],
-      [
-        Tel: #company.contact.phone #linebreak()
-        E-Mail: #company.contact.email #linebreak()
-        #if "website" in company.contact [Web: #company.contact.website]
-      ],
-      [
-        #if "tax_id" in company and company.tax_id != none [Steuernr: #company.tax_id #linebreak()]
-        #if "vat_id" in company and company.vat_id != none [USt-IdNr: #company.vat_id]
-      ]
-    )
+    #company-footer(company)
   ]
 )
 
