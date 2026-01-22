@@ -303,13 +303,17 @@ fn init_project(name: &str) -> Result<()> {
 
     let base = Path::new(name);
 
+    // Get current year for initial directory structure
+    let current_year = chrono::Local::now().format("%Y").to_string();
+
     let dirs = [
         "data",
-        "documents/invoices",
-        "documents/offers",
-        "documents/credentials",
-        "documents/concepts",
-        "output",
+        &format!("documents/invoices/{}", current_year),
+        &format!("documents/offers/{}", current_year),
+        &format!("documents/credentials/{}", current_year),
+        &format!("documents/concepts/{}", current_year),
+        &format!("documents/documentation/{}", current_year),
+        &format!("output/{}", current_year),
         "templates",
     ];
 
@@ -346,6 +350,31 @@ fn init_project(name: &str) -> Result<()> {
     "accent_color": "#E94B3C",
     "primary_color": "#2c3e50",
     "font_preset": "inter"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO",
+      "documentation": "DOC"
+    }
+  },
+  "structure": {
+    "organize_by_year": true
+  },
+  "default_terms": {
+    "hourly_rate": "95.00",
+    "currency": "EUR",
+    "payment_days": 14,
+    "warranty_months": 12,
+    "vat_rate": 19,
+    "standard_terms": [
+      "All prices are net plus statutory VAT.",
+      "Payment due within 14 days without deduction.",
+      "Copyright remains with the contractor until full payment."
+    ]
   }
 }"##;
     std::fs::write(base.join("data/company.json"), company)?;

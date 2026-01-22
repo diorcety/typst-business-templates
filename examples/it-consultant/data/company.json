@@ -28,5 +28,33 @@
     "account_holder": "TechVision Consulting GmbH",
     "iban": "DE89 1007 0024 0123 4567 89",
     "bic": "DEUTDEDB101"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO",
+      "documentation": "DOC"
+    }
+  },
+  "structure": {
+    "organize_by_year": true
+  },
+  "default_terms": {
+    "daily_rate": "1400.00",
+    "hourly_rate": "175.00",
+    "currency": "EUR",
+    "payment_days": 30,
+    "warranty_months": 12,
+    "vat_rate": 19,
+    "standard_terms": [
+      "Alle Preise verstehen sich zzgl. der gesetzlichen MwSt. (19%).",
+      "Zahlbar innerhalb von 30 Tagen netto.",
+      "Reisekosten werden nach Aufwand berechnet.",
+      "Vertraulichkeit: Alle Projektinformationen werden streng vertraulich behandelt.",
+      "Bei vorzeitiger Beendigung werden erbrachte Leistungen anteilig vergütet."
+    ]
   }
 }

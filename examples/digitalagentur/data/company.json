@@ -28,5 +28,31 @@
     "account_holder": "Pixelwerk Digitalagentur",
     "iban": "DE75 4306 0967 1234 5678 00",
     "bic": "GENODEM1GLS"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO",
+      "documentation": "DOC"
+    }
+  },
+  "structure": {
+    "organize_by_year": true
+  },
+  "default_terms": {
+    "hourly_rate": "110.00",
+    "currency": "EUR",
+    "payment_days": 14,
+    "warranty_months": 12,
+    "vat_rate": 19,
+    "standard_terms": [
+      "Alle Preise verstehen sich zzgl. der gesetzlichen MwSt. (19%).",
+      "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
+      "Änderungswünsche nach Freigabe werden nach Aufwand berechnet.",
+      "Die Urheberrechte verbleiben bis zur vollständigen Bezahlung bei der Agentur."
+    ]
   }
 }

@@ -202,14 +202,22 @@ docgen compile documents/invoices/RE-2025-001.json
 my-business/
 ├── data/
 │   ├── docgen.db          # SQLite database (auto-created)
-│   └── company.json       # Your company data
+│   └── company.json       # Your company data & settings
 ├── documents/
-│   ├── invoices/          # Invoice JSON files
-│   ├── offers/            # Offer JSON files
-│   ├── credentials/       # Credentials JSON files
-│   └── concepts/          # Concept JSON files
+│   ├── invoices/
+│   │   ├── 2025/          # Organized by year
+│   │   └── 2026/
+│   ├── offers/
+│   │   └── 2026/
+│   ├── credentials/
+│   │   └── 2026/
+│   ├── concepts/
+│   │   └── 2026/
+│   └── documentation/
+│       └── 2026/
 ├── templates/             # Typst templates
-└── output/                # Generated PDFs
+└── output/
+    └── 2026/              # PDFs organized by year
 ```
 
 ## Document Numbering
@@ -287,20 +295,50 @@ Templates are written in [Typst](https://typst.app/docs), a modern alternative t
 - Modify layouts in `templates/<type>/default.typ`
 - Add your logo to `data/company.json`
 
-### Branding Configuration
+### Company Configuration
 
-Customize colors, fonts, and language in `data/company.json`:
+The `company.json` file contains all business settings:
 
 ```json
 {
-  "language": "en",
+  "name": "Your Company",
+  "language": "de",
   "branding": {
     "accent_color": "#E94B3C",
     "primary_color": "#2c3e50",
     "font_preset": "inter"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO"
+    }
+  },
+  "structure": {
+    "organize_by_year": true
+  },
+  "default_terms": {
+    "hourly_rate": "95.00",
+    "currency": "EUR",
+    "payment_days": 14,
+    "vat_rate": 19,
+    "standard_terms": [
+      "All prices are net plus VAT.",
+      "Payment due within 14 days."
+    ]
   }
 }
 ```
+
+| Section | Purpose |
+|---------|---------|
+| `branding` | Colors, fonts, logo |
+| `numbering` | Document number prefixes (RE, AN, ZD, KO) |
+| `structure` | Organize documents by year |
+| `default_terms` | Rates, payment terms, standard conditions |
 
 ### Multi-Language Support
 

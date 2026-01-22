@@ -27,5 +27,32 @@
     "account_holder": "Lisa Chen",
     "iban": "DE45 1001 1001 2345 6789 01",
     "bic": "NTSBDEB1XXX"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO",
+      "documentation": "DOC"
+    }
+  },
+  "structure": {
+    "organize_by_year": true
+  },
+  "default_terms": {
+    "hourly_rate": "85.00",
+    "currency": "EUR",
+    "payment_days": 14,
+    "vat_rate": 0,
+    "vat_exempt": true,
+    "vat_note": "Gemäß §19 UStG wird keine Umsatzsteuer berechnet.",
+    "standard_terms": [
+      "Gemäß §19 UStG wird keine Umsatzsteuer berechnet.",
+      "Zahlbar innerhalb von 14 Tagen.",
+      "30% Anzahlung bei Auftragserteilung.",
+      "Nutzungsrechte gehen nach vollständiger Bezahlung an den Auftraggeber über."
+    ]
   }
 }

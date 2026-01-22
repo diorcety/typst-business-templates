@@ -1,10 +1,12 @@
 {
+  "language": "de",
   "name": "Mustermann IT-Services",
   "logo": "logo.png",
   "logo_width": "3cm",
   "branding": {
     "accent_color": "#E94B3C",
-    "primary_color": "#2c3e50"
+    "primary_color": "#2c3e50",
+    "font_preset": "inter"
   },
   "address": {
     "street": "Beispielstraße",
@@ -26,5 +28,31 @@
     "account_holder": "Mustermann IT-Services",
     "iban": "DE89 3704 0044 0532 0130 00",
     "bic": "COBADEFFXXX"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO",
+      "documentation": "DOC"
+    }
+  },
+  "structure": {
+    "organize_by_year": true
+  },
+  "default_terms": {
+    "hourly_rate": "95.00",
+    "currency": "EUR",
+    "payment_days": 14,
+    "warranty_months": 12,
+    "vat_rate": 19,
+    "standard_terms": [
+      "Alle Preise verstehen sich zzgl. der gesetzlichen MwSt. (19%).",
+      "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
+      "Gewährleistung: 12 Monate ab Abnahme.",
+      "Die Urheberrechte verbleiben bis zur vollständigen Bezahlung beim Auftragnehmer."
+    ]
   }
 }
