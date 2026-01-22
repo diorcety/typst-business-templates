@@ -7,7 +7,7 @@
 #let data = json(sys.inputs.data)
 
 // Load company data
-#let company = json(read("../../data/company.json", encoding: none))
+#let company = json("../../data/company.json")
 
 #set page(
   paper: "a4",
@@ -33,16 +33,16 @@
       columns: (1fr, 1fr, 1fr),
       align: (left, center, right),
       [
-        #company.name \
-        #company.address.street #company.address.house_number \
+        #company.name #linebreak()
+        #company.address.street #company.address.house_number #linebreak()
         #company.address.postal_code #company.address.city
       ],
       [
-        Tel: #company.contact.phone \
+        Tel: #company.contact.phone #linebreak()
         E-Mail: #company.contact.email
       ],
       [
-        #if "tax_id" in company [Steuernr: #company.tax_id \]
+        #if "tax_id" in company [Steuernr: #company.tax_id #linebreak()]
         #if "vat_id" in company [USt-IdNr: #company.vat_id]
       ]
     )
@@ -61,9 +61,9 @@
 // Recipient address
 #set text(size: size-medium, fill: color-text)
 #block(width: 8.5cm)[
-  #data.recipient.name \
-  #if "company" in data.recipient and data.recipient.company != none [#data.recipient.company \]
-  #data.recipient.address.street #data.recipient.address.house_number \
+  #data.recipient.name #linebreak()
+  #if "company" in data.recipient and data.recipient.company != none [#data.recipient.company #linebreak()]
+  #data.recipient.address.street #data.recipient.address.house_number #linebreak()
   #data.recipient.address.postal_code #data.recipient.address.city
 ]
 
@@ -128,8 +128,8 @@
     [Zwischensumme:], [#data.totals.subtotal],
     [MwSt. (#data.totals.tax_rate):], [#data.totals.tax_amount],
     [], [],
-    table.cell(stroke: (top: border-normal + color-accent))[*Gesamtbetrag:*],
-    table.cell(stroke: (top: border-normal + color-accent))[*#data.totals.total*],
+    grid.cell(stroke: (top: border-normal + color-accent))[*Gesamtbetrag:*],
+    grid.cell(stroke: (top: border-normal + color-accent))[*#data.totals.total*],
   )
 ]
 

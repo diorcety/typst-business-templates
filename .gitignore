@@ -1,9 +1,12 @@
-# Generated files
+# Generated files (except examples)
 *.pdf
-examples/output/*.pdf
+!examples/output/*.pdf
 
 # Rust
 /cli/target/
+
+# Database
+*.db
 
 # OS
 .DS_Store

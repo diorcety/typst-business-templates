@@ -1,12 +1,41 @@
 # Typst Business Templates
 
-Professional business document templates for [Typst](https://typst.app/) with an interactive CLI for managing clients, projects, and documents.
+**Professional document generation for small businesses without expensive software.**
+
+Stop paying for bloated invoice and document software. This open-source solution combines:
+- **[Typst](https://typst.app/)** - Modern markup language for beautiful PDFs
+- **JSON Templates** - Simple, human-readable data format
+- **AI-Powered Creation** - Use Claude or other LLMs to generate document content
+- **Interactive CLI** - Manage clients, projects, and documents from your terminal
+
+Perfect for freelancers, agencies, and small businesses who want full control over their documents.
+
+## Why This Approach?
+
+| Traditional Software | This Solution |
+|---------------------|---------------|
+| Monthly subscriptions | Free & open source |
+| Vendor lock-in | Your data in plain JSON |
+| Limited customization | Full template control |
+| Cloud dependency | Works offline |
+| Complex interfaces | Simple CLI + AI |
+
+### The AI Workflow
+
+Instead of clicking through forms, describe what you need:
+
+```
+"Create an invoice for client Acme Corp for 40 hours of web development 
+at 85 EUR/hour, project was the new landing page, payment due in 14 days"
+```
+
+An AI assistant (we recommend [Claude](https://claude.ai)) generates the JSON, you review it, and compile to PDF. Fast, flexible, and you stay in control.
 
 ## Features
 
-- **Invoice Template** - Professional German invoices
-- **Offer Template** - Quotes and proposals
-- **Credentials Template** - Secure access documentation
+- **Invoice Template** - Professional German invoices with VAT calculation
+- **Offer Template** - Quotes and proposals with item breakdowns
+- **Credentials Template** - Secure access documentation for clients
 - **Concept Template** - Project concepts and proposals
 - **Interactive CLI** - Manage clients, projects, and create documents
 - **SQLite Database** - Automatic numbering, client/project management
@@ -17,7 +46,7 @@ Professional business document templates for [Typst](https://typst.app/) with an
 ### Prerequisites
 
 1. Install [Typst](https://github.com/typst/typst#installation)
-2. Install [Rust](https://rustup.rs/) (for CLI)
+2. Install [Rust](https://rustup.rs/) (for building the CLI)
 
 ### Installation
 
@@ -34,45 +63,76 @@ cargo build --release
 export PATH="$PATH:$(pwd)/target/release"
 ```
 
-### Usage
+### First Steps
 
 ```bash
 # Initialize new project
-docgen init my-documents
-cd my-documents
+docgen init my-business
+cd my-business
 
-# Edit company data
+# Edit your company data
 nano data/company.json
 
 # Start interactive mode
 docgen
 ```
 
-## Interactive Mode
+## Workflow Options
 
-Run `docgen` without arguments for a full-featured terminal UI:
+### Option 1: Interactive CLI
+
+Run `docgen` for a full-featured terminal UI:
 
 ```
 ╔═══════════════════════════════════════════════════════╗
-║  DOCGEN - Dokumentenverwaltung                        ║
+║  DOCGEN - Document Management                         ║
 ╚═══════════════════════════════════════════════════════╝
 
-Kunden (3)
+Clients (3)
 
 ┌───┬────────┬──────────────────────┬────────────┬─────────────────┐
-│ # │ Nr.    │ Name                 │ Ort        │ E-Mail          │
+│ # │ Nr.    │ Name                 │ City       │ Email           │
 ├───┼────────┼──────────────────────┼────────────┼─────────────────┤
-│ 1 │ K-001  │ Kunde GmbH           │ Hamburg    │ info@kunde.de   │
+│ 1 │ K-001  │ Acme Corp            │ Hamburg    │ info@acme.de    │
 │ 2 │ K-002  │ Max Müller           │ Berlin     │ max@example.de  │
 └───┴────────┴──────────────────────┴────────────┴─────────────────┘
 
-> Auswahl: 1
+> Selection: 1
 ```
 
-Select a client to:
-- Create invoices, offers, credentials, concepts
-- Manage projects
-- View recent documents
+Select a client to create invoices, offers, credentials, or concepts.
+
+### Option 2: AI-Assisted Creation
+
+1. **Describe your document** to an AI assistant:
+   ```
+   Create a JSON invoice for:
+   - Client: K-001 (Acme Corp)
+   - 3 items: 
+     - 40h Development @ 85 EUR
+     - 8h Code Review @ 85 EUR  
+     - 500 EUR fixed for deployment
+   - Due in 14 days
+   ```
+
+2. **AI generates the JSON** following the schema in `cli/templates/invoice.json`
+
+3. **Save and compile**:
+   ```bash
+   docgen compile documents/invoices/RE-2025-001.json
+   ```
+
+4. **PDF ready** in `output/RE-2025-001.pdf`
+
+### Option 3: Direct JSON Editing
+
+For power users - copy a template, edit the JSON directly:
+
+```bash
+cp cli/templates/invoice.json documents/invoices/RE-2025-001.json
+nano documents/invoices/RE-2025-001.json
+docgen compile documents/invoices/RE-2025-001.json
+```
 
 ## CLI Commands
 
@@ -92,22 +152,22 @@ Select a client to:
 ## Project Structure
 
 ```
-my-documents/
+my-business/
 ├── data/
 │   ├── docgen.db          # SQLite database (auto-created)
 │   └── company.json       # Your company data
 ├── documents/
 │   ├── invoices/          # Invoice JSON files
-│   ├── offers/
-│   ├── credentials/
-│   └── concepts/
-├── templates/             # Typst templates (copy from repo)
+│   ├── offers/            # Offer JSON files
+│   ├── credentials/       # Credentials JSON files
+│   └── concepts/          # Concept JSON files
+├── templates/             # Typst templates
 └── output/                # Generated PDFs
 ```
 
 ## Document Numbering
 
-Automatic, consistent numbering:
+Automatic, consistent numbering managed by SQLite:
 
 | Type | Format | Example |
 |------|--------|---------|
@@ -118,15 +178,102 @@ Automatic, consistent numbering:
 | Credentials | ZD-YYYY-NNN | ZD-2025-001 |
 | Concept | KO-YYYY-NNN | KO-2025-001 |
 
+## Examples
+
+The `examples/` directory contains complete, ready-to-use examples for all document types. Each example includes realistic data and a pre-generated PDF so you can see exactly what the output looks like.
+
+### Available Examples
+
+| Document | JSON Data | Generated PDF |
+|----------|-----------|---------------|
+| Invoice | [`examples/data/invoice-example.json`](examples/data/invoice-example.json) | [`examples/output/invoice-example.pdf`](examples/output/invoice-example.pdf) |
+| Offer | [`examples/data/offer-example.json`](examples/data/offer-example.json) | [`examples/output/offer-example.pdf`](examples/output/offer-example.pdf) |
+| Credentials | [`examples/data/credentials-example.json`](examples/data/credentials-example.json) | [`examples/output/credentials-example.pdf`](examples/output/credentials-example.pdf) |
+| Concept | [`examples/data/concept-example.json`](examples/data/concept-example.json) | [`examples/output/concept-example.pdf`](examples/output/concept-example.pdf) |
+
+### Try It Yourself
+
+```bash
+# Compile an example
+typst compile --root . templates/invoice/default.typ output/my-invoice.pdf \
+  --input data=/examples/data/invoice-example.json
+
+# Or use the CLI
+docgen compile examples/data/invoice-example.json
+```
+
+### Example Scenarios
+
+**Invoice Example (RE-2025-001)**
+- Client: Steuerberatung Beispiel
+- Services: Website redesign, backend development, content migration, hosting
+- Total: 5,484.71 EUR (incl. 19% VAT)
+
+**Offer Example (AN-2025-003)**
+- Client: Arztpraxis Beispiel
+- Project: Online appointment booking system with practice software integration
+- 4 positions with detailed sub-items
+- Total: 8,863.12 EUR
+
+**Credentials Example (ZD-2025-001)**
+- Client: Beispiel Outdoor GmbH
+- E-commerce project with Shopware 6
+- 5 services: Production shop, staging, database, email, payment provider
+- Complete access documentation with security warnings
+
+**Concept Example (KO-2025-001)**
+- Client: Tischlerei Beispiel
+- Digitalization concept for a carpentry business
+- 3-phase implementation plan
+- Investment overview and ROI calculation
+- 10 pages with table of contents
+
+## Template Customization
+
+Templates are written in [Typst](https://typst.app/docs), a modern alternative to LaTeX:
+
+- Edit colors in `templates/common/styles.typ`
+- Modify layouts in `templates/<type>/default.typ`
+- Add your logo to `data/company.json`
+
+## AI Integration Tips
+
+When using Claude or other AI assistants:
+
+1. **Share the JSON schema** from `cli/templates/` so the AI knows the structure
+2. **Provide client context** - the AI can look up client data from your database exports
+3. **Review before compiling** - always check the generated JSON for accuracy
+4. **Use watch mode** during iteration: `docgen watch documents/`
+
+Example prompt for Claude:
+```
+I'm using typst-business-templates. Here's my invoice schema: [paste schema]
+Create an invoice JSON for client "Acme Corp" (K-001) for the following work:
+- 40 hours frontend development at 95 EUR/hour
+- Project: Website Redesign (P-001-02)
+- Invoice date: today
+- Payment terms: 14 days
+```
+
 ## Documentation
 
-- [Project Overview](docs/PROJECT.md) - Current state, roadmap, ideas
+- [Project Overview](docs/PROJECT.md) - Current state and ideas
 - [Database Concept](docs/DATABASE.md) - SQLite schema and usage
+- [Roadmap](docs/ROADMAP.md) - Detailed plan for upcoming improvements
 
 ## Requirements
 
 - [Typst](https://typst.app/) >= 0.11
 - [Rust](https://rustup.rs/) >= 1.70 (for building CLI)
+
+## Roadmap
+
+- [ ] Edit/delete clients and projects
+- [ ] Document status tracking (sent, paid, overdue)
+- [ ] Time tracking integration
+- [ ] Email sending from CLI
+- [ ] E-invoice support (ZUGFeRD/XRechnung)
+- [ ] Web UI for non-technical users
 
 ## License
 
@@ -134,4 +281,10 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Contributing
 
-Contributions welcome! Please feel free to submit a Pull Request.
+Contributions welcome! Areas where help is needed:
+- Additional document templates (delivery notes, credit notes, reminders)
+- Internationalization (currently German-focused)
+- Test coverage
+- Binary releases for different platforms
+
+Please feel free to submit a Pull Request.

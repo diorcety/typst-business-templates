@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "document_number": "KO-2025-001",
+    "title": "Digitalisierung Handwerksbetrieb",
+    "client_name": "Tischlerei Beispiel",
+    "project_name": "Digitale Transformation",
+    "version": "1.0",
+    "status": "draft",
+    "created_at": "22.01.2025",
+    "tags": ["Digitalisierung", "Handwerk", "Prozessoptimierung"],
+    "show_toc": true
+  },
+  "content_file": "/examples/data/concept-content.typ"
+}

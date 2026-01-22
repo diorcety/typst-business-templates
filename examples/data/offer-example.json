@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "offer_number": "AN-2025-003",
+    "offer_date": "22.01.2025",
+    "valid_until": "21.02.2025",
+    "version": "1.0"
+  },
+  "recipient": {
+    "name": "Dr. Sandra Beispiel",
+    "company": "Praxis Dr. Beispiel - Allgemeinmedizin",
+    "address": {
+      "street": "Musterallee",
+      "house_number": "28",
+      "postal_code": "12345",
+      "city": "Musterstadt"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "title": "Online-Terminbuchungssystem",
+      "description": "Entwicklung eines webbasierten Terminbuchungssystems für Patienten mit Kalenderintegration, automatischen Erinnerungen per E-Mail/SMS und Anbindung an Ihre Praxissoftware.",
+      "quantity": 1,
+      "unit": "Pauschal",
+      "unit_price": "4.500,00 EUR",
+      "total": "4.500,00 EUR",
+      "sub_items": [
+        "Responsive Weboberfläche für Desktop und Mobile",
+        "Patientenregistrierung mit Stammdatenverwaltung",
+        "Kalenderansicht mit freien Terminen",
+        "Automatische E-Mail-Bestätigungen",
+        "SMS-Erinnerungen (24h vor Termin)",
+        "Admin-Dashboard für Praxismitarbeiter"
+      ]
+    },
+    {
+      "position": 2,
+      "title": "Praxissoftware-Integration",
+      "description": "Schnittstelle zu Ihrer bestehenden Praxissoftware (Medical Office) für bidirektionale Synchronisation von Terminen und Patientendaten.",
+      "quantity": 16,
+      "unit": "Stunden",
+      "unit_price": "110,00 EUR",
+      "total": "1.760,00 EUR",
+      "sub_items": [
+        "API-Analyse und Schnittstellenkonzept",
+        "Implementierung der Datensynchronisation",
+        "Testphase mit Echtdaten"
+      ]
+    },
+    {
+      "position": 3,
+      "title": "Hosting & Wartung (12 Monate)",
+      "description": "DSGVO-konformes Hosting auf deutschen Servern inkl. SSL, täglichen Backups und technischem Support.",
+      "quantity": 12,
+      "unit": "Monate",
+      "unit_price": "79,00 EUR",
+      "total": "948,00 EUR",
+      "sub_items": [
+        "Managed Hosting in deutschem Rechenzentrum",
+        "Automatische SSL-Zertifikatserneuerung",
+        "Tägliche Backups (30 Tage Aufbewahrung)",
+        "Technischer Support per E-Mail (Mo-Fr)",
+        "Monatliche Sicherheitsupdates"
+      ]
+    },
+    {
+      "position": 4,
+      "title": "Einweisung & Schulung",
+      "description": "Vor-Ort-Schulung für Ihr Praxisteam zur Bedienung des Admin-Bereichs und Handhabung typischer Anwendungsfälle.",
+      "quantity": 2,
+      "unit": "Stunden",
+      "unit_price": "120,00 EUR",
+      "total": "240,00 EUR",
+      "sub_items": []
+    }
+  ],
+  "totals": {
+    "subtotal": "7.448,00 EUR",
+    "total": "8.863,12 EUR (inkl. 19% MwSt.)"
+  },
+  "terms": {
+    "validity": "Dieses Angebot ist 30 Tage gültig",
+    "payment_terms": "50% bei Auftragserteilung, 50% bei Fertigstellung",
+    "delivery_terms": "Geschätzte Projektdauer: 6-8 Wochen nach Auftragserteilung"
+  },
+  "notes": "Optional: SMS-Paket (1.000 SMS) für 89,00 EUR einmalig hinzubuchbar.\n\nWir freuen uns auf eine Zusammenarbeit und stehen für ein unverbindliches Gespräch gerne zur Verfügung."
+}

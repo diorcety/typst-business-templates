@@ -7,7 +7,7 @@
 #let data = json(sys.inputs.data)
 
 // Load company data
-#let company = json(read("../../data/company.json", encoding: none))
+#let company = json("../../data/company.json")
 
 #set page(
   paper: "a4",
@@ -116,7 +116,7 @@
       #text(size: size-medium, fill: color-accent, weight: "bold")[VERTRAULICH]
       #v(0.3em)
       #text(size: size-small)[
-        Dieses Dokument enthält vertrauliche Zugangsdaten.\
+        Dieses Dokument enthält vertrauliche Zugangsdaten. #linebreak()
         Bitte sicher aufbewahren und nicht an Dritte weitergeben.
       ]
     ]

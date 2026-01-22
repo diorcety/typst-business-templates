@@ -17,7 +17,7 @@
   body
 ) = {
   // Load company data
-  let company = json(read("../../data/company.json", encoding: none))
+  let company = json("../../data/company.json")
 
   set page(
     paper: "a4",
@@ -160,6 +160,14 @@
 }
 
 #if data != none {
+  let content-body = if "content_file" in data {
+    include(data.content_file)
+  } else if "content" in data {
+    eval(data.content, mode: "markup")
+  } else {
+    []
+  }
+  
   concept(
     title: data.metadata.title,
     document_number: data.metadata.document_number,
@@ -170,7 +178,6 @@
     tags: if "tags" in data.metadata { data.metadata.tags } else { () },
     created_at: if "created_at" in data.metadata { data.metadata.created_at } else { none },
     show_toc: if "show_toc" in data.metadata { data.metadata.show_toc } else { false },
-  )[
-    #data.content
-  ]
+    content-body
+  )
 }

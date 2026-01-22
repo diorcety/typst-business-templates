@@ -1,10 +1,23 @@
 // Common Typst Styles
 // Reusable style definitions for all business document templates
 
-// COLOR PALETTE
-#let color-primary = rgb("#2c3e50")
+// Load company data for branding colors
+#let company-data = json("../../data/company.json")
+
+// COLOR PALETTE (with company branding override)
+#let color-primary = if "branding" in company-data and "primary_color" in company-data.branding {
+  rgb(company-data.branding.primary_color)
+} else {
+  rgb("#2c3e50")
+}
+
+#let color-accent = if "branding" in company-data and "accent_color" in company-data.branding {
+  rgb(company-data.branding.accent_color)
+} else {
+  rgb("#E94B3C")
+}
+
 #let color-secondary = rgb("#34495e")
-#let color-accent = rgb("#E94B3C")
 #let color-text = rgb("#2c3e50")
 #let color-text-light = rgb("#7f8c8d")
 #let color-border = rgb("#bdc3c7")
