@@ -1,0 +1,8 @@
+# GitGuardian configuration
+# Ignore false positives in example/template files
+
+paths-ignore:
+  - "examples/data/**"
+  - "cli/templates/**"
+  - "schema/**"
+  - "**/credentials-example.json"
