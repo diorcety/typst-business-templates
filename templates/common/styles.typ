@@ -2,10 +2,103 @@
 // This file contains reusable style definitions for all templates
 // Based on casoon-documents styling
 
-// Load company data for branding colors (if available)
+// Load company data for branding colors and fonts (if available)
 #let company-data = json("../../data/company.json")
 
-// Color Palette (with company branding override)
+// ============================================================================
+// FONT PRESETS (Google Fonts)
+// ============================================================================
+// Available presets: inter, roboto, open-sans, lato, montserrat, 
+//                    source-sans, poppins, raleway, nunito, work-sans
+//
+// Each preset defines: body font, heading font, mono font
+// Set in company.json: "branding": { "font_preset": "inter" }
+
+#let font-presets = (
+  // Modern, clean sans-serif (default)
+  "inter": (
+    body: "Inter",
+    heading: "Inter",
+    mono: "JetBrains Mono",
+  ),
+  // Google's signature font, very readable
+  "roboto": (
+    body: "Roboto",
+    heading: "Roboto",
+    mono: "Roboto Mono",
+  ),
+  // Humanist sans-serif, friendly appearance
+  "open-sans": (
+    body: "Open Sans",
+    heading: "Open Sans",
+    mono: "Source Code Pro",
+  ),
+  // Elegant, slightly rounded
+  "lato": (
+    body: "Lato",
+    heading: "Lato",
+    mono: "Fira Code",
+  ),
+  // Geometric, modern, great for headings
+  "montserrat": (
+    body: "Montserrat",
+    heading: "Montserrat",
+    mono: "Fira Code",
+  ),
+  // Adobe's open source, professional
+  "source-sans": (
+    body: "Source Sans 3",
+    heading: "Source Sans 3",
+    mono: "Source Code Pro",
+  ),
+  // Geometric, playful yet professional
+  "poppins": (
+    body: "Poppins",
+    heading: "Poppins",
+    mono: "JetBrains Mono",
+  ),
+  // Elegant, sophisticated
+  "raleway": (
+    body: "Raleway",
+    heading: "Raleway",
+    mono: "Fira Code",
+  ),
+  // Rounded, friendly, very readable
+  "nunito": (
+    body: "Nunito",
+    heading: "Nunito",
+    mono: "JetBrains Mono",
+  ),
+  // Clean, neutral, versatile
+  "work-sans": (
+    body: "Work Sans",
+    heading: "Work Sans",
+    mono: "Fira Code",
+  ),
+  // System default (Helvetica-based)
+  "default": (
+    body: "Helvetica",
+    heading: "Helvetica",
+    mono: "Courier New",
+  ),
+)
+
+// Get font preset from company data or use default
+#let active-preset = if "branding" in company-data and "font_preset" in company-data.branding {
+  let preset-name = company-data.branding.font_preset
+  if preset-name in font-presets {
+    font-presets.at(preset-name)
+  } else {
+    font-presets.at("default")
+  }
+} else {
+  font-presets.at("default")
+}
+
+// ============================================================================
+// COLOR PALETTE
+// ============================================================================
+
 #let color-primary = if "branding" in company-data and "primary_color" in company-data.branding {
   rgb(company-data.branding.primary_color)
 } else {
@@ -26,10 +119,14 @@
 #let color-white = rgb("#ffffff")
 #let color-warning = rgb("#fff8e1")
 
-// Typography
-#let font-body = "Helvetica"
-#let font-heading = "Helvetica"
-#let font-mono = "Courier New"
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
+// Font families (from active preset)
+#let font-body = active-preset.body
+#let font-heading = active-preset.heading
+#let font-mono = active-preset.mono
 
 #let size-xs = 7pt
 #let size-small = 8pt

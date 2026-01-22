@@ -4,7 +4,8 @@
   "logo_width": "3cm",
   "branding": {
     "accent_color": "#E94B3C",
-    "primary_color": "#2c3e50"
+    "primary_color": "#2c3e50",
+    "font_preset": "default"
   },
   "address": {
     "street": "Beispielstraße",

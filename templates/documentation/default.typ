@@ -153,15 +153,10 @@
 
     #v(40pt)
 
-    // Project and Client
-    #align(left)[
-      #set text(size: size-large)
-      #set par(leading: 0.8em)
-
-      #if project_name != none [
-        #strong[Projekt:] #project_name #linebreak()
-      ]
-      #if client_name != none [
+    // Client
+    #if client_name != none [
+      #align(left)[
+        #set text(size: size-large)
         #strong[Kunde:] #client_name
       ]
     ]
@@ -180,7 +175,7 @@
         [Dokumentnummer:], [#document_number],
         [Version:], [#version],
         [Datum:], [#if created_at != none [#created_at]],
-        [Status:], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
+        [Typ:], [#doc_type],
 
         ..if authors.len() > 0 {
           ([Autoren:], [#authors.join(", ")])
@@ -191,15 +186,6 @@
     ]
 
     #v(1fr)
-
-    // Tags
-    #if tags.len() > 0 [
-      #for tag in tags [
-        #pill(tag)
-        #h(8pt)
-      ]
-      #v(20pt)
-    ]
 
     // Company footer
     #align(center)[
