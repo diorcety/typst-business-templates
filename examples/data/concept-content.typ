@@ -181,8 +181,8 @@ Wir freuen uns auf die Zusammenarbeit!
 
 #line(length: 100%)
 
-_Digital Solutions GmbH_
+_Mustermann IT-Services_
 
-_Anna Schmidt_
+_Max Mustermann_
 
-_hamburg\@digital-solutions.de_
+_info\@example.com_
