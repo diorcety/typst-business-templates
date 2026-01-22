@@ -1,4 +1,5 @@
 mod db;
+mod locale;
 mod ui;
 
 use anyhow::{Context, Result};
@@ -8,7 +9,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
-use db::{Database, NewClient, NewProject, NewDocument};
+use db::{Database, NewClient, NewProject};
+use locale::{t, tf};
 use ui::InteractiveUI;
 
 #[derive(Parser)]
@@ -59,7 +61,7 @@ enum Commands {
         #[command(subcommand)]
         action: ClientAction,
     },
-    /// Project management  
+    /// Project management
     Project {
         #[command(subcommand)]
         action: ProjectAction,
@@ -100,6 +102,9 @@ enum ProjectAction {
 }
 
 fn main() -> Result<()> {
+    // Initialize locale system
+    locale::init();
+
     let cli = Cli::parse();
 
     match cli.command {
@@ -110,7 +115,11 @@ fn main() -> Result<()> {
             ui.run()
         }
         Some(Commands::Init { name }) => init_project(&name),
-        Some(Commands::Compile { input, output, template }) => compile_document(&input, output, template),
+        Some(Commands::Compile {
+            input,
+            output,
+            template,
+        }) => compile_document(&input, output, template),
         Some(Commands::Build { path, output }) => build_all(&path, &output),
         Some(Commands::Watch { path }) => watch_directory(&path),
         Some(Commands::Client { action }) => handle_client(action),
@@ -120,20 +129,21 @@ fn main() -> Result<()> {
 
 fn handle_client(action: ClientAction) -> Result<()> {
     let db = Database::open_default()?;
-    
+
     match action {
         ClientAction::List => {
             let clients = db.list_clients()?;
             if clients.is_empty() {
-                println!("Keine Kunden vorhanden.");
-                println!("Erstellen Sie einen mit: docgen client add");
+                println!("{}", t("client", "no_clients"));
+                println!("{}", t("client", "create_with"));
                 return Ok(());
             }
-            
-            println!("{}", "Kunden".bold());
+
+            println!("{}", t("client", "clients").bold());
             println!("{:-<60}", "");
             for c in clients {
-                println!("{:8} │ {:30} │ {}", 
+                println!(
+                    "{:8} │ {:30} │ {}",
                     c.formatted_number().cyan(),
                     c.display_name(),
                     c.city.unwrap_or_default()
@@ -145,48 +155,60 @@ fn handle_client(action: ClientAction) -> Result<()> {
                 Some(n) => n,
                 None => {
                     use dialoguer::Input;
-                    Input::new().with_prompt("Name").interact_text()?
+                    Input::new()
+                        .with_prompt(t("common", "name"))
+                        .interact_text()?
                 }
             };
-            
+
             let new_client = NewClient {
                 name,
                 ..Default::default()
             };
-            
+
             let client = db.add_client(&new_client)?;
-            println!("{} Kunde {} angelegt", "✓".green(), client.formatted_number().cyan());
+            println!(
+                "{} {}",
+                "✓".green(),
+                tf("client", "created", &[&client.formatted_number()])
+            );
         }
         ClientAction::Show { id } => {
             let client_id = parse_client_id(&db, &id)?;
             let client = db.get_client(client_id)?;
             let projects = db.list_projects_for_client(client_id)?;
             let documents = db.list_documents_for_client(client_id)?;
-            
+
             println!();
-            println!("{} {}", client.formatted_number().cyan(), client.display_name().bold());
+            println!(
+                "{} {}",
+                client.formatted_number().cyan(),
+                client.display_name().bold()
+            );
             println!("{}", client.full_address());
             if let Some(email) = &client.email {
                 println!("{}", email);
             }
-            
+
             if !projects.is_empty() {
                 println!();
-                println!("{}", "Projekte:".bold());
+                println!("{}:", t("project", "projects").bold());
                 for p in projects {
-                    println!("  {} │ {} │ {}", 
+                    println!(
+                        "  {} │ {} │ {}",
                         p.formatted_number(client.number),
                         p.name,
                         p.status
                     );
                 }
             }
-            
+
             if !documents.is_empty() {
                 println!();
-                println!("{}", "Letzte Dokumente:".bold());
+                println!("{}:", t("document", "last_documents").bold());
                 for d in documents.iter().take(5) {
-                    println!("  {} │ {} │ {}", 
+                    println!(
+                        "  {} │ {} │ {}",
                         d.doc_number,
                         d.type_display(),
                         d.status_display()
@@ -200,21 +222,26 @@ fn handle_client(action: ClientAction) -> Result<()> {
 
 fn handle_project(action: ProjectAction) -> Result<()> {
     let db = Database::open_default()?;
-    
+
     match action {
         ProjectAction::List { client } => {
             let client_id = parse_client_id(&db, &client)?;
             let client = db.get_client(client_id)?;
             let projects = db.list_projects_for_client(client_id)?;
-            
-            println!("{} - {}", "Projekte für".bold(), client.display_name());
+
+            println!(
+                "{} - {}",
+                t("project", "for_client").bold(),
+                client.display_name()
+            );
             println!("{:-<60}", "");
-            
+
             if projects.is_empty() {
-                println!("Keine Projekte vorhanden.");
+                println!("{}", t("project", "no_projects"));
             } else {
                 for p in projects {
-                    println!("{:12} │ {:30} │ {}", 
+                    println!(
+                        "{:12} │ {:30} │ {}",
                         p.formatted_number(client.number).cyan(),
                         p.name,
                         p.status
@@ -225,13 +252,18 @@ fn handle_project(action: ProjectAction) -> Result<()> {
         ProjectAction::Add { client, name } => {
             let client_id = parse_client_id(&db, &client)?;
             let client_data = db.get_client(client_id)?;
-            
+
             let new_project = NewProject::new(client_id, name);
             let project = db.add_project(&new_project)?;
-            
-            println!("{} Projekt {} angelegt", 
-                "✓".green(), 
-                project.formatted_number(client_data.number).cyan()
+
+            println!(
+                "{} {}",
+                "✓".green(),
+                tf(
+                    "project",
+                    "created",
+                    &[&project.formatted_number(client_data.number)]
+                )
             );
         }
     }
@@ -247,7 +279,7 @@ fn parse_client_id(db: &Database, input: &str) -> Result<i64> {
             return Ok(c.id);
         }
     }
-    
+
     // Try K-XXX format
     if input.to_uppercase().starts_with("K-") {
         if let Ok(num) = input[2..].parse::<i64>() {
@@ -257,140 +289,197 @@ fn parse_client_id(db: &Database, input: &str) -> Result<i64> {
             }
         }
     }
-    
-    anyhow::bail!("Kunde nicht gefunden: {}", input)
+
+    anyhow::bail!("{}: {}", t("client", "not_found"), input)
 }
 
 fn init_project(name: &str) -> Result<()> {
-    println!("{} Initialisiere Projekt: {}", "→".blue(), name.green());
-    
+    println!(
+        "{} {}: {}",
+        "→".blue(),
+        t("init", "initializing"),
+        name.green()
+    );
+
     let base = Path::new(name);
-    
-    let dirs = ["data", "documents/invoices", "documents/offers", 
-                "documents/credentials", "documents/concepts", 
-                "output", "templates"];
-    
+
+    let dirs = [
+        "data",
+        "documents/invoices",
+        "documents/offers",
+        "documents/credentials",
+        "documents/concepts",
+        "output",
+        "templates",
+    ];
+
     for dir in dirs {
         std::fs::create_dir_all(base.join(dir))?;
     }
-    
-    // Create company.json
-    let company = r#"{
-  "name": "Ihre Firma",
+
+    // Create company.json with language field
+    let company = r##"{
+  "name": "Your Company",
+  "language": "en",
   "address": {
-    "street": "Straße",
+    "street": "Street",
     "house_number": "1",
     "postal_code": "12345",
-    "city": "Stadt",
-    "country": "Deutschland"
+    "city": "City",
+    "country": "Country"
   },
   "contact": {
-    "phone": "+49 123 456789",
+    "phone": "+1 234 567890",
     "email": "info@example.com",
     "website": "www.example.com"
   },
   "tax_id": "123/456/78901",
-  "vat_id": "DE123456789",
-  "business_owner": "Ihr Name",
+  "vat_id": "XX123456789",
+  "business_owner": "Your Name",
   "bank_account": {
     "bank_name": "Bank",
-    "account_holder": "Ihre Firma",
-    "iban": "DE00 0000 0000 0000 0000 00",
-    "bic": "BANKDEFFXXX"
+    "account_holder": "Your Company",
+    "iban": "XX00 0000 0000 0000 0000 00",
+    "bic": "BANKXXXX"
+  },
+  "branding": {
+    "accent_color": "#E94B3C",
+    "primary_color": "#2c3e50",
+    "font_preset": "inter"
   }
-}"#;
+}"##;
     std::fs::write(base.join("data/company.json"), company)?;
-    
+
     // Create .gitignore
     std::fs::write(base.join(".gitignore"), "output/*.pdf\ndata/docgen.db\n")?;
-    
-    println!("{} Projekt erstellt!", "✓".green());
+
+    println!("{} {}", "✓".green(), t("init", "created"));
     println!();
-    println!("Nächste Schritte:");
+    println!("{}:", t("init", "next_steps"));
     println!("  cd {}", name);
-    println!("  # Firmendaten bearbeiten:");
+    println!("  # {}", t("init", "edit_company"));
     println!("  nano data/company.json");
-    println!("  # Interaktiv starten:");
+    println!("  # {}", t("init", "start_interactive"));
     println!("  docgen");
-    
+
     Ok(())
 }
 
 fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<String>) -> Result<()> {
     if !input.exists() {
-        anyhow::bail!("Datei nicht gefunden: {}", input.display());
+        anyhow::bail!("{}: {}", t("compile", "file_not_found"), input.display());
     }
-    
-    let doc_type = template.unwrap_or_else(|| detect_document_type(input).unwrap_or("invoice".to_string()));
+
+    let doc_type =
+        template.unwrap_or_else(|| detect_document_type(input).unwrap_or("invoice".to_string()));
     let template_path = format!("templates/{}/default.typ", doc_type);
     let output_path = output.unwrap_or_else(|| input.with_extension("pdf"));
-    
-    println!("{} Kompiliere {} → {}", 
-        "→".blue(), 
-        input.display().to_string().cyan(),
-        output_path.display().to_string().green()
+
+    println!(
+        "{} {}",
+        "→".blue(),
+        tf(
+            "compile",
+            "compiling",
+            &[
+                &input.display().to_string(),
+                &output_path.display().to_string()
+            ]
+        )
     );
-    
+
     let data_path = format!("/{}", input.display());
-    
+
     let status = Command::new("typst")
-        .args(["compile", "--root", ".", &template_path, "--input", &format!("data={}", data_path), &output_path.to_string_lossy()])
+        .args([
+            "compile",
+            "--root",
+            ".",
+            &template_path,
+            "--input",
+            &format!("data={}", data_path),
+            &output_path.to_string_lossy(),
+        ])
         .status()
-        .context("Typst nicht gefunden. Ist Typst installiert?")?;
-    
+        .context(t("compile", "typst_not_found"))?;
+
     if status.success() {
-        println!("{} Erfolgreich kompiliert!", "✓".green());
+        println!("{} {}", "✓".green(), t("compile", "success"));
         Ok(())
     } else {
-        anyhow::bail!("Kompilierung fehlgeschlagen")
+        anyhow::bail!("{}", t("compile", "failed"))
     }
 }
 
 fn build_all(path: &Path, output: &Path) -> Result<()> {
-    println!("{} Baue alle Dokumente in {}", "→".blue(), path.display());
-    
+    println!(
+        "{} {}",
+        "→".blue(),
+        tf("build", "building_all", &[&path.display().to_string()])
+    );
+
     std::fs::create_dir_all(output)?;
-    
+
     let mut count = 0;
     let mut errors = 0;
-    
+
     for entry in WalkDir::new(path)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
     {
         let input = entry.path();
-        let output_file = output.join(input.file_stem().unwrap()).with_extension("pdf");
-        
+        let output_file = output
+            .join(input.file_stem().unwrap())
+            .with_extension("pdf");
+
         match compile_document(input, Some(output_file), None) {
             Ok(_) => count += 1,
             Err(e) => {
-                eprintln!("{} Fehler bei {}: {}", "✗".red(), input.display(), e);
+                eprintln!(
+                    "{} {}: {}",
+                    "✗".red(),
+                    tf("compile", "error_at", &[&input.display().to_string()]),
+                    e
+                );
                 errors += 1;
             }
         }
     }
-    
+
     println!();
-    println!("{} {} Dokumente erstellt ({} Fehler)", 
-        if errors == 0 { "✓".green() } else { "!".yellow() },
-        count, errors
+    println!(
+        "{} {}",
+        if errors == 0 {
+            "✓".green()
+        } else {
+            "!".yellow()
+        },
+        tf(
+            "build",
+            "documents_created",
+            &[&count.to_string(), &errors.to_string()]
+        )
     );
-    
+
     Ok(())
 }
 
 fn watch_directory(path: &Path) -> Result<()> {
-    use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher, EventKind};
+    use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
     use std::sync::mpsc::channel;
     use std::time::Duration;
-    
-    println!("{} Überwache {} (Strg+C zum Beenden)", "→".blue(), path.display());
-    
+
+    println!(
+        "{} {}",
+        "→".blue(),
+        tf("watch", "watching", &[&path.display().to_string()])
+    );
+
     let (tx, rx) = channel();
     let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
     watcher.watch(path, RecursiveMode::Recursive)?;
-    
+
     loop {
         match rx.recv_timeout(Duration::from_secs(1)) {
             Ok(Ok(event)) => {
@@ -398,13 +487,18 @@ fn watch_directory(path: &Path) -> Result<()> {
                     for path in event.paths {
                         if path.extension().map_or(false, |ext| ext == "json") {
                             println!();
-                            println!("{} Änderung: {}", "⟳".yellow(), path.display());
+                            println!(
+                                "{} {}: {}",
+                                "⟳".yellow(),
+                                t("watch", "change_detected"),
+                                path.display()
+                            );
                             let _ = compile_document(&path, None, None);
                         }
                     }
                 }
             }
-            Ok(Err(e)) => eprintln!("Fehler: {}", e),
+            Ok(Err(e)) => eprintln!("{}: {}", t("common", "error"), e),
             Err(_) => {}
         }
     }
@@ -412,9 +506,15 @@ fn watch_directory(path: &Path) -> Result<()> {
 
 fn detect_document_type(path: &Path) -> Option<String> {
     let s = path.to_string_lossy().to_lowercase();
-    if s.contains("invoice") || s.contains("rechnung") || s.contains("/re-") { Some("invoice".to_string()) }
-    else if s.contains("offer") || s.contains("angebot") || s.contains("/an-") { Some("offer".to_string()) }
-    else if s.contains("credential") || s.contains("zugang") || s.contains("/zd-") { Some("credentials".to_string()) }
-    else if s.contains("concept") || s.contains("konzept") || s.contains("/ko-") { Some("concept".to_string()) }
-    else { None }
+    if s.contains("invoice") || s.contains("rechnung") || s.contains("/re-") {
+        Some("invoice".to_string())
+    } else if s.contains("offer") || s.contains("angebot") || s.contains("/an-") {
+        Some("offer".to_string())
+    } else if s.contains("credential") || s.contains("zugang") || s.contains("/zd-") {
+        Some("credentials".to_string())
+    } else if s.contains("concept") || s.contains("konzept") || s.contains("/ko-") {
+        Some("concept".to_string())
+    } else {
+        None
+    }
 }
