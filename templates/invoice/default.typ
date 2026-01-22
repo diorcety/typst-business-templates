@@ -1,5 +1,5 @@
 // Invoice Template (Rechnung)
-// German-formatted invoice template for professional business use
+// Professional invoice template for business use
 // Based on casoon-documents structure
 
 #import "../common/styles.typ": *
@@ -21,7 +21,7 @@
         columns: (1fr, 1fr),
         align: (left, right),
         [#company.name],
-        [Seite #counter(page).display()]
+        [#t("common", "page") #counter(page).display()]
       )
       #v(0.3em)
       #line(length: 100%, stroke: border-thin + color-border)
@@ -66,17 +66,17 @@
     column-gutter: spacing-medium,
     row-gutter: spacing-small,
     align: (right, left),
-    [*Rechnungsnummer:*], [#data.metadata.invoice_number],
-    [*Rechnungsdatum:*], [#data.metadata.invoice_date.date],
-    [*Fälligkeitsdatum:*], [#data.metadata.due_date.date],
+    [*#t("invoice", "invoice_number"):*], [#data.metadata.invoice_number],
+    [*#t("invoice", "invoice_date"):*], [#data.metadata.invoice_date.date],
+    [*#t("invoice", "due_date"):*], [#data.metadata.due_date.date],
     ..if "customer_number" in data.metadata and data.metadata.customer_number != none {
-      ([*Kundennummer:*], [#data.metadata.customer_number])
+      ([*#t("common", "customer_number"):*], [#data.metadata.customer_number])
     } else { () },
     ..if "project_reference" in data.metadata and data.metadata.project_reference != none {
-      ([*Projekt:*], [#data.metadata.project_reference])
+      ([*#t("common", "project"):*], [#data.metadata.project_reference])
     } else { () },
     ..if "performance_period" in data.metadata and data.metadata.performance_period != none {
-      ([*Leistungszeitraum:*], [#data.metadata.performance_period])
+      ([*#t("invoice", "performance_period"):*], [#data.metadata.performance_period])
     } else { () },
   )
 ]
@@ -85,7 +85,7 @@
 
 // Invoice title
 #set text(..text-title)
-[*Rechnung*]
+[*#t("invoice", "title")*]
 
 #v(spacing-large)
 
@@ -102,11 +102,11 @@
   inset: (x: spacing-normal, y: spacing-small),
 
   // Header row
-  table.cell(fill: color-white)[*Position*],
-  table.cell(fill: color-white)[*Menge*],
-  table.cell(fill: color-white)[*Einheit*],
-  table.cell(fill: color-white)[*Einzelpreis*],
-  table.cell(fill: color-white)[*Gesamtpreis*],
+  table.cell(fill: color-white)[*#t("invoice", "position")*],
+  table.cell(fill: color-white)[*#t("invoice", "quantity")*],
+  table.cell(fill: color-white)[*#t("invoice", "unit")*],
+  table.cell(fill: color-white)[*#t("invoice", "unit_price")*],
+  table.cell(fill: color-white)[*#t("invoice", "total_price")*],
 
   // Item rows
   ..for item in data.items {
@@ -138,19 +138,19 @@
     row-gutter: spacing-small,
     align: (right, right),
 
-    [Zwischensumme:], [#data.totals.subtotal.amount #data.totals.subtotal.currency],
+    [#t("invoice", "subtotal"):], [#data.totals.subtotal.amount #data.totals.subtotal.currency],
     
     // VAT breakdown
     ..if "vat_breakdown" in data.totals {
       for vat in data.totals.vat_breakdown {
-        ([MwSt. (#vat.rate.percentage%):], [#vat.amount.amount #vat.amount.currency])
+        ([#t("invoice", "vat") (#vat.rate.percentage%):], [#vat.amount.amount #vat.amount.currency])
       }
     } else if "vat_total" in data.totals and data.totals.vat_total != none {
-      ([MwSt.:], [#data.totals.vat_total.amount #data.totals.vat_total.currency])
+      ([#t("invoice", "vat"):], [#data.totals.vat_total.amount #data.totals.vat_total.currency])
     } else { () },
     
     [], [],
-    grid.cell(stroke: (top: border-normal + color-primary))[*Gesamtbetrag:*],
+    grid.cell(stroke: (top: border-normal + color-primary))[*#t("invoice", "total"):*],
     grid.cell(stroke: (top: border-normal + color-primary))[*#data.totals.total.amount #data.totals.total.currency*],
   )
 ]
@@ -165,7 +165,7 @@
     radius: 3pt,
     width: 100%,
   )[
-    *Zahlungsinformationen*
+    *#t("invoice", "payment_info")*
 
     #v(spacing-small)
 
@@ -174,10 +174,10 @@
       column-gutter: spacing-medium,
       row-gutter: spacing-small,
 
-      [Bank:], [#data.payment.bank_account.bank_name],
-      [IBAN:], [#data.payment.bank_account.iban],
-      [BIC:], [#data.payment.bank_account.bic],
-      [Verwendungszweck:], [Rechnung #data.metadata.invoice_number],
+      [#t("invoice", "bank"):], [#data.payment.bank_account.bank_name],
+      [#t("invoice", "iban"):], [#data.payment.bank_account.iban],
+      [#t("invoice", "bic"):], [#data.payment.bank_account.bic],
+      [#t("invoice", "reference"):], [#t("invoice", "title") #data.metadata.invoice_number],
     )
   ]
 
@@ -186,7 +186,7 @@
 
 // Notes section
 #if "notes" in data and data.notes != none [
-  *Hinweise*
+  *#t("common", "notes")*
 
   #v(spacing-small)
 
@@ -210,11 +210,11 @@
 
 // Closing
 [
-  Vielen Dank für Ihr Vertrauen!
+  #t("invoice", "thank_you")
 
   #v(spacing-medium)
 
-  Mit freundlichen Grüßen
+  #t("invoice", "regards")
 
   #v(spacing-large)
 

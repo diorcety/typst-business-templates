@@ -6,6 +6,25 @@
 #let company-data = json("../../data/company.json")
 
 // ============================================================================
+// LOCALIZATION
+// ============================================================================
+// Load locale based on company.json language setting (default: "de")
+// Available: "de" (German), "en" (English)
+
+#let lang = if "language" in company-data { company-data.language } else { "de" }
+#let locale = json("../../locale/" + lang + ".json")
+
+// Helper function to get localized string
+#let t(section, key) = {
+  if section in locale and key in locale.at(section) {
+    locale.at(section).at(key)
+  } else {
+    // Fallback: return key itself
+    key
+  }
+}
+
+// ============================================================================
 // FONT PRESETS (Google Fonts)
 // ============================================================================
 // Available presets: inter, roboto, open-sans, lato, montserrat, 

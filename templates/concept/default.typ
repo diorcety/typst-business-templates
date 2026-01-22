@@ -7,6 +7,10 @@
 // Load company data
 #let company = json("../../data/company.json")
 
+// Localization
+#let lang = if "language" in company { company.language } else { "de" }
+#let locale = json("../../locale/" + lang + ".json")
+
 // Document function for flexible use
 #let concept(
   title: none,
@@ -65,16 +69,16 @@
 
         // Column 3: Document Info
         [
-          #strong[Dokument:] #linebreak()
+          #strong[#locale.common.document:] #linebreak()
           #document_number #linebreak()
-          Seite #counter(page).display()
+          #locale.common.page #counter(page).display()
         ],
 
         // Column 4: Date
         [
-          #strong[Erstellt:] #linebreak()
+          #strong[#locale.common.created:] #linebreak()
           #if created_at != none [#created_at] #linebreak()
-          Status: #status
+          #locale.common.status: #status
         ],
       )
     ]
@@ -128,7 +132,7 @@
       #v(20pt)
 
       // Document type and number
-      #text(size: size-xlarge, fill: color-accent, weight: "bold")[KONZEPT]
+      #text(size: size-xlarge, fill: color-accent, weight: "bold")[#upper(locale.concept.title)]
       #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
 
       #v(30pt)
@@ -140,15 +144,15 @@
         row-gutter: 14pt,
         align: (right, left),
 
-        [*Projekt:*], [#project_name],
-        [*Kunde:*], [#client_name],
-        [*Version:*], [#version],
-        [*Status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
+        [*#locale.common.project:*], [#project_name],
+        [*#locale.common.client:*], [#client_name],
+        [*#locale.common.version:*], [#version],
+        [*#locale.common.status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
         ..if created_at != none {
-          ([*Erstellt:*], [#created_at])
+          ([*#locale.common.created:*], [#created_at])
         } else { () },
         ..if authors.len() > 0 {
-          ([*Autoren:*], [#authors.join(", ")])
+          ([*#locale.common.authors:*], [#authors.join(", ")])
         } else { () },
       )
 
@@ -173,7 +177,7 @@
     #outline(
       title: [
         #set text(size: size-xxlarge, weight: "bold")
-        Inhaltsverzeichnis
+        #locale.common.table_of_contents
       ],
       indent: 1em,
       depth: 3,

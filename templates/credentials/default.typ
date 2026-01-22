@@ -9,6 +9,10 @@
 // Load company data
 #let company = json("../../data/company.json")
 
+// Localization
+#let lang = if "language" in company { company.language } else { "de" }
+#let locale = json("../../locale/" + lang + ".json")
+
 #set page(
   paper: "a4",
   margin: (left: 2.5cm, right: 2cm, top: 2.5cm, bottom: 2.5cm),
@@ -18,7 +22,7 @@
       #grid(
         columns: (1fr, 1fr),
         align: (left, right),
-        [#text(fill: color-accent, weight: "bold")[VERTRAULICH]],
+        [#text(fill: color-accent, weight: "bold")[#upper(locale.credentials.confidential)]],
         [#data.metadata.document_number]
       )
       #v(0.2em)
@@ -34,7 +38,7 @@
         columns: (1fr, auto, 1fr),
         align: (left, center, right),
         [#data.metadata.client_name],
-        [Seite #counter(page).display()],
+        [#locale.common.page #counter(page).display()],
         [#data.metadata.created_at.date]
       )
     ]
@@ -94,7 +98,7 @@
 
 // Document type and number
 #align(center)[
-  #text(size: size-xlarge, fill: color-accent, weight: "bold")[ZUGANGSDATEN]
+  #text(size: size-xlarge, fill: color-accent, weight: "bold")[#upper(locale.credentials.title)]
   #text(size: size-xlarge, fill: color-text-light)[
     · #data.metadata.document_number
   ]
@@ -109,9 +113,9 @@
     row-gutter: 14pt,
     column-gutter: 20pt,
     align: (right, left),
-    [*Projekt:*], [#data.metadata.project_name],
-    [*Kunde:*], [#data.metadata.client_name],
-    [*Datum:*], [#data.metadata.created_at.date],
+    [*#locale.common.project:*], [#data.metadata.project_name],
+    [*#locale.common.client:*], [#data.metadata.client_name],
+    [*#locale.common.date:*], [#data.metadata.created_at.date],
   )
 ]
 
@@ -127,12 +131,11 @@
   )[
     #align(center)[
       #text(size: size-medium, fill: color-accent, weight: "bold")[
-        VERTRAULICH
+        #upper(locale.credentials.confidential)
       ]
       #v(0.3em)
       #text(size: size-small)[
-        Dieses Dokument enthält vertrauliche Zugangsdaten. #linebreak()
-        Bitte sicher aufbewahren und nicht an Dritte weitergeben.
+        #locale.credentials.confidential_notice
       ]
     ]
   ]
@@ -186,7 +189,7 @@
 
   // Technical settings
   #if "technical" in service and service.technical.len() > 0 [
-    == Technische Einstellungen
+    == #locale.credentials.technical_settings
 
     #block(
       fill: color-background,
@@ -209,14 +212,14 @@
 
   // Ports
   #if "ports" in service and service.ports.len() > 0 [
-    == Ports & Protokolle
+    == #locale.credentials.ports_protocols
 
     #table(
       columns: (auto, auto, auto),
       inset: 0.6em,
       stroke: border-thin + color-border,
       fill: (x, y) => if y == 0 { color-background } else { none },
-      [*Port*], [*Protokoll*], [*Beschreibung*],
+      [*#locale.credentials.port*], [*#locale.credentials.protocol*], [*#locale.credentials.description*],
       ..service.ports.map(port => (
         [#port.port],
         [#port.protocol],
@@ -228,7 +231,7 @@
 
   // Credentials
   #if "credentials" in service and service.credentials.len() > 0 [
-    == Zugangsdaten
+    == #locale.credentials.title
 
     #for cred in service.credentials [
       #block(
@@ -247,11 +250,11 @@
           stroke: none,
           inset: 0.3em,
 
-          [*Benutzername:*], [#raw(cred.username)],
-          [*Passwort:*], [#raw(cred.password)],
+          [*#locale.credentials.username:*], [#raw(cred.username)],
+          [*#locale.credentials.password:*], [#raw(cred.password)],
 
           ..if "credential_type" in cred and cred.credential_type != none {
-            ([*Typ:*], [#cred.credential_type])
+            ([*#locale.credentials.type:*], [#cred.credential_type])
           } else {
             ()
           },
@@ -263,7 +266,7 @@
 
   // Notes
   #if "notes" in service and service.notes != none [
-    == Hinweise
+    == #locale.credentials.notes
     #service.notes
   ]
 ]
@@ -283,15 +286,15 @@
     inset: 1.2em,
     width: 90%,
   )[
-    #text(size: size-normal, weight: "bold", fill: color-accent)[Sicherheitshinweise]
+    #text(size: size-normal, weight: "bold", fill: color-accent)[#locale.credentials.security_notices]
     #v(0.5em)
     #set text(size: size-small)
     #align(left)[
-      - Bewahren Sie dieses Dokument sicher auf
-      - Geben Sie Zugangsdaten nicht an Dritte weiter
-      - Ändern Sie Passwörter regelmäßig
-      - Verwenden Sie 2-Faktor-Authentifizierung wo möglich
-      - Melden Sie verdächtige Aktivitäten sofort
+      - #locale.credentials.security_hint_1
+      - #locale.credentials.security_hint_2
+      - #locale.credentials.security_hint_3
+      - #locale.credentials.security_hint_4
+      - #locale.credentials.security_hint_5
     ]
   ]
 ]

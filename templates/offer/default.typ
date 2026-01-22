@@ -1,5 +1,5 @@
 // Offer/Quote Template (Angebot)
-// German-formatted offer template for professional business use
+// Professional offer template for business use
 // Based on casoon-documents structure
 
 #import "../common/styles.typ": *
@@ -18,7 +18,7 @@
   ]
 )
 
-#set text(font: font-body, size: size-medium, lang: "de")
+#set text(font: font-body, size: size-medium, lang: lang)
 #set par(justify: true)
 
 // Header
@@ -49,12 +49,12 @@
     column-gutter: 1cm,
     row-gutter: 0.5em,
     align: (right, left),
-    [*Angebotsnummer:*], [#data.metadata.offer_number],
-    [*Angebotsdatum:*], [#data.metadata.offer_date.date],
-    [*Gültig bis:*], [#data.metadata.valid_until.date],
-    ..if "version" in data.metadata { ([*Version:*], [#data.metadata.version]) } else { () },
+    [*#t("offer", "offer_number"):*], [#data.metadata.offer_number],
+    [*#t("offer", "offer_date"):*], [#data.metadata.offer_date.date],
+    [*#t("offer", "valid_until"):*], [#data.metadata.valid_until.date],
+    ..if "version" in data.metadata { ([*#t("common", "version"):*], [#data.metadata.version]) } else { () },
     ..if "project_reference" in data.metadata and data.metadata.project_reference != none { 
-      ([*Projekt:*], [#data.metadata.project_reference]) 
+      ([*#t("common", "project"):*], [#data.metadata.project_reference]) 
     } else { () },
   )
 ]
@@ -62,14 +62,14 @@
 #v(1cm)
 
 // Title
-#text(size: size-xxlarge, weight: "bold", fill: color-primary)[Angebot]
+#text(size: size-xxlarge, weight: "bold", fill: color-primary)[#t("offer", "title")]
 
 #v(0.5cm)
 
 // Introduction
-[Sehr geehrte Damen und Herren,
+[#t("offer", "greeting")
 
-vielen Dank für Ihr Interesse an unseren Leistungen. Gerne unterbreiten wir Ihnen folgendes Angebot:]
+#t("offer", "intro")]
 
 #v(1cm)
 
@@ -80,7 +80,7 @@ vielen Dank für Ihr Interesse an unseren Leistungen. Gerne unterbreiten wir Ihn
   stroke: (x, y) => if y == 0 { (bottom: border-normal + color-accent) } else { none },
   inset: 8pt,
 
-  [*Pos.*], [*Beschreibung*], [*Menge*], [*Einzelpreis*], [*Gesamt*],
+  [*#t("offer", "position")*], [*#t("offer", "description")*], [*#t("offer", "quantity")*], [*#t("offer", "unit_price")*], [*#t("offer", "total")*],
 
   ..for item in data.items {
     (
@@ -117,14 +117,14 @@ vielen Dank für Ihr Interesse an unseren Leistungen. Gerne unterbreiten wir Ihn
     row-gutter: 0.4em,
     align: (right, right),
 
-    [Zwischensumme:], [#data.totals.subtotal.amount #data.totals.subtotal.currency],
+    [#t("offer", "subtotal"):], [#data.totals.subtotal.amount #data.totals.subtotal.currency],
     ..if has_discount {
       ([Rabatt:], [-#data.totals.discount_total.amount #data.totals.discount_total.currency])
     } else {
       ()
     },
     [], [],
-    [*Gesamtbetrag:*], [*#data.totals.total.amount #data.totals.total.currency*],
+    [*#t("offer", "grand_total"):*], [*#data.totals.total.amount #data.totals.total.currency*],
   )
 ]
 
@@ -138,20 +138,20 @@ vielen Dank für Ihr Interesse an unseren Leistungen. Gerne unterbreiten wir Ihn
     radius: 3pt,
     width: 100%,
   )[
-    *Konditionen*
+    *#t("offer", "conditions")*
 
     #v(0.5em)
 
-    *Gültigkeit:* #data.terms.validity
+    *#t("offer", "validity"):* #data.terms.validity
 
     #if "payment_terms" in data.terms and data.terms.payment_terms != none [
 
-      *Zahlungsbedingungen:* #data.terms.payment_terms
+      *#t("offer", "payment_terms"):* #data.terms.payment_terms
     ]
 
     #if "delivery_terms" in data.terms and data.terms.delivery_terms != none [
 
-      *Lieferbedingungen:* #data.terms.delivery_terms
+      *#t("offer", "delivery_terms"):* #data.terms.delivery_terms
     ]
   ]
 ]
@@ -167,11 +167,11 @@ vielen Dank für Ihr Interesse an unseren Leistungen. Gerne unterbreiten wir Ihn
 
 // Closing
 [
-Wir freuen uns auf Ihre Rückmeldung und stehen für Rückfragen gerne zur Verfügung.
+#t("offer", "closing")
 
 #v(1cm)
 
-Mit freundlichen Grüßen
+#t("offer", "regards")
 
 #v(1.5cm)
 

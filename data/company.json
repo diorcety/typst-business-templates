@@ -1,5 +1,6 @@
 {
   "name": "Mustermann IT-Services",
+  "language": "de",
   "logo": "data/logo.png",
   "logo_width": "3cm",
   "branding": {

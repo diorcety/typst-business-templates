@@ -8,6 +8,10 @@
 // Load company data
 #let company = json("../../data/company.json")
 
+// Localization
+#let lang = if "language" in company { company.language } else { "de" }
+#let locale = json("../../locale/" + lang + ".json")
+
 // Document function for flexible use
 #let documentation(
   title: none,
@@ -142,18 +146,18 @@
         align: (right, left),
 
         ..if project_name != none {
-          ([*Projekt:*], [#project_name])
+          ([*#locale.common.project:*], [#project_name])
         } else { () },
         ..if client_name != none {
-          ([*Kunde:*], [#client_name])
+          ([*#locale.common.client:*], [#client_name])
         } else { () },
-        [*Version:*], [#version],
-        [*Status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
+        [*#locale.common.version:*], [#version],
+        [*#locale.common.status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
         ..if created_at != none {
-          ([*Erstellt:*], [#created_at])
+          ([*#locale.common.created:*], [#created_at])
         } else { () },
         ..if authors.len() > 0 {
-          ([*Autoren:*], [#authors.join(", ")])
+          ([*#locale.common.authors:*], [#authors.join(", ")])
         } else { () },
       )
 
@@ -178,7 +182,7 @@
     #outline(
       title: [
         #set text(size: size-xxlarge, weight: "bold")
-        Inhaltsverzeichnis
+        #locale.common.table_of_contents
       ],
       indent: 1em,
       depth: 3,
