@@ -1,6 +1,6 @@
-# Generated files (except examples)
+# Generated files (except output folder)
 *.pdf
-!examples/output/*.pdf
+!output/*.pdf
 
 # Rust
 /cli/target/
