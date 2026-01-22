@@ -186,16 +186,17 @@ The `examples/` directory contains complete, ready-to-use examples for all docum
 
 | Document | JSON Data | Generated PDF |
 |----------|-----------|---------------|
-| Invoice | [`examples/data/invoice-example.json`](examples/data/invoice-example.json) | [`examples/output/invoice-example.pdf`](examples/output/invoice-example.pdf) |
-| Offer | [`examples/data/offer-example.json`](examples/data/offer-example.json) | [`examples/output/offer-example.pdf`](examples/output/offer-example.pdf) |
-| Credentials | [`examples/data/credentials-example.json`](examples/data/credentials-example.json) | [`examples/output/credentials-example.pdf`](examples/output/credentials-example.pdf) |
-| Concept | [`examples/data/concept-example.json`](examples/data/concept-example.json) | [`examples/output/concept-example.pdf`](examples/output/concept-example.pdf) |
+| Invoice | [`examples/data/invoice-example.json`](examples/data/invoice-example.json) | [`output/invoice-example.pdf`](output/invoice-example.pdf) |
+| Offer | [`examples/data/offer-example.json`](examples/data/offer-example.json) | [`output/offer-example.pdf`](output/offer-example.pdf) |
+| Credentials | [`examples/data/credentials-example.json`](examples/data/credentials-example.json) | [`output/credentials-example.pdf`](output/credentials-example.pdf) |
+| Concept | [`examples/data/concept-example.json`](examples/data/concept-example.json) | [`output/concept-example.pdf`](output/concept-example.pdf) |
+| Documentation | [`examples/data/documentation-example.json`](examples/data/documentation-example.json) | [`output/documentation-example.pdf`](output/documentation-example.pdf) |
 
 ### Try It Yourself
 
 ```bash
-# Compile an example
-typst compile --root . templates/invoice/default.typ output/my-invoice.pdf \
+# Compile an example (with bundled fonts)
+typst compile --root . --font-path fonts templates/invoice/default.typ output/my-invoice.pdf \
   --input data=/examples/data/invoice-example.json
 
 # Or use the CLI
@@ -235,6 +236,45 @@ Templates are written in [Typst](https://typst.app/docs), a modern alternative t
 - Edit colors in `templates/common/styles.typ`
 - Modify layouts in `templates/<type>/default.typ`
 - Add your logo to `data/company.json`
+
+### Branding Configuration
+
+Customize colors and fonts in `data/company.json`:
+
+```json
+{
+  "branding": {
+    "accent_color": "#E94B3C",
+    "primary_color": "#2c3e50",
+    "font_preset": "inter"
+  }
+}
+```
+
+### Font Presets
+
+10 professional Google Font combinations are available:
+
+| Preset | Body/Heading | Mono | Style |
+|--------|--------------|------|-------|
+| `inter` | Inter | JetBrains Mono | Modern, clean |
+| `roboto` | Roboto | Roboto Mono | Google's signature |
+| `open-sans` | Open Sans | Source Code Pro | Friendly |
+| `lato` | Lato | Fira Code | Elegant |
+| `montserrat` | Montserrat | Fira Code | Geometric |
+| `source-sans` | Source Sans 3 | Source Code Pro | Professional |
+| `poppins` | Poppins | JetBrains Mono | Playful |
+| `raleway` | Raleway | Fira Code | Sophisticated |
+| `nunito` | Nunito | JetBrains Mono | Rounded |
+| `work-sans` | Work Sans | Fira Code | Neutral |
+| `default` | Helvetica | Courier New | System fallback |
+
+All fonts are included in the `fonts/` directory. Use `--font-path fonts` when compiling:
+
+```bash
+typst compile --root . --font-path fonts templates/invoice/default.typ output/invoice.pdf \
+  --input data=/path/to/invoice.json
+```
 
 ## AI Integration Tips
 
