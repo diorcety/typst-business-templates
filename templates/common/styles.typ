@@ -1,10 +1,11 @@
 // Common Typst Styles
-// Reusable style definitions for all business document templates
+// This file contains reusable style definitions for all templates
+// Based on casoon-documents styling
 
-// Load company data for branding colors
+// Load company data for branding colors (if available)
 #let company-data = json("../../data/company.json")
 
-// COLOR PALETTE (with company branding override)
+// Color Palette (with company branding override)
 #let color-primary = if "branding" in company-data and "primary_color" in company-data.branding {
   rgb(company-data.branding.primary_color)
 } else {
@@ -25,28 +26,53 @@
 #let color-white = rgb("#ffffff")
 #let color-warning = rgb("#fff8e1")
 
-// TYPOGRAPHY
+// Typography
 #let font-body = "Helvetica"
 #let font-heading = "Helvetica"
 #let font-mono = "Courier New"
 
-#let size-xs = 8pt
-#let size-small = 9pt
-#let size-normal = 10pt
-#let size-medium = 11pt
-#let size-large = 12pt
-#let size-xlarge = 14pt
-#let size-xxlarge = 18pt
-#let size-title = 24pt
+#let size-xs = 7pt
+#let size-small = 8pt
+#let size-normal = 9pt
+#let size-medium = 10pt
+#let size-large = 11pt
+#let size-xlarge = 13pt
+#let size-xxlarge = 16pt
+#let size-title = 22pt
 
-// Text style presets
-#let text-body = (font: font-body, size: size-medium, fill: color-text)
-#let text-small = (font: font-body, size: size-small, fill: color-text-light)
-#let text-heading = (font: font-heading, size: size-large, fill: color-primary, weight: "bold")
-#let text-title = (font: font-heading, size: size-title, fill: color-primary, weight: "bold")
-#let text-mono = (font: font-mono, size: size-small)
+// Text Styles (as dictionaries for use with set text(..style))
+#let text-body = (
+  font: font-body,
+  size: size-medium,
+  fill: color-text,
+)
 
-// LAYOUT SPACING
+#let text-small = (
+  font: font-body,
+  size: size-small,
+  fill: color-text-light,
+)
+
+#let text-heading = (
+  font: font-heading,
+  size: size-large,
+  fill: color-primary,
+  weight: "bold",
+)
+
+#let text-title = (
+  font: font-heading,
+  size: size-xxlarge,
+  fill: color-primary,
+  weight: "bold",
+)
+
+#let text-mono = (
+  font: font-mono,
+  size: size-small,
+)
+
+// Layout Spacing
 #let spacing-xs = 0.2em
 #let spacing-small = 0.3em
 #let spacing-normal = 0.5em
@@ -54,13 +80,13 @@
 #let spacing-large = 1.5em
 #let spacing-xlarge = 2em
 
-// BORDERS
+// Border Styles
 #let border-thin = 0.5pt
 #let border-normal = 1pt
 #let border-thick = 2pt
 
 // UTILITY: Currency format
-#let currency(amount, symbol: "EUR") = [#amount #symbol]
+#let format-currency(amount, currency: "EUR") = [#amount #currency]
 
 // UTILITY: Pill/tag component
 #let pill(content, stroke-color: color-text-light) = box(

@@ -1,5 +1,5 @@
-// Credentials Document Template (Zugangsdaten)
-// Secure credentials documentation for clients
+// Accounts/Credentials Document Template (Zugangsdaten)
+// Based on casoon-documents structure
 
 #import "../common/styles.typ": *
 
@@ -35,7 +35,7 @@
         align: (left, center, right),
         [#data.metadata.client_name],
         [Seite #counter(page).display()],
-        [#data.metadata.created_at]
+        [#data.metadata.created_at.date]
       )
     ]
   }
@@ -56,22 +56,30 @@
 #show heading.where(level: 2): it => {
   v(18pt)
   block(sticky: true, width: 100%)[
-    #text(size: size-large, weight: "bold")[#it.body]
+    #text(size: size-xlarge, weight: "bold")[#it.body]
   ]
   v(8pt)
 }
 
+// ============================================================================
 // TITLE PAGE
+// ============================================================================
+
 #v(50pt)
 
-// Logo placeholder (replace with your logo)
+// Logo placeholder
 #align(center)[
-  #box(
-    stroke: 1pt + color-border,
-    inset: 1em,
-    radius: 4pt,
-  )[
-    #text(size: size-xlarge, fill: color-text-light)[LOGO]
+  #if "logo" in company and company.logo != none [
+    #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
+    #image("../../" + company.logo, width: logo-width)
+  ] else [
+    #box(
+      stroke: 1pt + color-border,
+      inset: 1em,
+      radius: 4pt,
+    )[
+      #text(size: size-xlarge, fill: color-text-light)[LOGO]
+    ]
   ]
 ]
 
@@ -103,7 +111,7 @@
     align: (right, left),
     [*Projekt:*], [#data.metadata.project_name],
     [*Kunde:*], [#data.metadata.client_name],
-    [*Datum:*], [#data.metadata.created_at],
+    [*Datum:*], [#data.metadata.created_at.date],
   )
 ]
 
@@ -111,9 +119,16 @@
 
 // Security warning
 #align(center)[
-  #warning-box(accent: color-accent)[
+  #box(
+    stroke: 1.5pt + color-accent,
+    radius: 6pt,
+    inset: 1em,
+    width: 70%,
+  )[
     #align(center)[
-      #text(size: size-medium, fill: color-accent, weight: "bold")[VERTRAULICH]
+      #text(size: size-medium, fill: color-accent, weight: "bold")[
+        VERTRAULICH
+      ]
       #v(0.3em)
       #text(size: size-small)[
         Dieses Dokument enthält vertrauliche Zugangsdaten. #linebreak()
@@ -125,7 +140,7 @@
 
 #v(30pt)
 
-// Tags
+// Tags as outlined pills
 #if "tags" in data.metadata and data.metadata.tags.len() > 0 [
   #align(center)[
     #for tag in data.metadata.tags [
@@ -136,7 +151,7 @@
   #v(30pt)
 ]
 
-// Contact
+// Email
 #align(center)[
   #set text(size: size-small, fill: color-text-light)
   #company.contact.email
@@ -146,7 +161,11 @@
 
 #pagebreak()
 
-// CONTENT: Services and credentials
+// ============================================================================
+// CONTENT
+// ============================================================================
+
+// Services and credentials
 #for (index, service) in data.services.enumerate() [
   #if index > 0 [
     #v(2em)
@@ -155,13 +174,13 @@
 
   = #service.name
 
-  #if "provider" in service and service.provider != none [
-    *Anbieter:* #service.provider
+  #if "description" in service and service.description != none [
+    #service.description
     #v(0.5em)
   ]
 
-  #if "description" in service and service.description != none [
-    #service.description
+  #if "url" in service and service.url != none [
+    *URL:* #link(service.url)[#service.url]
     #v(0.5em)
   ]
 
@@ -169,7 +188,12 @@
   #if "technical" in service and service.technical.len() > 0 [
     == Technische Einstellungen
 
-    #info-box[
+    #block(
+      fill: color-background,
+      inset: 1em,
+      radius: 4pt,
+      width: 100%,
+    )[
       #table(
         columns: (auto, 1fr),
         stroke: none,
@@ -192,11 +216,11 @@
       inset: 0.6em,
       stroke: border-thin + color-border,
       fill: (x, y) => if y == 0 { color-background } else { none },
-      [*Protokoll*], [*Port*], [*SSL-Port*],
+      [*Port*], [*Protokoll*], [*Beschreibung*],
       ..service.ports.map(port => (
-        [#port.protocol],
         [#port.port],
-        [#if "ssl_port" in port and port.ssl_port != none [#port.ssl_port] else [-]]
+        [#port.protocol],
+        [#if "description" in port [#port.description] else [-]]
       )).flatten()
     )
     #v(0.5em)
@@ -213,8 +237,8 @@
         radius: 4pt,
         width: 100%,
       )[
-        #if "name" in cred and cred.name != none [
-          #text(weight: "bold", size: size-medium)[#cred.name]
+        #if "description" in cred and cred.description != none [
+          #text(weight: "bold", size: size-medium)[#cred.description]
           #v(0.5em)
         ]
 
@@ -222,39 +246,32 @@
           columns: (auto, 1fr),
           stroke: none,
           inset: 0.3em,
+
           [*Benutzername:*], [#raw(cred.username)],
           [*Passwort:*], [#raw(cred.password)],
-          ..if "email" in cred and cred.email != none { ([*E-Mail:*], [#cred.email]) } else { () },
-          ..if "role" in cred and cred.role != none { ([*Rolle:*], [#cred.role]) } else { () },
+
+          ..if "credential_type" in cred and cred.credential_type != none {
+            ([*Typ:*], [#cred.credential_type])
+          } else {
+            ()
+          },
         )
-
-        #if "two_factor" in cred and cred.two_factor != none [
-          #v(0.3em)
-          #box(fill: color-warning, inset: 0.5em, radius: 3pt)[
-            *2FA:* #cred.two_factor.method
-            #if "secret" in cred.two_factor and cred.two_factor.secret != none [
-              #h(1em) Secret: #raw(cred.two_factor.secret)
-            ]
-          ]
-        ]
-
-        #if "notes" in cred and cred.notes != none [
-          #v(0.5em)
-          #text(size: size-small, style: "italic", fill: color-text-light)[#cred.notes]
-        ]
       ]
       #v(0.8em)
     ]
   ]
 
-  // Service notes
+  // Notes
   #if "notes" in service and service.notes != none [
     == Hinweise
     #service.notes
   ]
 ]
 
+// ============================================================================
 // SECURITY NOTICE
+// ============================================================================
+
 #v(2em)
 #line(length: 100%, stroke: border-thin + color-border)
 #v(1em)

@@ -6,7 +6,9 @@
     "project_name": "Digitale Transformation",
     "version": "1.0",
     "status": "draft",
-    "created_at": "22.01.2025",
+    "created_at": {
+      "date": "2025-01-22"
+    },
     "tags": ["Digitalisierung", "Handwerk", "Prozessoptimierung"],
     "show_toc": true
   },

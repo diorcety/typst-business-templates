@@ -1,7 +1,11 @@
-// Concept/Proposal Document Template (Konzept)
-// Professional concept and proposal documentation
+// Concept/Design Document Template (Konzept)
+// Based on casoon-documents structure
+// Supports both JSON input and direct .typ content files
 
 #import "../common/styles.typ": *
+
+// Load company data
+#let company = json("../../data/company.json")
 
 // Document function for flexible use
 #let concept(
@@ -10,146 +14,208 @@
   client_name: none,
   project_name: none,
   version: "1.0",
-  status: "draft",
+  status: "Entwurf",
   tags: (),
   created_at: none,
-  show_toc: false,
+  authors: (),
+  show_toc: true,
   body
 ) = {
-  // Load company data
-  let company = json("../../data/company.json")
 
   set page(
     paper: "a4",
-    margin: (left: 50pt, right: 50pt, top: 70pt, bottom: 70pt),
-    header: context {
-      if counter(page).get().first() > 1 [
-        #set text(size: size-small, fill: color-text-light)
+    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 100pt),
+
+    header: context [
+      #if counter(page).get().first() > 1 [
+        #set text(size: size-small)
         #grid(
-          columns: (1fr, 1fr),
-          align: (left, right),
-          [#document_number],
-          [#title]
-        )
-        #line(length: 100%, stroke: border-thin + color-text-light)
-      ]
-    },
-    footer: context {
-      if counter(page).get().first() > 1 [
-        #set text(size: size-small, fill: color-text-light)
-        #line(length: 100%, stroke: border-thin + color-text-light)
-        #v(5pt)
-        #grid(
-          columns: (1fr, 1fr, 1fr),
+          columns: (1fr, auto, 1fr),
           align: (left, center, right),
-          [#company.name],
-          [Seite #counter(page).display("1 / 1", both: true)],
-          [#if created_at != none { created_at } else { datetime.today().display("[day].[month].[year]") }]
+          [#document_number],
+          [#title],
+          [Version #version]
         )
+        #v(5pt)
+        #line(length: 100%, stroke: border-thin)
       ]
-    }
+    ],
+
+    footer: context [
+      #line(length: 100%, stroke: border-thin)
+      #v(5pt)
+      #set text(size: size-xs)
+      #grid(
+        columns: (125pt, 125pt, 125pt, 125pt),
+        column-gutter: 0pt,
+
+        // Column 1: Company Info
+        [
+          #strong[#company.name] #linebreak()
+          #company.address.street #company.address.house_number #linebreak()
+          #company.address.postal_code #company.address.city
+        ],
+
+        // Column 2: Contact
+        [
+          Tel.: #company.contact.phone #linebreak()
+          Email: #company.contact.email #linebreak()
+          #if "website" in company.contact [Web: #company.contact.website]
+        ],
+
+        // Column 3: Document Info
+        [
+          #strong[Dokument:] #linebreak()
+          #document_number #linebreak()
+          Seite #counter(page).display()
+        ],
+
+        // Column 4: Date
+        [
+          #strong[Erstellt:] #linebreak()
+          #if created_at != none [#created_at] #linebreak()
+          Status: #status
+        ],
+      )
+    ]
   )
 
   set text(font: font-body, size: size-medium, lang: "de")
-  set par(leading: 0.65em, justify: true)
-
-  // Headings
+  set par(justify: true, leading: 0.65em)
   set heading(numbering: "1.1")
 
+  // Heading styles
   show heading.where(level: 1): it => {
-    v(30pt)
-    block(sticky: true, width: 100%)[
-      #text(size: size-xxlarge, weight: "bold", fill: color-accent)[#it]
-    ]
-    v(15pt)
+    v(20pt)
+    text(size: size-xxlarge, weight: "bold", fill: color-accent)[#it]
+    v(10pt)
   }
 
   show heading.where(level: 2): it => {
     v(15pt)
-    block(sticky: true, width: 100%)[
-      #text(size: size-xlarge, weight: "bold")[#it]
-    ]
-    v(10pt)
-  }
-
-  show heading.where(level: 3): it => {
-    v(12pt)
-    block(sticky: true, width: 100%)[
-      #text(size: size-large, weight: "bold")[#it]
-    ]
+    text(size: size-xlarge, weight: "bold")[#it]
     v(8pt)
   }
 
-  // Links
-  show link: it => text(fill: rgb("#3498db"), it)
-
-  // Code blocks
-  show raw.where(block: true): it => {
-    set text(size: size-small)
-    block(fill: color-background, inset: 10pt, radius: 3pt, width: 100%, it)
+  show heading.where(level: 3): it => {
+    v(10pt)
+    text(size: size-large, weight: "bold")[#it]
+    v(5pt)
   }
 
-  // Tables
-  set table(
-    stroke: border-thin + color-text-light,
-    fill: (x, y) => if y == 0 { rgb("#f0f0f0") }
-  )
-
+  // ============================================================================
   // TITLE PAGE
-  [
-    #align(center)[
-      #v(50pt)
+  // ============================================================================
 
-      // Logo placeholder
-      #box(
-        stroke: 1pt + color-border,
-        inset: 1em,
-        radius: 4pt,
-      )[
-        #text(size: size-xlarge, fill: color-text-light)[LOGO]
+  page(
+    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
+    header: none,
+    footer: none,
+  )[
+    // Logo (right side, top)
+    #place(
+      right + top,
+      dx: 0pt,
+      dy: 0pt,
+    )[
+      #if "logo" in company and company.logo != none [
+        #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
+        #image("../../" + company.logo, width: logo-width)
       ]
-
-      #v(30pt)
-
-      #text(size: size-title, weight: "bold")[#title]
-
-      #v(20pt)
-
-      #text(size: size-xlarge, fill: color-accent, weight: "bold")[KONZEPT]
-      #text(size: size-xlarge, fill: color-text-light)[· #document_number]
-
-      #v(30pt)
-
-      #grid(
-        columns: (auto, auto),
-        column-gutter: 20pt,
-        row-gutter: 14pt,
-        align: (right, left),
-        [*Projekt:*], [#project_name],
-        [*Kunde:*], [#client_name],
-        [*Version:*], [#version],
-        [*Status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
-        ..if created_at != none { ([*Erstellt:*], [#created_at]) } else { () },
-      )
-
-      #v(1fr)
-
-      #if tags.len() > 0 [
-        #tags.map(tag => pill(tag)).join(h(8pt))
-      ]
-
-      #v(40pt)
     ]
+
+    #v(120pt)
+
+    // Document type
+    #align(left)[
+      #set text(size: size-xlarge, fill: color-text-light)
+      KONZEPT
+    ]
+
+    #v(10pt)
+
+    // Title
+    #align(left)[
+      #set text(size: size-title, weight: "bold")
+      #title
+    ]
+
+    #v(30pt)
+
+    // Project and Client
+    #align(left)[
+      #set text(size: size-large)
+      #set par(leading: 0.8em)
+
+      #strong[Projekt:] #project_name #linebreak()
+      #strong[Kunde:] #client_name
+    ]
+
+    #v(60pt)
+
+    // Metadata table
+    #align(left)[
+      #set text(size: size-medium)
+      #table(
+        columns: (110pt, 1fr),
+        stroke: none,
+        inset: (x: 0pt, y: 6pt),
+        align: (left, left),
+
+        [Dokumentnummer:], [#document_number],
+        [Version:], [#version],
+        [Datum:], [#if created_at != none [#created_at]],
+        [Status:], [#status],
+
+        ..if authors.len() > 0 {
+          ([Erstellt von:], [#authors.join(", ")])
+        } else {
+          ()
+        },
+      )
+    ]
+
+    #v(1fr)
+
+    // Tags
+    #if tags.len() > 0 [
+      #for tag in tags [
+        #pill(tag)
+        #h(8pt)
+      ]
+      #v(20pt)
+    ]
+
+    // Company footer
+    #align(center)[
+      #set text(size: size-small, fill: color-text-light)
+      #company.name #if "business_owner" in company and company.business_owner != none [ · #company.business_owner] · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city #linebreak()
+      Tel.: #company.contact.phone · Email: #company.contact.email #if "website" in company.contact [ · Web: #company.contact.website]
+    ]
+  ]
+
+  // ============================================================================
+  // TABLE OF CONTENTS
+  // ============================================================================
+
+  if show_toc [
+    #outline(
+      title: [
+        #set text(size: size-xxlarge, weight: "bold")
+        Inhaltsverzeichnis
+      ],
+      indent: 1em,
+      depth: 3,
+    )
 
     #pagebreak()
-
-    #if show_toc [
-      #outline(title: "Inhaltsverzeichnis", indent: auto)
-      #pagebreak()
-    ]
-
-    #body
   ]
+
+  // ============================================================================
+  // MAIN CONTENT
+  // ============================================================================
+
+  body
 }
 
 // For JSON-based usage
@@ -160,6 +226,16 @@
 }
 
 #if data != none {
+  let created-date = if "created_at" in data.metadata {
+    if type(data.metadata.created_at) == dictionary and "date" in data.metadata.created_at {
+      data.metadata.created_at.date
+    } else {
+      data.metadata.created_at
+    }
+  } else {
+    none
+  }
+  
   let content-body = if "content_file" in data {
     include(data.content_file)
   } else if "content" in data {
@@ -174,10 +250,11 @@
     client_name: data.metadata.client_name,
     project_name: data.metadata.project_name,
     version: if "version" in data.metadata { data.metadata.version } else { "1.0" },
-    status: if "status" in data.metadata { data.metadata.status } else { "draft" },
+    status: if "status" in data.metadata { data.metadata.status } else { "Entwurf" },
     tags: if "tags" in data.metadata { data.metadata.tags } else { () },
-    created_at: if "created_at" in data.metadata { data.metadata.created_at } else { none },
-    show_toc: if "show_toc" in data.metadata { data.metadata.show_toc } else { false },
+    created_at: created-date,
+    authors: if "authors" in data.metadata { data.metadata.authors } else { () },
+    show_toc: if "show_toc" in data.metadata { data.metadata.show_toc } else { true },
     content-body
   )
 }

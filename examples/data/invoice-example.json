@@ -1,9 +1,15 @@
 {
   "metadata": {
     "invoice_number": "RE-2025-001",
-    "invoice_date": "22.01.2025",
-    "due_date": "05.02.2025",
-    "customer_number": "K-001"
+    "invoice_date": {
+      "date": "2025-01-22"
+    },
+    "due_date": {
+      "date": "2025-02-05"
+    },
+    "customer_number": "K-001",
+    "project_reference": "Website Redesign Projekt",
+    "performance_period": "01/2025"
   },
   "recipient": {
     "name": "Thomas Beispiel",
@@ -12,45 +18,148 @@
       "street": "Musterplatz",
       "house_number": "15",
       "postal_code": "12345",
-      "city": "Musterstadt"
+      "city": "Musterstadt",
+      "country": "Deutschland"
     }
   },
   "items": [
     {
-      "description": "Webentwicklung - Responsive Website Redesign\nNeugestaltung der Unternehmenswebsite mit modernem Design, optimiert für Desktop, Tablet und Mobile",
-      "quantity": 32,
+      "position": 1,
+      "description": "Webentwicklung - Responsive Website Redesign",
+      "sub_items": [
+        "- Neugestaltung der Unternehmenswebsite mit modernem Design",
+        "- Optimierung für Desktop, Tablet und Mobile",
+        "- SEO-Grundoptimierung"
+      ],
+      "quantity": "32",
       "unit": "Stunden",
-      "unit_price": "95,00 EUR",
-      "total_price": "3.040,00 EUR"
+      "unit_price": {
+        "amount": "95",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "3040",
+        "currency": "EUR"
+      }
     },
     {
-      "description": "Backend-Entwicklung - Kontaktformular mit E-Mail-Integration\nPHP-Backend mit Spam-Schutz und automatischer Bestätigungsmail",
-      "quantity": 8,
+      "position": 2,
+      "description": "Backend-Entwicklung - Kontaktformular mit E-Mail-Integration",
+      "sub_items": [
+        "- PHP-Backend mit Spam-Schutz",
+        "- Automatische Bestätigungsmail"
+      ],
+      "quantity": "8",
       "unit": "Stunden",
-      "unit_price": "95,00 EUR",
-      "total_price": "760,00 EUR"
+      "unit_price": {
+        "amount": "95",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "760",
+        "currency": "EUR"
+      }
     },
     {
-      "description": "Content-Migration\nÜbernahme und Aufbereitung bestehender Inhalte inkl. SEO-Optimierung",
-      "quantity": 6,
+      "position": 3,
+      "description": "Content-Migration",
+      "sub_items": [
+        "- Übernahme und Aufbereitung bestehender Inhalte",
+        "- SEO-Optimierung der Texte"
+      ],
+      "quantity": "6",
       "unit": "Stunden",
-      "unit_price": "85,00 EUR",
-      "total_price": "510,00 EUR"
+      "unit_price": {
+        "amount": "85",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "510",
+        "currency": "EUR"
+      }
     },
     {
-      "description": "Webhosting Setup (1 Jahr)\nManaged Hosting inkl. SSL-Zertifikat, tägliche Backups, 99.9% Uptime",
-      "quantity": 1,
+      "position": 4,
+      "description": "Webhosting Setup (1 Jahr)",
+      "sub_items": [
+        "- Managed Hosting inkl. SSL-Zertifikat",
+        "- Tägliche Backups",
+        "- 99.9% Uptime-Garantie"
+      ],
+      "quantity": "1",
       "unit": "Pauschal",
-      "unit_price": "299,00 EUR",
-      "total_price": "299,00 EUR"
+      "unit_price": {
+        "amount": "299",
+        "currency": "EUR"
+      },
+      "vat_rate": {
+        "code": "Standard",
+        "percentage": "19"
+      },
+      "total": {
+        "amount": "299",
+        "currency": "EUR"
+      }
     }
   ],
   "totals": {
-    "subtotal": "4.609,00 EUR",
-    "tax_rate": "19%",
-    "tax_amount": "875,71 EUR",
-    "total": "5.484,71 EUR"
+    "subtotal": {
+      "amount": "4609",
+      "currency": "EUR"
+    },
+    "vat_breakdown": [
+      {
+        "rate": {
+          "code": "Standard",
+          "percentage": "19"
+        },
+        "base": {
+          "amount": "4609",
+          "currency": "EUR"
+        },
+        "amount": {
+          "amount": "875.71",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "vat_total": {
+      "amount": "875.71",
+      "currency": "EUR"
+    },
+    "total": {
+      "amount": "5484.71",
+      "currency": "EUR"
+    }
   },
-  "notes": "Vielen Dank für Ihr Vertrauen! Bei Fragen zur Rechnung erreichen Sie uns unter buchhaltung@digital-solutions.de",
-  "terms": null
+  "payment": {
+    "payment_terms": "Zahlbar ohne Abzug innerhalb von 14 Tagen",
+    "due_date": {
+      "date": "2025-02-05"
+    },
+    "bank_account": {
+      "bank_name": "Muster Volksbank eG",
+      "account_holder": "Mustermann IT-Services",
+      "iban": "DE89 3704 0044 0532 0130 00",
+      "bic": "COBADEFFXXX"
+    },
+    "payment_methods": ["BankTransfer"]
+  },
+  "salutation": {
+    "greeting": "Sehr geehrter Herr Beispiel,",
+    "introduction": "vielen Dank für Ihren Auftrag. Wir erlauben uns, wie folgt zu berechnen:"
+  },
+  "terms": "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
 }
