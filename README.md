@@ -37,9 +37,12 @@ An AI assistant (we recommend [Claude](https://claude.ai)) generates the JSON, y
 - **Offer Template** - Quotes and proposals with item breakdowns
 - **Credentials Template** - Secure access documentation for clients
 - **Concept Template** - Project concepts and proposals
+- **Documentation Template** - Technical documentation, API docs, project docs
 - **Interactive CLI** - Manage clients, projects, and create documents
 - **SQLite Database** - Automatic numbering, client/project management
 - **Watch Mode** - Auto-rebuild on file changes
+- **10 Font Presets** - Bundled Google Fonts (Inter, Roboto, Montserrat, etc.)
+- **Customizable Branding** - Colors, fonts, logo via company.json
 
 ## Quick Start
 
@@ -228,6 +231,12 @@ docgen compile examples/data/invoice-example.json
 - 3-phase implementation plan
 - Investment overview and ROI calculation
 - 10 pages with table of contents
+
+**Documentation Example (DOC-2025-001)**
+- REST API documentation
+- Authentication, endpoints, error handling
+- Rate limiting, webhooks, changelog
+- Code examples with syntax highlighting
 
 ## Template Customization
 
