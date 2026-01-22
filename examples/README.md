@@ -14,16 +14,19 @@ Complete example setups for different business types, each with company data, sa
 
 ### Usage
 
+**With docgen (recommended):**
 ```bash
-# Compile an example
-typst compile --root .. --font-path ../fonts ../templates/invoice/default.typ \
-  digitalagentur/output/invoice.pdf \
-  --input data=/examples/digitalagentur/data/invoice.json \
-  --input company=/examples/digitalagentur/data/company.json
-
-# Or from project root
 docgen compile examples/digitalagentur/data/invoice.json
 ```
+
+**With typst directly:**
+```bash
+typst compile --root . --font-path fonts templates/invoice/default.typ output/invoice.pdf \
+  --input data=/examples/digitalagentur/data/invoice.json \
+  --input company=/examples/digitalagentur/data/company.json
+```
+
+> `docgen` handles paths, fonts, and template selection automatically. The raw typst command requires specifying all paths manually.
 
 ## Template References
 

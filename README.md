@@ -20,6 +20,21 @@ Perfect for freelancers, agencies, and small businesses who want full control ov
 | Cloud dependency | Works offline |
 | Complex interfaces | Simple CLI + AI |
 
+### docgen vs. raw Typst
+
+While templates are built with [Typst](https://typst.app/), the `docgen` CLI simplifies everything:
+
+```bash
+# With docgen - just point to your JSON
+docgen compile invoice.json
+
+# With raw typst - you handle all the paths
+typst compile --root . --font-path fonts templates/invoice/default.typ output/invoice.pdf \
+  --input data=/path/to/invoice.json --input company=/path/to/company.json
+```
+
+`docgen` auto-detects document type, finds templates, loads fonts, and places output correctly.
+
 ### The AI Workflow
 
 Instead of clicking through forms, describe what you need:
