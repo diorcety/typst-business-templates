@@ -4,8 +4,8 @@
 
 Stop paying for bloated invoice and document software. This open-source solution combines:
 - **[Typst](https://typst.app/)** - Modern markup language for beautiful PDFs
-- **JSON Templates** - Simple, human-readable data format
-- **AI-Powered Creation** - Use Claude or other LLMs to generate document content
+- **JSON Data Format** - Simple, human-readable data for your documents
+- **AI-Powered Creation** - Use Claude or other LLMs to generate content
 - **Interactive CLI** - Manage clients, projects, and documents from your terminal
 
 Perfect for freelancers, agencies, and small businesses who want full control over their documents.
@@ -55,6 +55,8 @@ An AI assistant (we recommend [Claude](https://claude.ai)) generates the JSON, y
 - **Documentation Template** - Technical documentation, API docs, project docs
 - **Interactive CLI** - Manage clients, projects, and create documents
 - **SQLite Database** - Automatic numbering, client/project management
+- **Direct .typ File Support** - Write documents directly in Typst without JSON
+- **Template Package System** - Install templates as @local/docgen-* packages
 - **Watch Mode** - Auto-rebuild on file changes
 - **10 Font Presets** - Bundled Google Fonts (Inter, Roboto, Montserrat, etc.)
 - **Customizable Branding** - Colors, fonts, logo via company.json
@@ -124,6 +126,73 @@ nano data/company.json
 docgen
 ```
 
+## New: Direct .typ File Support & Template Packages
+
+### Direct .typ Documents
+
+Write documents directly in Typst syntax - perfect for concept documents, documentation, or any content-heavy documents:
+
+```typ
+#import "@local/docgen-concept:0.3.0": concept
+
+// Load company data from project directory
+#let company = json("company.json")
+
+#show: concept.with(
+  title: "E-Mail Migration Strategy",
+  document_number: "CAS-KON-2025-018",
+  client_name: "BHG Satow",
+  project_name: "E-Mail Migration",
+  version: "1.0",
+  status: "final",
+  company: company,
+)
+
+= Current Situation
+
+The client currently uses an outdated email infrastructure...
+
+= Proposed Solution
+
+Migration will be performed in multiple phases:
+
+1. Inventory of existing email addresses
+2. Setup of new mail server infrastructure
+3. Mailbox migration
+4. DNS switchover
+```
+
+Compile with:
+```bash
+docgen compile documents/concepts/2025/email-migration.typ
+```
+
+### Template Package System
+
+Templates are now available as Typst packages (`@local/docgen-*`):
+
+```bash
+# List available templates
+docgen template list
+
+# Install a template
+docgen template install concept
+
+# Use in your documents
+#import "@local/docgen-concept:0.3.0": concept
+```
+
+**Benefits:**
+- Clean imports: `@local/docgen-concept:0.3.0` instead of `../../../templates/`
+- Version pinning: Documents stay reproducible
+- Automatic installation: Packages install when needed
+- Easy updates: `docgen template update`
+
+**Package locations:**
+- macOS: `~/Library/Application Support/typst/packages/local/`
+- Linux: `~/.local/share/typst/packages/local/`
+- Windows: `%APPDATA%/typst/packages/local/`
+
 ## Workflow Options
 
 ### Option 1: Interactive CLI
@@ -187,14 +256,18 @@ docgen compile documents/invoices/RE-2025-001.json
 |---------|-------------|
 | `docgen` | Interactive mode |
 | `docgen init <name>` | Create new project |
-| `docgen compile <file>` | Compile JSON to PDF (add `--encrypt` for password protection) |
-| `docgen build` | Build all documents |
-| `docgen watch` | Watch and auto-rebuild |
+| `docgen compile <file>` | Compile JSON or .typ file to PDF (add `--encrypt` for password protection) |
+| `docgen build [path]` | Build all documents (.json and .typ files) in directory |
+| `docgen watch [path]` | Watch and auto-rebuild on changes |
 | `docgen client list` | List all clients |
 | `docgen client add` | Add new client |
 | `docgen client show <id>` | Show client details |
 | `docgen project list <client>` | List projects |
 | `docgen project add <client> <name>` | Add project |
+| `docgen template list` | List installed template packages |
+| `docgen template install <name>` | Install a template package |
+| `docgen template remove <name> <version>` | Remove a template package |
+| `docgen template update` | Update all templates to current version |
 
 
 ### PDF Encryption
@@ -266,57 +339,43 @@ Automatic, consistent numbering managed by SQLite:
 
 ## Examples
 
-The `examples/` directory contains complete, ready-to-use example projects for different types of businesses. Each project includes company data, sample documents, and pre-generated PDFs.
+The `examples/` directory contains complete, ready-to-use example projects for different types of businesses. Each project is self-contained with its own company data, documents, templates, and locales - just like a real project created with `docgen init`.
+
+See [examples/README.md](examples/README.md) for detailed information about each project.
 
 ### Example Projects
 
 #### 1. Digitalagentur (Web Agency)
 **Pixelwerk Digitalagentur** - Full-service web agency from Cologne
 
-| Document | Description | PDF |
-|----------|-------------|-----|
-| [Invoice](examples/digitalagentur/data/invoice.json) | Website relaunch for a carpentry shop (12,066.60 EUR) | [PDF](examples/digitalagentur/output/invoice.pdf) |
-| [Offer](examples/digitalagentur/data/offer.json) | E-commerce shop for organic farm (9,791.32 EUR) | [PDF](examples/digitalagentur/output/offer.pdf) |
+Complete project with 5 documents (Invoice, Offer, Credentials, Concept, Documentation) demonstrating both JSON and .typ workflows.
+
+[View Project →](examples/digitalagentur/)
 
 #### 2. Freelance Designer
-**Lisa Chen Design** - Freelance graphic designer from Hamburg (Kleinunternehmer)
+**Lisa Chen Design** - Freelance graphic designer from Hamburg
 
-| Document | Description | PDF |
-|----------|-------------|-----|
-| [Invoice](examples/freelance-designer/data/invoice.json) | Corporate design for startup (4,700 EUR, no VAT) | [PDF](examples/freelance-designer/output/invoice.pdf) |
-| [Offer](examples/freelance-designer/data/offer.json) | Packaging design for tea brand (4,490 EUR) | [PDF](examples/freelance-designer/output/offer.pdf) |
+Demonstrates **Kleinunternehmer** setup (§19 UStG - no VAT). Includes invoices, offers, and credentials.
+
+[View Project →](examples/freelance-designer/)
 
 #### 3. IT Consultant
 **TechVision Consulting** - IT consulting firm from Berlin
 
-| Document | Description | PDF |
-|----------|-------------|-----|
-| [Invoice](examples/it-consultant/data/invoice.json) | AWS cloud migration project (47,481 EUR) | [PDF](examples/it-consultant/output/invoice.pdf) |
-| [Offer](examples/it-consultant/data/offer.json) | IT security audit for law firm (26,763.10 EUR) | [PDF](examples/it-consultant/output/offer.pdf) |
+Demonstrates regular business with **19% VAT**. Includes security audits, penetration testing, and consulting services.
+
+[View Project →](examples/it-consultant/)
 
 ### Try It Yourself
 
 ```bash
-# Compile an example (with bundled fonts)
-typst compile --root . --font-path fonts templates/invoice/default.typ output/my-invoice.pdf \
-  --input data=/examples/digitalagentur/data/invoice.json \
-  --input company=/examples/digitalagentur/data/company.json
+# Compile any document from an example project
+cd examples/digitalagentur
+docgen build
 
-# Or use the CLI
-docgen compile examples/digitalagentur/data/invoice.json
+# Or compile a specific document
+docgen compile documents/invoices/2025/invoice.json
 ```
-
-### Basic Examples
-
-The `examples/data/` directory also contains basic template examples:
-
-| Document | JSON Data |
-|----------|-----------|
-| Invoice | [`examples/data/invoice-example.json`](examples/data/invoice-example.json) |
-| Offer | [`examples/data/offer-example.json`](examples/data/offer-example.json) |
-| Credentials | [`examples/data/credentials-example.json`](examples/data/credentials-example.json) |
-| Concept | [`examples/data/concept-example.json`](examples/data/concept-example.json) |
-| Documentation | [`examples/data/documentation-example.json`](examples/data/documentation-example.json) |
 
 ## Template Customization
 

@@ -4,31 +4,44 @@ This directory contains example projects and template references.
 
 ## Example Projects
 
-Complete example setups for different business types, each with company data, sample documents, and pre-generated PDFs.
+Complete, self-contained example projects for different business types. Each project has its own `data/`, `documents/`, `templates/`, `locale/`, and `output/` directories - just like a real project created with `docgen init`.
 
 | Directory | Business Type | Documents |
 |-----------|--------------|-----------|
-| [digitalagentur/](digitalagentur/) | Web Agency (Cologne) | Invoice, Offer, Credentials, Concept, Documentation |
-| [freelance-designer/](freelance-designer/) | Graphic Designer, Kleinunternehmer (Hamburg) | Invoice, Offer, Credentials, Concept, Documentation |
-| [it-consultant/](it-consultant/) | IT Consulting (Berlin) | Invoice, Offer, Credentials, Concept, Documentation |
+| [digitalagentur/](digitalagentur/) | Web Agency (Cologne) | 5 documents (Invoice, Offer, Credentials, Concept, Documentation) |
+| [freelance-designer/](freelance-designer/) | Graphic Designer, Kleinunternehmer (Hamburg) | 3 documents (Invoice, Offer, Credentials) |
+| [it-consultant/](it-consultant/) | IT Consulting (Berlin) | 3 documents (Invoice, Offer, Credentials) |
 
-Each project contains all 5 document types with realistic, industry-specific content and pre-generated PDFs.
+Each project is **fully functional** and can be used as a template for your own projects.
 
 ### Usage
 
-**With docgen (recommended):**
+Each example project is self-contained with its own `templates/` directory, just like a real project created with `docgen init`.
+
+**Compile all documents:**
 ```bash
-docgen compile examples/digitalagentur/data/invoice.json
+cd examples/digitalagentur
+docgen build
 ```
 
-**With typst directly:**
+**Compile specific documents:**
 ```bash
-typst compile --root . --font-path fonts templates/invoice/default.typ output/invoice.pdf \
-  --input data=/examples/digitalagentur/data/invoice.json \
-  --input company=/examples/digitalagentur/data/company.json
+# JSON-based documents
+docgen compile documents/invoices/2025/invoice.json
+docgen compile documents/offers/2025/offer.json
+docgen compile documents/credentials/2025/credentials.json
+
+# .typ documents (digitalagentur only)
+docgen compile documents/concepts/2025/concept.typ
+docgen compile documents/documentation/2025/documentation.typ
 ```
 
-> `docgen` handles paths, fonts, and template selection automatically. The raw typst command requires specifying all paths manually.
+**Note:** The digitalagentur example includes .typ documents (concept, documentation) that use the template package system. For these documents, the templates must be installed as packages first:
+
+```bash
+docgen template install concept
+docgen template install documentation
+```
 
 ### PDF Encryption
 
@@ -53,65 +66,90 @@ docgen compile examples/digitalagentur/data/credentials.json -o examples/digital
 
 > Requires `qpdf` installed: `brew install qpdf` (macOS) or `apt install qpdf` (Linux)
 
-## Template References
+## Direct .typ Documents (Template Package System)
 
-The `data/` directory contains basic reference examples for all document types.
+The digitalagentur example project demonstrates writing documents directly in Typst syntax using the template package system - perfect for concept documents and documentation.
 
-| Template | JSON | Content File |
-|----------|------|--------------|
-| Invoice | [invoice-example.json](data/invoice-example.json) | - |
-| Offer | [offer-example.json](data/offer-example.json) | - |
-| Credentials | [credentials-example.json](data/credentials-example.json) | - |
-| Concept | [concept-example.json](data/concept-example.json) | [concept-content.typ](data/concept-content.typ) |
-| Documentation | [documentation-example.json](data/documentation-example.json) | [documentation-content.typ](data/documentation-content.typ) |
+### How It Works
 
-### Compile Template References
+1. **Install template packages (one-time):**
+```bash
+docgen template install concept
+docgen template install documentation
+```
+
+2. **Write .typ documents with package imports:**
+```typ
+#import "@local/docgen-concept:0.3.0": concept
+
+#let company = json("../../../data/company.json")
+
+#show: concept.with(
+  title: "E-Commerce Shop für Biobauernhof",
+  document_number: "KO-2025-001",
+  client_name: "Hofbauer's Biohof",
+  project_name: "Onlineshop Entwicklung",
+  version: "1.0",
+  status: "final",
+  company: company,
+)
+
+= Projektziel
+
+Entwicklung eines professionellen E-Commerce Shops...
+```
+
+3. **Compile:**
+```bash
+cd examples/digitalagentur
+docgen compile documents/concepts/2025/concept.typ
+```
+
+See the [digitalagentur example](digitalagentur/) for complete working examples of concept and documentation .typ files.
+
+### Benefits of .typ Documents
+
+| Feature | JSON + content_file | Direct .typ |
+|---------|-------------------|-------------|
+| **File count** | 2 files (JSON + .typ) | 1 file |
+| **Typst features** | Limited | Full (math, references, custom layouts) |
+| **Version control** | Split across files | Single file |
+| **Best for** | Invoices, offers, credentials | Concepts, documentation, reports |
+
+### Template Package Commands
 
 ```bash
-# From project root
-cd /path/to/typst-business-templates
+# List all available templates
+docgen template list
 
-# Invoice
-typst compile --root . --font-path fonts templates/invoice/default.typ output/invoice.pdf \
-  --input data=/examples/data/invoice-example.json \
-  --input company=/examples/data/company.json
+# Install specific templates
+docgen template install concept
+docgen template install documentation
+docgen template install invoice
 
-# Offer
-typst compile --root . --font-path fonts templates/offer/default.typ output/offer.pdf \
-  --input data=/examples/data/offer-example.json \
-  --input company=/examples/data/company.json
+# Update all templates
+docgen template update
 
-# Credentials
-typst compile --root . --font-path fonts templates/credentials/default.typ output/credentials.pdf \
-  --input data=/examples/data/credentials-example.json \
-  --input company=/examples/data/company.json
-
-# Concept
-typst compile --root . --font-path fonts templates/concept/default.typ output/concept.pdf \
-  --input data=/examples/data/concept-example.json \
-  --input company=/examples/data/company.json
-
-# Documentation
-typst compile --root . --font-path fonts templates/documentation/default.typ output/documentation.pdf \
-  --input data=/examples/data/documentation-example.json \
-  --input company=/examples/data/company.json
+# Remove a template version
+docgen template remove concept 0.3.0
 ```
 
-## Company Data
+### Package Locations
 
-Each example project has its own `company.json` with different branding. The `data/company.json` is a generic template:
+Installed packages are stored in your system's Typst package directory:
 
-```json
-{
-  "language": "de",
-  "name": "Company Name",
-  "branding": {
-    "accent_color": "#E94B3C",
-    "primary_color": "#2c3e50",
-    "font_preset": "inter"
-  },
-  ...
-}
-```
+| OS | Location |
+|----|----------|
+| **macOS** | `~/Library/Application Support/typst/packages/local/docgen-*/` |
+| **Linux** | `~/.local/share/typst/packages/local/docgen-*/` |
+| **Windows** | `%APPDATA%/typst/packages/local/docgen-*/` |
 
-See [company.json](data/company.json) for the full structure.
+## Learn More
+
+For detailed information about each example project, see their respective README files:
+
+- [digitalagentur/README.md](digitalagentur/README.md) - Web agency with full workflow demonstration
+- [freelance-designer/README.md](freelance-designer/README.md) - Kleinunternehmer setup without VAT
+- [it-consultant/README.md](it-consultant/README.md) - Regular business with 19% VAT
+
+For template customization and usage instructions, see the [main README](../README.md).

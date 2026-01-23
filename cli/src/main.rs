@@ -1,8 +1,9 @@
 mod db;
+mod embedded;
 mod encrypt;
 mod locale;
+mod packages;
 mod ui;
-mod embedded;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
@@ -19,7 +20,30 @@ use ui::InteractiveUI;
 #[command(name = "docgen")]
 #[command(author = "Typst Business Templates")]
 #[command(version)]
-#[command(about = "Generate professional business documents with Typst", long_about = None)]
+#[command(about = "Generate professional business documents with Typst")]
+#[command(long_about = "Generate professional business documents with Typst
+
+docgen is a CLI tool for creating invoices, offers, credentials, concepts, and
+documentation from JSON data or direct .typ files. It uses Typst for beautiful
+PDF generation with full control over templates and branding.
+
+Features:
+  • Professional business documents (invoices, offers, credentials)
+  • Multi-language support: de, en, es, fr, it, nl, pt
+  • Concept and documentation templates with package system
+  • Custom branding (colors, fonts, logo)
+  • SQLite database for client/project management
+  • Watch mode for auto-rebuild
+  • PDF encryption for sensitive documents
+
+Quick Start:
+  docgen init my-business    # Create new project
+  docgen compile invoice.json # Compile document
+  docgen build               # Build all documents
+  docgen ai-guide            # Show guide for AI assistants
+
+Examples: https://github.com/casoon/typst-business-templates/tree/main/examples
+")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -28,27 +52,57 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Initialize a new document project
+    ///
+    /// Creates a new project with the following structure:
+    ///   - data/company.json (company info & branding)
+    ///   - documents/ (organized by type and year)
+    ///   - templates/ (Typst templates)
+    ///   - locale/ (7 languages: de, en, es, fr, it, nl, pt)
+    ///   - output/ (generated PDFs)
+    ///
+    /// Example: docgen init my-business
     Init {
         /// Project directory name
         name: String,
     },
-    /// Compile a single document from JSON to PDF
+    /// Compile a single document from JSON or .typ to PDF
+    ///
+    /// Supports two workflows:
+    ///   1. JSON → PDF: docgen compile invoice.json
+    ///   2. .typ → PDF: docgen compile concept.typ
+    ///
+    /// Auto-detects document type from filename or use --template.
+    /// Use --encrypt to password-protect sensitive documents.
+    ///
+    /// Examples:
+    ///   docgen compile documents/invoices/2025/RE-2025-001.json
+    ///   docgen compile invoice.json -o output/custom.pdf
+    ///   docgen compile credentials.json --encrypt
     Compile {
-        /// Path to JSON data file
+        /// Path to JSON or .typ file
         input: PathBuf,
-        /// Output PDF path (optional)
+        /// Output PDF path (optional, auto-generated if not specified)
         #[arg(short, long)]
         output: Option<PathBuf>,
-        /// Template type (invoice, offer, credentials, concept)
+        /// Template type (invoice, offer, credentials, concept, documentation)
+        /// Only needed if auto-detection fails
         #[arg(short, long)]
         template: Option<String>,
-        /// Encrypt the PDF with password protection
+        /// Encrypt the PDF with password protection (requires qpdf)
         #[arg(short, long)]
         encrypt: bool,
     },
     /// Build all documents in a directory
+    ///
+    /// Recursively finds all .json and .typ files and compiles them to PDF.
+    /// Maintains directory structure in output folder.
+    ///
+    /// Examples:
+    ///   docgen build                    # Build all in documents/
+    ///   docgen build documents/invoices # Build only invoices
+    ///   docgen build -o pdfs            # Custom output directory
     Build {
-        /// Directory containing JSON files
+        /// Directory containing JSON and .typ files
         #[arg(default_value = "documents")]
         path: PathBuf,
         /// Output directory for PDFs
@@ -56,34 +110,101 @@ enum Commands {
         output: PathBuf,
     },
     /// Watch for changes and rebuild automatically
+    ///
+    /// Monitors directory for file changes and automatically recompiles
+    /// documents when .json or .typ files are modified.
+    ///
+    /// Press Ctrl+C to stop watching.
+    ///
+    /// Example: docgen watch documents/
     Watch {
-        /// Directory to watch
+        /// Directory to watch for changes
         #[arg(default_value = "documents")]
         path: PathBuf,
     },
-    /// Client management
+    /// Client management (SQLite database)
+    ///
+    /// Manage clients in the local database:
+    ///   - list: Show all clients
+    ///   - add: Add new client
+    ///   - show: Display client details
+    ///
+    /// Example: docgen client list
     Client {
         #[command(subcommand)]
         action: ClientAction,
     },
-    /// Project management
+    /// Project management (SQLite database)
+    ///
+    /// Manage projects linked to clients:
+    ///   - list: Show projects for a client
+    ///   - add: Create new project
+    ///
+    /// Example: docgen project list K-001
     Project {
         #[command(subcommand)]
         action: ProjectAction,
     },
+    /// Template package management
+    ///
+    /// Install and manage Typst template packages for .typ documents:
+    ///   - list: Show installed packages
+    ///   - install: Install a template (concept, documentation)
+    ///   - remove: Uninstall a template version
+    ///   - update: Update all templates to current version
+    ///
+    /// Templates are installed to system Typst package directory as
+    /// @local/docgen-{name}:{version}
+    ///
+    /// Examples:
+    ///   docgen template list
+    ///   docgen template install concept
+    ///   docgen template update
+    Template {
+        #[command(subcommand)]
+        action: TemplateAction,
+    },
+    /// Show AI assistant guide (detailed documentation for LLMs)
+    ///
+    /// Displays comprehensive documentation designed for AI assistants like
+    /// Claude, ChatGPT, etc. Includes complete JSON schemas, workflows,
+    /// and best practices.
+    ///
+    /// Copy the output and share with your AI assistant to help them
+    /// understand docgen and generate documents for you.
+    ///
+    /// Example: docgen ai-guide > guide.txt
+    AiGuide,
 }
 
 #[derive(Subcommand)]
 enum ClientAction {
-    /// List all clients
+    /// List all clients from database
+    ///
+    /// Displays a table with client number, name, city, and email.
+    ///
+    /// Example: docgen client list
     List,
-    /// Add a new client
+    /// Add a new client to database
+    ///
+    /// Interactively prompts for client information if --name not provided.
+    /// Automatically assigns next client number (K-001, K-002, etc.).
+    ///
+    /// Examples:
+    ///   docgen client add
+    ///   docgen client add --name "Acme Corp"
     Add {
-        /// Client name
+        /// Client name (optional, will prompt if not provided)
         #[arg(short, long)]
         name: Option<String>,
     },
-    /// Show client details
+    /// Show detailed client information
+    ///
+    /// Display full client details including address, contact, and projects.
+    ///
+    /// Examples:
+    ///   docgen client show K-001
+    ///   docgen client show 1
     Show {
         /// Client number (e.g., 1) or K-number (e.g., K-001)
         id: String,
@@ -92,17 +213,75 @@ enum ClientAction {
 
 #[derive(Subcommand)]
 enum ProjectAction {
-    /// List projects for a client
+    /// List all projects for a client
+    ///
+    /// Shows project number, name, and status for the specified client.
+    ///
+    /// Examples:
+    ///   docgen project list K-001
+    ///   docgen project list 1
     List {
-        /// Client ID or number
+        /// Client ID (K-001) or client number (1)
         client: String,
     },
-    /// Add a new project
+    /// Add a new project for a client
+    ///
+    /// Creates a new project linked to the specified client.
+    /// Automatically assigns project number (P-001-01, P-001-02, etc.).
+    ///
+    /// Example: docgen project add K-001 "Website Redesign"
     Add {
-        /// Client ID or number
+        /// Client ID (K-001) or client number (1)
         client: String,
         /// Project name
         name: String,
+    },
+}
+
+#[derive(Subcommand)]
+enum TemplateAction {
+    /// List all installed template packages
+    ///
+    /// Shows installed templates in system Typst package directory.
+    ///
+    /// Example: docgen template list
+    List,
+    /// Install a template package
+    ///
+    /// Installs a template to system Typst packages as @local/docgen-{name}:{version}.
+    /// Required for using .typ documents with #import statements.
+    ///
+    /// Available templates: concept, documentation, invoice, offer, credentials
+    ///
+    /// Examples:
+    ///   docgen template install concept
+    ///   docgen template install documentation --version 0.2.0
+    Install {
+        /// Template name (concept, documentation, invoice, offer, credentials)
+        name: String,
+        /// Specific version (default: current docgen version)
+        version: Option<String>,
+    },
+    /// Remove a template package
+    ///
+    /// Uninstalls a specific version of a template from system packages.
+    ///
+    /// Example: docgen template remove concept 0.3.0
+    Remove {
+        /// Template name
+        name: String,
+        /// Version to remove
+        version: String,
+    },
+    /// Update all installed templates to current docgen version
+    ///
+    /// Checks all installed templates and updates them to match the
+    /// current docgen version if newer.
+    ///
+    /// Example: docgen template update
+    Update {
+        /// Optional: specific template to update
+        name: Option<String>,
     },
 }
 
@@ -130,6 +309,8 @@ fn main() -> Result<()> {
         Some(Commands::Watch { path }) => watch_directory(&path),
         Some(Commands::Client { action }) => handle_client(action),
         Some(Commands::Project { action }) => handle_project(action),
+        Some(Commands::Template { action }) => handle_template(action),
+        Some(Commands::AiGuide) => show_ai_guide(),
     }
 }
 
@@ -276,6 +457,127 @@ fn handle_project(action: ProjectAction) -> Result<()> {
     Ok(())
 }
 
+fn handle_template(action: TemplateAction) -> Result<()> {
+    match action {
+        TemplateAction::List => {
+            let packages = packages::list_installed_packages()?;
+
+            if packages.is_empty() {
+                println!("{}", "No template packages installed.".yellow());
+                println!();
+                println!("Install templates with:");
+                println!("  docgen template install <name>");
+                println!();
+                println!(
+                    "Available templates: {}",
+                    packages::get_available_templates().join(", ")
+                );
+                return Ok(());
+            }
+
+            println!("{}", "Installed template packages:".bold());
+            println!("{:-<60}", "");
+
+            for (name, version) in packages {
+                println!("  {}@local/{}:{}", "→".blue(), name, version.cyan());
+            }
+
+            println!();
+            println!("Install more templates with: docgen template install <name>");
+        }
+
+        TemplateAction::Install { name, version } => {
+            let default_version = packages::get_docgen_version();
+            let version_str = version.as_deref();
+            let install_version = version_str.unwrap_or(&default_version);
+
+            // Check if already installed
+            if packages::is_package_installed(&name, Some(install_version))? {
+                println!(
+                    "{} Package @local/docgen-{}:{} is already installed",
+                    "✓".green(),
+                    name,
+                    install_version
+                );
+                return Ok(());
+            }
+
+            println!(
+                "{} Installing @local/docgen-{}:{}...",
+                "→".blue(),
+                name,
+                install_version
+            );
+
+            packages::install_package(&name, version_str)?;
+
+            println!("{} Installed successfully", "✓".green());
+            println!();
+            println!("Use in your documents with:");
+            println!(
+                "  #import \"@local/docgen-{}:{}\": {}",
+                name, install_version, name
+            );
+        }
+
+        TemplateAction::Remove { name, version } => {
+            println!(
+                "{} Removing @local/docgen-{}:{}...",
+                "→".blue(),
+                name,
+                version
+            );
+
+            packages::remove_package(&name, &version)?;
+
+            println!("{} Removed successfully", "✓".green());
+        }
+
+        TemplateAction::Update { name } => {
+            if let Some(template_name) = name {
+                // Update specific template
+                let current_version = packages::get_docgen_version();
+
+                if packages::is_package_installed(&template_name, Some(&current_version))? {
+                    println!(
+                        "{} @local/docgen-{}:{} is already up to date",
+                        "✓".green(),
+                        template_name,
+                        current_version
+                    );
+                } else {
+                    println!(
+                        "{} Updating @local/docgen-{} to version {}...",
+                        "→".blue(),
+                        template_name,
+                        current_version
+                    );
+
+                    packages::install_package(&template_name, Some(&current_version))?;
+
+                    println!("{} Updated successfully", "✓".green());
+                }
+            } else {
+                // Update all templates
+                println!("{} Checking for updates...", "→".blue());
+
+                let updates = packages::update_all_packages()?;
+
+                if updates.is_empty() {
+                    println!("{} All templates are up to date", "✓".green());
+                } else {
+                    println!();
+                    println!("{} Updated:", "✓".green());
+                    for (name, old_ver, new_ver) in updates {
+                        println!("  @local/docgen-{}: {} → {}", name, old_ver, new_ver.cyan());
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 fn parse_client_id(db: &Database, input: &str) -> Result<i64> {
     // Try direct number
     if let Ok(num) = input.parse::<i64>() {
@@ -306,7 +608,6 @@ fn init_project(name: &str) -> Result<()> {
         t("init", "initializing"),
         name.green()
     );
-
 
     let base = Path::new(name);
 
@@ -426,9 +727,6 @@ fn compile_document(
         anyhow::bail!("{}: {}", t("compile", "file_not_found"), input.display());
     }
 
-    let doc_type =
-        template.unwrap_or_else(|| detect_document_type(input).unwrap_or("invoice".to_string()));
-    let template_path = format!("templates/{}/default.typ", doc_type);
     let output_path = output.unwrap_or_else(|| input.with_extension("pdf"));
 
     println!(
@@ -444,20 +742,39 @@ fn compile_document(
         )
     );
 
-    let data_path = format!("/{}", input.display());
+    // Check if input is a .typ file (direct compilation mode)
+    let status = if input.extension().map_or(false, |ext| ext == "typ") {
+        // Direct .typ file compilation
+        Command::new("typst")
+            .args([
+                "compile",
+                "--root",
+                ".",
+                &input.to_string_lossy(),
+                &output_path.to_string_lossy(),
+            ])
+            .status()
+            .context(t("compile", "typst_not_found"))?
+    } else {
+        // JSON-based compilation with template
+        let doc_type = template
+            .unwrap_or_else(|| detect_document_type(input).unwrap_or("invoice".to_string()));
+        let template_path = format!("templates/{}/default.typ", doc_type);
+        let data_path = format!("/{}", input.display());
 
-    let status = Command::new("typst")
-        .args([
-            "compile",
-            "--root",
-            ".",
-            &template_path,
-            "--input",
-            &format!("data={}", data_path),
-            &output_path.to_string_lossy(),
-        ])
-        .status()
-        .context(t("compile", "typst_not_found"))?;
+        Command::new("typst")
+            .args([
+                "compile",
+                "--root",
+                ".",
+                &template_path,
+                "--input",
+                &format!("data={}", data_path),
+                &output_path.to_string_lossy(),
+            ])
+            .status()
+            .context(t("compile", "typst_not_found"))?
+    };
 
     if status.success() {
         println!("{} {}", "✓".green(), t("compile", "success"));
@@ -501,10 +818,15 @@ fn build_all(path: &Path, output: &Path) -> Result<()> {
     let mut count = 0;
     let mut errors = 0;
 
+    // Find both .json and .typ files
     for entry in WalkDir::new(path)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
+        .filter(|e| {
+            e.path()
+                .extension()
+                .map_or(false, |ext| ext == "json" || ext == "typ")
+        })
     {
         let input = entry.path();
         let output_file = output
@@ -563,7 +885,10 @@ fn watch_directory(path: &Path) -> Result<()> {
             Ok(Ok(event)) => {
                 if matches!(event.kind, EventKind::Modify(_) | EventKind::Create(_)) {
                     for path in event.paths {
-                        if path.extension().map_or(false, |ext| ext == "json") {
+                        if path
+                            .extension()
+                            .map_or(false, |ext| ext == "json" || ext == "typ")
+                        {
                             println!();
                             println!(
                                 "{} {}: {}",
@@ -595,4 +920,388 @@ fn detect_document_type(path: &Path) -> Option<String> {
     } else {
         None
     }
+}
+
+fn show_ai_guide() -> Result<()> {
+    let guide = r##"
+================================================================================
+DOCGEN - AI ASSISTANT GUIDE
+================================================================================
+
+This guide helps AI assistants (like Claude, ChatGPT, etc.) quickly understand
+and work with the docgen document generation system.
+
+## QUICK OVERVIEW
+
+docgen generates professional business documents (invoices, offers, credentials,
+concepts, documentation) from JSON data or direct .typ files using Typst.
+
+## PROJECT STRUCTURE
+
+When you run `docgen init my-business`, it creates:
+
+```
+my-business/
+├── data/
+│   ├── docgen.db          # SQLite database (auto-created)
+│   └── company.json       # Company data & branding
+├── documents/
+│   ├── invoices/2025/     # Invoice JSON files
+│   ├── offers/2025/       # Offer JSON files
+│   ├── credentials/2025/  # Credentials JSON files
+│   ├── concepts/2025/     # Concept .typ files (or JSON)
+│   └── documentation/2025/# Documentation .typ files (or JSON)
+├── locale/                # 7 languages: de, en, es, fr, it, nl, pt
+│   ├── de.json
+│   ├── en.json
+│   └── ...
+├── templates/             # Typst templates (auto-installed)
+│   ├── invoice/
+│   ├── offer/
+│   ├── credentials/
+│   ├── concept/
+│   ├── documentation/
+│   └── common/
+└── output/                # Generated PDFs
+    └── 2025/
+```
+
+## DOCUMENT TYPES & WORKFLOWS
+
+### 1. INVOICE (Rechnung) - JSON Workflow
+File: `documents/invoices/2025/RE-2025-001.json`
+
+**JSON Schema:**
+```json
+{
+  "metadata": {
+    "invoice_number": "RE-2025-001",
+    "invoice_date": { "date": "2025-01-23" },
+    "due_date": { "date": "2025-02-06" },
+    "customer_number": "K-001",
+    "project_reference": "Website Redesign"
+  },
+  "recipient": {
+    "name": "Max Mustermann",
+    "company": "Firma GmbH",
+    "address": {
+      "street": "Hauptstraße",
+      "house_number": "123",
+      "postal_code": "12345",
+      "city": "Berlin",
+      "country": "Deutschland"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "description": "Webentwicklung",
+      "quantity": "40",
+      "unit": "Stunden",
+      "unit_price": { "amount": "95.00", "currency": "EUR" },
+      "vat_rate": { "code": "Standard", "percentage": "19" },
+      "total": { "amount": "3800.00", "currency": "EUR" }
+    }
+  ],
+  "totals": {
+    "subtotal": { "amount": "3800.00", "currency": "EUR" },
+    "vat_breakdown": [
+      {
+        "rate": { "code": "Standard", "percentage": "19" },
+        "base": { "amount": "3800.00", "currency": "EUR" },
+        "amount": { "amount": "722.00", "currency": "EUR" }
+      }
+    ],
+    "vat_total": { "amount": "722.00", "currency": "EUR" },
+    "total": { "amount": "4522.00", "currency": "EUR" }
+  },
+  "payment": {
+    "payment_terms": "Zahlbar innerhalb von 14 Tagen",
+    "due_date": { "date": "2025-02-06" },
+    "bank_account": {
+      "bank_name": "Deutsche Bank",
+      "account_holder": "Ihre Firma",
+      "iban": "DE89 3704 0044 0532 0130 00",
+      "bic": "COBADEFFXXX"
+    }
+  },
+  "salutation": {
+    "greeting": "Sehr geehrter Herr Mustermann,",
+    "introduction": "anbei erhalten Sie die Rechnung für das Projekt."
+  }
+}
+```
+
+**Compile:**
+```bash
+docgen compile documents/invoices/2025/RE-2025-001.json
+```
+
+**Kleinunternehmer (No VAT):**
+For §19 UStG small businesses, use empty vat_breakdown:
+```json
+{
+  "items": [
+    {
+      "vat_rate": { "code": "Kleinunternehmer", "percentage": "0" }
+    }
+  ],
+  "totals": {
+    "subtotal": { "amount": "3800.00", "currency": "EUR" },
+    "vat_breakdown": [],
+    "vat_total": { "amount": "0", "currency": "EUR" },
+    "total": { "amount": "3800.00", "currency": "EUR" }
+  }
+}
+```
+
+### 2. OFFER (Angebot) - JSON Workflow
+File: `documents/offers/2025/AN-2025-001.json`
+
+**JSON Schema:** (Similar to invoice)
+```json
+{
+  "metadata": {
+    "offer_number": "AN-2025-001",
+    "offer_date": { "date": "2025-01-23" },
+    "valid_until": { "date": "2025-02-23" },
+    "customer_number": "K-001",
+    "project_reference": "New Project"
+  },
+  "recipient": { /* same as invoice */ },
+  "items": [ /* same as invoice */ ],
+  "totals": { /* same as invoice */ },
+  "terms": {
+    "validity": "Dieses Angebot ist gültig bis zum 23.02.2025",
+    "payment_terms": "30% Anzahlung, Rest bei Abnahme",
+    "delivery_terms": "Lieferzeit: 4 Wochen"
+  },
+  "notes": "Optional closing text"
+}
+```
+
+### 3. CREDENTIALS (Zugangsdaten) - JSON Workflow
+File: `documents/credentials/2025/ZD-2025-001.json`
+
+**JSON Schema:**
+```json
+{
+  "metadata": {
+    "document_number": "ZD-2025-001",
+    "client_name": "Firma GmbH",
+    "created_at": { "date": "2025-01-23" },
+    "project_reference": "Website Setup"
+  },
+  "credentials": [
+    {
+      "system": "WordPress Admin",
+      "access_url": "https://example.com/wp-admin",
+      "username": "admin",
+      "password": "super-secret-123",
+      "notes": "Bitte Passwort nach erstem Login ändern"
+    },
+    {
+      "system": "FTP Server",
+      "access_url": "ftp://ftp.example.com",
+      "username": "ftpuser",
+      "password": "ftp-password-456",
+      "notes": "Port 21, Passiv-Modus"
+    }
+  ],
+  "security_notice": "Bitte bewahren Sie dieses Dokument sicher auf und geben Sie es nicht an Dritte weiter."
+}
+```
+
+### 4. CONCEPT (Konzept) - .typ Workflow
+File: `documents/concepts/2025/project-concept.typ`
+
+**First: Install template package (one-time)**
+```bash
+docgen template install concept
+```
+
+**Then create .typ file:**
+```typst
+#import "@local/docgen-concept:0.3.0": concept
+
+#let company = json("../../../data/company.json")
+
+#show: concept.with(
+  title: "E-Commerce Shop Entwicklung",
+  document_number: "KO-2025-001",
+  client_name: "Firma GmbH",
+  project_name: "Online Shop",
+  version: "1.0",
+  status: "final",
+  created_at: "23.01.2025",
+  authors: ("Max Mustermann",),
+  company: company,
+)
+
+= Projektziel
+
+Entwicklung eines modernen E-Commerce Shops...
+
+= Technische Anforderungen
+
+== Frontend
+- React.js
+- Responsive Design
+- Mobile-First
+
+== Backend
+- Node.js
+- PostgreSQL
+- REST API
+
+= Zeitplan
+
+Die Umsetzung erfolgt in 3 Phasen über 12 Wochen.
+```
+
+**Compile:**
+```bash
+docgen compile documents/concepts/2025/project-concept.typ
+```
+
+### 5. DOCUMENTATION - .typ Workflow
+Similar to concept, use `@local/docgen-documentation:0.3.0`
+
+## COMPANY.JSON CONFIGURATION
+
+The `data/company.json` file controls branding, language, and defaults:
+
+```json
+{
+  "name": "Your Company",
+  "language": "de",
+  "branding": {
+    "accent_color": "#E94B3C",
+    "primary_color": "#2c3e50",
+    "font_preset": "inter"
+  },
+  "address": {
+    "street": "Hauptstraße",
+    "house_number": "1",
+    "postal_code": "12345",
+    "city": "Berlin",
+    "country": "Deutschland"
+  },
+  "contact": {
+    "phone": "+49 30 12345678",
+    "email": "info@example.com",
+    "website": "www.example.com"
+  },
+  "tax_id": "12/345/67890",
+  "vat_id": "DE123456789",
+  "bank_account": {
+    "bank_name": "Deutsche Bank",
+    "account_holder": "Your Company",
+    "iban": "DE89 3704 0044 0532 0130 00",
+    "bic": "COBADEFFXXX"
+  },
+  "numbering": {
+    "year_format": "short",
+    "prefixes": {
+      "invoice": "RE",
+      "offer": "AN",
+      "credentials": "ZD",
+      "concept": "KO",
+      "documentation": "DOC"
+    }
+  },
+  "default_terms": {
+    "hourly_rate": "95.00",
+    "currency": "EUR",
+    "payment_days": 14,
+    "vat_rate": 19
+  }
+}
+```
+
+**Font Presets:** inter, roboto, open-sans, lato, montserrat, source-sans,
+poppins, raleway, nunito, work-sans, default
+
+**Languages:** de, en, es, fr, it, nl, pt
+
+## COMMON CLI COMMANDS
+
+```bash
+# Initialize new project
+docgen init my-business
+
+# Compile single document
+docgen compile documents/invoices/2025/RE-2025-001.json
+
+# Compile with custom output
+docgen compile invoice.json -o output/custom-name.pdf
+
+# Compile with encryption
+docgen compile credentials.json --encrypt
+
+# Build all documents
+docgen build
+
+# Build specific directory
+docgen build documents/invoices
+
+# Watch for changes
+docgen watch documents/
+
+# Template package management
+docgen template list
+docgen template install concept
+docgen template install documentation
+docgen template update
+```
+
+## AI WORKFLOW RECOMMENDATIONS
+
+When helping users create documents:
+
+1. **Ask for document type first**: invoice, offer, credentials, concept, documentation
+
+2. **For invoices/offers (JSON):**
+   - Gather: client info, items/services, pricing, dates
+   - Calculate totals (subtotal, VAT, total)
+   - Check if Kleinunternehmer (no VAT) or regular business
+   - Generate complete JSON matching schema above
+   - Save to appropriate directory with proper naming (RE-YYYY-NNN.json)
+
+3. **For concepts/documentation (.typ):**
+   - Remind user to install package first: `docgen template install concept`
+   - Create .typ file with proper imports
+   - Use full Typst syntax (headings, lists, tables, etc.)
+   - Load company data: `#let company = json("../../../data/company.json")`
+
+4. **Validate before compile:**
+   - Check all required fields are present
+   - Verify monetary calculations are correct
+   - Ensure proper date format: { "date": "YYYY-MM-DD" }
+   - Check VAT rates match (19% standard, 0% Kleinunternehmer)
+
+5. **File naming conventions:**
+   - Invoices: RE-YYYY-NNN.json (e.g., RE-2025-001.json)
+   - Offers: AN-YYYY-NNN.json
+   - Credentials: ZD-YYYY-NNN.json
+   - Concepts: descriptive-name.typ
+
+## TROUBLESHOOTING
+
+**"Template not found"** → Run `docgen template install <name>`
+**"Font not found"** → Font preset in company.json doesn't exist, use one from list
+**"Locale not found"** → Check language in company.json matches available locales
+**VAT calculation wrong** → Ensure vat_breakdown matches item totals
+
+## GETTING HELP
+
+- Full README: https://github.com/casoon/typst-business-templates
+- Examples: See examples/ directory in repository
+- Issues: https://github.com/casoon/typst-business-templates/issues
+
+================================================================================
+"##;
+
+    println!("{}", guide);
+    Ok(())
 }
