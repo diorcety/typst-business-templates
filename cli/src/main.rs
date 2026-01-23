@@ -442,6 +442,9 @@ fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<Stri
         
         // Handle encryption if requested
         if encrypt {
+            // Check if qpdf is available first
+            encrypt::check_qpdf_available()?;
+            
             println!("{} {}", "→".blue(), "Encrypting PDF...");
             let encryption_opts = encrypt::prompt_encryption_options()?;
             let temp_path = output_path.with_extension("pdf.tmp");
