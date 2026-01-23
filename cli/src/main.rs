@@ -1,4 +1,5 @@
 mod db;
+mod encrypt;
 mod locale;
 mod ui;
 
@@ -40,6 +41,9 @@ enum Commands {
         /// Template type (invoice, offer, credentials, concept)
         #[arg(short, long)]
         template: Option<String>,
+        /// Encrypt the PDF with password protection
+        #[arg(short, long)]
+        encrypt: bool,
     },
     /// Build all documents in a directory
     Build {
@@ -119,7 +123,8 @@ fn main() -> Result<()> {
             input,
             output,
             template,
-        }) => compile_document(&input, output, template),
+            encrypt,
+        }) => compile_document(&input, output, template, encrypt),
         Some(Commands::Build { path, output }) => build_all(&path, &output),
         Some(Commands::Watch { path }) => watch_directory(&path),
         Some(Commands::Client { action }) => handle_client(action),
@@ -394,7 +399,7 @@ fn init_project(name: &str) -> Result<()> {
     Ok(())
 }
 
-fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<String>) -> Result<()> {
+fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<String>, encrypt: bool) -> Result<()> {
     if !input.exists() {
         anyhow::bail!("{}: {}", t("compile", "file_not_found"), input.display());
     }
@@ -434,6 +439,25 @@ fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<Stri
 
     if status.success() {
         println!("{} {}", "✓".green(), t("compile", "success"));
+        
+        // Handle encryption if requested
+        if encrypt {
+            println!("{} {}", "→".blue(), "Encrypting PDF...");
+            let encryption_opts = encrypt::prompt_encryption_options()?;
+            let temp_path = output_path.with_extension("pdf.tmp");
+            
+            // Rename original to temp
+            std::fs::rename(&output_path, &temp_path)?;
+            
+            // Encrypt temp to final output
+            encrypt::encrypt_pdf(&temp_path, &output_path, encryption_opts)?;
+            
+            // Remove temp file
+            std::fs::remove_file(&temp_path)?;
+            
+            println!("{} {}", "✓".green(), "PDF encrypted successfully");
+        }
+        
         Ok(())
     } else {
         anyhow::bail!("{}", t("compile", "failed"))
@@ -462,7 +486,7 @@ fn build_all(path: &Path, output: &Path) -> Result<()> {
             .join(input.file_stem().unwrap())
             .with_extension("pdf");
 
-        match compile_document(input, Some(output_file), None) {
+        match compile_document(input, Some(output_file), None, false) {
             Ok(_) => count += 1,
             Err(e) => {
                 eprintln!(
@@ -522,7 +546,7 @@ fn watch_directory(path: &Path) -> Result<()> {
                                 t("watch", "change_detected"),
                                 path.display()
                             );
-                            let _ = compile_document(&path, None, None);
+                            let _ = compile_document(&path, None, None, false);
                         }
                     }
                 }
