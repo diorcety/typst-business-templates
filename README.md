@@ -187,7 +187,7 @@ docgen compile documents/invoices/RE-2025-001.json
 |---------|-------------|
 | `docgen` | Interactive mode |
 | `docgen init <name>` | Create new project |
-| `docgen compile <file>` | Compile JSON to PDF |
+| `docgen compile <file>` | Compile JSON to PDF (add `--encrypt` for password protection) |
 | `docgen build` | Build all documents |
 | `docgen watch` | Watch and auto-rebuild |
 | `docgen client list` | List all clients |
@@ -195,6 +195,37 @@ docgen compile documents/invoices/RE-2025-001.json
 | `docgen client show <id>` | Show client details |
 | `docgen project list <client>` | List projects |
 | `docgen project add <client> <name>` | Add project |
+
+
+### PDF Encryption
+
+Protect sensitive documents (like credentials) with password encryption:
+
+```bash
+# Compile with encryption
+docgen compile documents/credentials/2026/client-access.json --encrypt
+```
+
+**Interactive prompts:**
+- User password (required to open PDF)
+- Allow printing? (default: yes)
+- Allow copying text/images? (default: no)
+- Allow document modification? (default: no)
+
+**Requirements:**
+- Requires `qpdf` to be installed
+- Installation:
+  - macOS: `brew install qpdf`
+  - Linux: `apt-get install qpdf` (Debian/Ubuntu) or `yum install qpdf` (RHEL/CentOS)
+  - Windows: `choco install qpdf`
+  - Or download from: https://github.com/qpdf/qpdf/releases
+
+**Features:**
+- AES-256 encryption (industry standard)
+- Password protection
+- Configurable permissions (print, copy, modify)
+- Compatible with all PDF readers
+
 
 ## Project Structure
 
