@@ -1,222 +1,352 @@
-// Invoice Template (Rechnung)
-// Professional invoice template for business use
-// Based on casoon-documents structure
-
-#import "../common/styles.typ": *
+// Invoice Template (Rechnung) - CASOON Layout
+// Based on casoon-documents simple.typ template
 
 // Load data from JSON input
 #let data = json(sys.inputs.data)
 
 // Load company data
-#let company = json("../../data/company.json")
+#let company = json("/data/company.json")
 
-// Page setup
+// Helper function to format date as DD.MM.YY
+#let format_german_date(date_obj) = {
+  let date_str = date_obj.date
+  let parts = date_str.split("-")
+  if parts.len() == 3 {
+    let year = parts.at(0).slice(2, 4)  // Get last 2 digits of year
+    let month = parts.at(1)
+    let day = parts.at(2)
+    day + "." + month + "." + year
+  } else {
+    date_str
+  }
+}
+
+// Helper function to format money with 2 decimal places and comma
+#let format_money(amount) = {
+  let str_amount = str(amount)
+  // Check if already has decimal point
+  if str_amount.contains(".") {
+    let parts = str_amount.split(".")
+    let integer_part = parts.at(0)
+    let decimal_part = parts.at(1)
+    // Pad or truncate to 2 decimals
+    if decimal_part.len() == 1 {
+      integer_part + "," + decimal_part + "0"
+    } else if decimal_part.len() >= 2 {
+      integer_part + "," + decimal_part.slice(0, 2)
+    } else {
+      integer_part + ",00"
+    }
+  } else {
+    str_amount + ",00"
+  }
+}
+
 #set page(
   paper: "a4",
-  margin: (left: 2.5cm, right: 2cm, top: 2cm, bottom: 2cm),
-  header: context {
-    if counter(page).get().first() > 1 [
-      #set text(..text-small)
-      #grid(
-        columns: (1fr, 1fr),
-        align: (left, right),
-        [#company.name],
-        [#t("common", "page") #counter(page).display()]
-      )
-      #v(0.3em)
-      #line(length: 100%, stroke: border-thin + color-border)
-    ]
-  },
-  footer: [
-    #company-footer(company)
-  ]
-)
+  margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 122pt),
 
-// Document settings
-#set text(..text-body)
-#set par(justify: true, leading: 0.65em)
+  footer: context [
+    #set text(size: 7pt, font: "Helvetica")
 
-// Sender address (small, above recipient)
-#set text(..text-small)
-[#company.name · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city]
+    #place(
+      left + bottom,
+      dx: 0pt,
+      dy: -72pt,
+      block(width: 500pt)[
+        #grid(
+          columns: (125pt, 125pt, 125pt, 125pt),
+          column-gutter: 0pt,
+          align: (top, top, top, top),
 
-#v(spacing-medium)
+          // Column 1
+          [
+            #text(weight: "bold")[#company.name]\
+            #if "business_owner" in company and company.business_owner != none [
+              #company.business_owner\
+            ]
+            #company.address.street #company.address.house_number\
+            #company.address.postal_code #company.address.city
+          ],
 
-// Recipient address block
-#set text(..text-body)
-#block(width: 8.5cm)[
-  #if "company" in data.recipient and data.recipient.company != none [
-    #data.recipient.company #linebreak()
-  ]
-  #data.recipient.name #linebreak()
-  #data.recipient.address.street #data.recipient.address.house_number #linebreak()
-  #data.recipient.address.postal_code #data.recipient.address.city
-  #if "country" in data.recipient.address and data.recipient.address.country != "Deutschland" [
-    #linebreak()
-    #data.recipient.address.country
-  ]
-]
+          // Column 2
+          [
+            #if "phone" in company.contact and company.contact.phone != none [
+              Tel.: #company.contact.phone\
+            ]
+            #if "email" in company.contact and company.contact.email != none [
+              Email: #company.contact.email\
+            ]
+            #if "website" in company.contact and company.contact.website != none [
+              Web: #company.contact.website
+            ]
+          ],
 
-#v(spacing-xlarge)
+          // Column 3
+          [
+            Geschäftsinhaber:\
+            #if "business_owner" in company and company.business_owner != none [
+              #company.business_owner\
+            ]
+            USt-IdNr.:\
+            #if "vat_id" in company and company.vat_id != none [
+              #company.vat_id
+            ]
+          ],
 
-// Invoice details grid (right aligned)
-#align(right)[
-  #grid(
-    columns: (auto, auto),
-    column-gutter: spacing-medium,
-    row-gutter: spacing-small,
-    align: (right, left),
-    [*#t("invoice", "invoice_number"):*], [#data.metadata.invoice_number],
-    [*#t("invoice", "invoice_date"):*], [#data.metadata.invoice_date.date],
-    [*#t("invoice", "due_date"):*], [#data.metadata.due_date.date],
-    ..if "customer_number" in data.metadata and data.metadata.customer_number != none {
-      ([*#t("common", "customer_number"):*], [#data.metadata.customer_number])
-    } else { () },
-    ..if "project_reference" in data.metadata and data.metadata.project_reference != none {
-      ([*#t("common", "project"):*], [#data.metadata.project_reference])
-    } else { () },
-    ..if "performance_period" in data.metadata and data.metadata.performance_period != none {
-      ([*#t("invoice", "performance_period"):*], [#data.metadata.performance_period])
-    } else { () },
-  )
-]
-
-#v(spacing-xlarge)
-
-// Invoice title
-#set text(..text-title)
-[*#t("invoice", "title")*]
-
-#v(spacing-large)
-
-// Items table
-#set text(..text-body)
-#table(
-  columns: (1fr, auto, auto, auto, auto),
-  align: (left, right, right, right, right),
-  stroke: (x, y) => if y == 0 {
-    (bottom: border-normal + color-primary)
-  } else {
-    (bottom: border-thin + color-border)
-  },
-  inset: (x: spacing-normal, y: spacing-small),
-
-  // Header row
-  table.cell(fill: color-white)[*#t("invoice", "position")*],
-  table.cell(fill: color-white)[*#t("invoice", "quantity")*],
-  table.cell(fill: color-white)[*#t("invoice", "unit")*],
-  table.cell(fill: color-white)[*#t("invoice", "unit_price")*],
-  table.cell(fill: color-white)[*#t("invoice", "total_price")*],
-
-  // Item rows
-  ..for item in data.items {
-    (
-      [
-        #item.description
-        #if "sub_items" in item and item.sub_items.len() > 0 [
-          #for sub in item.sub_items [
-            #linebreak()
-            #text(size: size-small, fill: color-text-light)[– #sub]
-          ]
-        ]
-      ],
-      [#item.quantity],
-      [#item.unit],
-      [#item.unit_price.amount #item.unit_price.currency],
-      [#item.total.amount #item.total.currency],
+          // Column 4
+          [
+            #if "bank_account" in company and company.bank_account != none [
+              Bank: #company.bank_account.bank_name\
+              Kontoinhaber: #company.bank_account.account_holder\
+              IBAN: #company.bank_account.iban\
+              BIC/SWIFT-Code: #company.bank_account.bic
+            ]
+          ],
+        )
+      ]
     )
-  }
+  ]
 )
 
-#v(spacing-medium)
+#set text(
+  font: "Helvetica",
+  size: 10pt,
+  lang: "de"
+)
 
-// Totals section (right aligned)
-#align(right)[
-  #grid(
-    columns: (auto, auto),
-    column-gutter: spacing-large,
-    row-gutter: spacing-small,
-    align: (right, right),
+// ============================================================================
+// HEADER SECTION
+// ============================================================================
 
-    [#t("invoice", "subtotal"):], [#data.totals.subtotal.amount #data.totals.subtotal.currency],
-    
-    // VAT breakdown
-    ..if "vat_breakdown" in data.totals {
-      for vat in data.totals.vat_breakdown {
-        ([#t("invoice", "vat") (#vat.rate.percentage%):], [#vat.amount.amount #vat.amount.currency])
-      }
-    } else if "vat_total" in data.totals and data.totals.vat_total != none {
-      ([#t("invoice", "vat"):], [#data.totals.vat_total.amount #data.totals.vat_total.currency])
-    } else { () },
-    
-    [], [],
-    grid.cell(stroke: (top: border-normal + color-primary))[*#t("invoice", "total"):*],
-    grid.cell(stroke: (top: border-normal + color-primary))[*#data.totals.total.amount #data.totals.total.currency*],
-  )
+// Logo (right side at x=350, y=50)
+#place(
+  right + top,
+  dx: 0pt,
+  dy: 0pt,
+  image("/data/logo.png", width: 150pt)
+)
+
+// Invoice metadata (right side, below logo at x=350)
+#place(
+  right + top,
+  dx: 0pt,
+  dy: 80pt,
+  block(width: 195pt)[
+    #set text(size: 8pt)
+    #set par(leading: 0.5em)
+    #set align(left)
+
+    #text(weight: "bold")[Rückfragen an:]\
+    #company.name\
+    #if "phone" in company.contact and company.contact.phone != none [
+      #company.contact.phone\
+    ]
+    #if "email" in company.contact and company.contact.email != none [
+      #company.contact.email
+    ]
+
+    #v(5pt)
+
+    #set text(size: 10pt)
+    #set par(leading: 0.6em)
+    *Rechnungs-Nr.:* #data.metadata.invoice_number\
+    #if "customer_number" in data.metadata and data.metadata.customer_number != none [
+      *Kunden-Nr.:* #data.metadata.customer_number\
+    ]
+    *Rechnungsdatum:* #format_german_date(data.metadata.invoice_date)\
+    #if "performance_period" in data.metadata and data.metadata.performance_period != none [
+      *Leistungszeitraum:* #data.metadata.performance_period\
+    ]
+  ]
+)
+
+// ============================================================================
+// RECIPIENT ADDRESS (DIN 5008 position at y=160)
+// ============================================================================
+
+// DIN 5008: Recipient address at y=127.5pt (45mm from top)
+// Sender line 20pt above recipient address
+// Current: top margin 50pt + v(77.5pt) = 127.5pt ≈ 45mm
+#v(77.5pt)
+
+// Sender line (small, above recipient) - DIN 5008
+#block(height: 20pt)[
+  #set text(size: 8pt, font: "Helvetica")
+  #if "business_owner" in company and company.business_owner != none [
+    #company.business_owner · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
+  ] else [
+    #company.name · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
+  ]
 ]
 
-#v(spacing-xlarge)
+// Recipient address - DIN 5008
+#block(height: 120pt)[
+  #set text(size: 12pt, font: "Helvetica")
 
-// Payment information
-#if "payment" in data and data.payment != none [
-  #block(
-    fill: color-background,
-    inset: spacing-medium,
-    radius: 3pt,
-    width: 100%,
-  )[
-    *#t("invoice", "payment_info")*
+  #data.recipient.name\
+  #if "company" in data.recipient and data.recipient.company != none and data.recipient.company != data.recipient.name [
+    #data.recipient.company\
+  ]
+  #data.recipient.address.street #data.recipient.address.house_number\
+  #data.recipient.address.postal_code #data.recipient.address.city
+]
 
-    #v(spacing-small)
+// ============================================================================
+// SALUTATION SECTION
+// ============================================================================
+
+#block[
+  #set text(size: 10pt, font: "Helvetica")
+
+  #text(weight: "bold")[Rechnung]
+
+  #v(3pt)
+
+  #if "project_reference" in data.metadata and data.metadata.project_reference != none [
+    Projekt: #data.metadata.project_reference
+    #v(3pt)
+  ]
+
+  #v(3pt)
+
+  #if "salutation" in data and data.salutation != none [
+    #data.salutation.greeting\
+    #v(3pt)
+    #if "introduction" in data.salutation and data.salutation.introduction != none [
+      #data.salutation.introduction
+    ]
+  ]
+
+  #v(3pt)
+]
+
+// ============================================================================
+// ITEMS TABLE SECTION (7-column layout)
+// ============================================================================
+
+// Table header
+#block[
+  #set text(size: 8pt, font: "Helvetica")
+
+  #grid(
+    columns: (35pt, 170pt, 45pt, 45pt, 45pt, 70pt, 70pt),
+    align: (center, left, center, center, center, right, right),
+    row-gutter: 8pt,
+
+    text(weight: "bold")[Pos.],
+    text(weight: "bold")[Bezeichnung],
+    text(weight: "bold")[Menge],
+    text(weight: "bold")[Einh.],
+    text(weight: "bold")[MwSt.],
+    text(weight: "bold")[Einzelpreis],
+    text(weight: "bold")[Summe],
+  )
+
+  #v(5pt)
+  #line(length: 100%, stroke: 0.5pt)
+  #v(5pt)
+]
+
+// Table rows
+#for item in data.items [
+  #block[
+    #set text(size: 8pt, font: "Helvetica")
 
     #grid(
-      columns: (auto, 1fr),
-      column-gutter: spacing-medium,
-      row-gutter: spacing-small,
+      columns: (35pt, 170pt, 45pt, 45pt, 45pt, 70pt, 70pt),
+      align: (center, left, center, center, center, right, right),
+      row-gutter: 5pt,
 
-      [#t("invoice", "bank"):], [#data.payment.bank_account.bank_name],
-      [#t("invoice", "iban"):], [#data.payment.bank_account.iban],
-      [#t("invoice", "bic"):], [#data.payment.bank_account.bic],
-      [#t("invoice", "reference"):], [#t("invoice", "title") #data.metadata.invoice_number],
+      [#item.position],
+      [#item.description],
+      [#item.quantity],
+      {
+        if item.unit == "monat" [Monat]
+        else if item.unit == "stunde" [Std.]
+        else if item.unit == "stueck" [Stk.]
+        else if item.unit == "tag" [Tag]
+        else if item.unit == "pauschale" [Psch.]
+        else [#item.unit]
+      },
+      [#item.vat_rate.percentage%],
+      [#format_money(item.unit_price.amount)],
+      [#text(weight: "bold")[#format_money(item.total.amount)]],
     )
+
+    // Sub-items as continuous text spanning all columns, aligned with description
+    #if "sub_items" in item and item.sub_items.len() > 0 [
+      #v(2pt)
+      #pad(left: 35pt)[
+        #block[
+          #set text(size: 7pt, font: "Helvetica")
+          #set par(leading: 0.5em)
+          #for (i, sub_item) in item.sub_items.enumerate() [
+            #let cleaned = if sub_item.starts-with("- ") {
+              sub_item.slice(2)
+            } else {
+              sub_item
+            }
+            #if i > 0 [ • ]
+            #cleaned
+          ]
+        ]
+      ]
+    ]
+
+    #v(5pt)
   ]
-
-  #v(spacing-large)
 ]
 
-// Notes section
-#if "notes" in data and data.notes != none [
-  *#t("common", "notes")*
+#v(5pt)
 
-  #v(spacing-small)
+// Table footer line
+#line(length: 100%, stroke: 0.5pt)
 
-  #data.notes
+#v(5pt)
 
-  #v(spacing-medium)
+// Totals section (right-aligned)
+#align(right)[
+  #set text(size: 10pt, font: "Helvetica")
+
+  #grid(
+    columns: (100pt, 80pt),
+    align: (right, right),
+    row-gutter: 10pt,
+
+    [Nettobetrag:], [#format_money(data.totals.subtotal.amount) EUR],
+    [MwSt. (#data.totals.vat_breakdown.at(0).rate.percentage%):], [#format_money(data.totals.vat_breakdown.at(0).amount.amount) EUR],
+    [#set text(size: 11pt)
+     #text(weight: "bold")[Gesamtbetrag:]], [#set text(size: 11pt)
+                                #text(weight: "bold")[#format_money(data.totals.total.amount) EUR]],
+  )
 ]
 
-// Terms and conditions
-#if "terms" in data and data.terms != none [
-  #set text(..text-small)
+#v(5pt)
 
-  #data.terms
-] else if "payment" in data and "payment_terms" in data.payment [
-  #set text(..text-small)
+// ============================================================================
+// CLOSING SECTION
+// ============================================================================
 
-  #data.payment.payment_terms
-]
+#block[
+  #set text(size: 10pt, font: "Helvetica")
+  #set par(leading: 0.65em)
 
-#v(spacing-xlarge)
+  Zahlbar ohne Abzug bis zum #format_german_date(data.payment.due_date).
 
-// Closing
-[
-  #t("invoice", "thank_you")
+  #v(8pt)
 
-  #v(spacing-medium)
+  Gelieferte Waren bleiben bis zur vollständigen Bezahlung unser Eigentum.
 
-  #t("invoice", "regards")
+  #v(12pt)
 
-  #v(spacing-large)
+  Mit freundlichen Grüßen
 
-  #company.name
+  #v(20pt)
+
+  #if "business_owner" in company and company.business_owner != none [
+    #company.business_owner
+  ] else [
+    #company.name
+  ]
 ]
