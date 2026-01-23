@@ -30,6 +30,29 @@ typst compile --root . --font-path fonts templates/invoice/default.typ output/in
 
 > `docgen` handles paths, fonts, and template selection automatically. The raw typst command requires specifying all paths manually.
 
+### PDF Encryption
+
+Generate password-protected PDFs using the `--encrypt` flag:
+
+```bash
+docgen compile examples/digitalagentur/data/invoice.json --encrypt
+```
+
+You will be prompted for:
+- **Password** (with confirmation)
+- **Allow printing** (default: yes)
+- **Allow copying text/images** (default: no)
+- **Allow modifications** (default: no)
+
+**Example file:** [digitalagentur/output/credentials-encrypted.pdf](digitalagentur/output/credentials-encrypted.pdf) (Password: `test123`)
+
+**Generate your own:**
+```bash
+docgen compile examples/digitalagentur/data/credentials.json -o examples/digitalagentur/output/credentials-encrypted.pdf --encrypt
+```
+
+> Requires `qpdf` installed: `brew install qpdf` (macOS) or `apt install qpdf` (Linux)
+
 ## Template References
 
 The `data/` directory contains basic reference examples for all document types.
