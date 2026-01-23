@@ -6,12 +6,46 @@
 // Load data from JSON input
 #let data = json(sys.inputs.data)
 
-// Load company data
-#let company = json("../../data/company.json")
+// Load company and locale from sys.inputs (passed by docgen CLI)
+#let company = if "company" in sys.inputs {
+  json(sys.inputs.company)
+} else {
+  (:)
+}
 
-// Localization
-#let lang = if "language" in company { company.language } else { "de" }
-#let locale = json("../../locale/" + lang + ".json")
+#let locale = if "locale" in sys.inputs {
+  json(sys.inputs.locale)
+} else {
+  (common: (:), credentials: (:))
+}
+
+// Get branding from company data
+#let accent-color = get-accent-color(company)
+#let fonts = get-font-preset(company)
+
+// Locale helpers with fallbacks
+#let l-confidential = if "credentials" in locale and "confidential" in locale.credentials { locale.credentials.confidential } else { "CONFIDENTIAL" }
+#let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
+#let l-project = if "common" in locale and "project" in locale.common { locale.common.project } else { "Project" }
+#let l-client = if "common" in locale and "client" in locale.common { locale.common.client } else { "Client" }
+#let l-date = if "common" in locale and "date" in locale.common { locale.common.date } else { "Date" }
+#let l-title = if "credentials" in locale and "title" in locale.credentials { locale.credentials.title } else { "Credentials" }
+#let l-confidential-notice = if "credentials" in locale and "confidential_notice" in locale.credentials { locale.credentials.confidential_notice } else { "This document contains confidential information." }
+#let l-technical = if "credentials" in locale and "technical_settings" in locale.credentials { locale.credentials.technical_settings } else { "Technical Settings" }
+#let l-ports = if "credentials" in locale and "ports_protocols" in locale.credentials { locale.credentials.ports_protocols } else { "Ports & Protocols" }
+#let l-port = if "credentials" in locale and "port" in locale.credentials { locale.credentials.port } else { "Port" }
+#let l-protocol = if "credentials" in locale and "protocol" in locale.credentials { locale.credentials.protocol } else { "Protocol" }
+#let l-description = if "credentials" in locale and "description" in locale.credentials { locale.credentials.description } else { "Description" }
+#let l-username = if "credentials" in locale and "username" in locale.credentials { locale.credentials.username } else { "Username" }
+#let l-password = if "credentials" in locale and "password" in locale.credentials { locale.credentials.password } else { "Password" }
+#let l-type = if "credentials" in locale and "type" in locale.credentials { locale.credentials.type } else { "Type" }
+#let l-notes = if "credentials" in locale and "notes" in locale.credentials { locale.credentials.notes } else { "Notes" }
+#let l-security = if "credentials" in locale and "security_notices" in locale.credentials { locale.credentials.security_notices } else { "Security Notices" }
+#let l-hint1 = if "credentials" in locale and "security_hint_1" in locale.credentials { locale.credentials.security_hint_1 } else { "Store this document securely." }
+#let l-hint2 = if "credentials" in locale and "security_hint_2" in locale.credentials { locale.credentials.security_hint_2 } else { "Do not share with unauthorized persons." }
+#let l-hint3 = if "credentials" in locale and "security_hint_3" in locale.credentials { locale.credentials.security_hint_3 } else { "Change passwords regularly." }
+#let l-hint4 = if "credentials" in locale and "security_hint_4" in locale.credentials { locale.credentials.security_hint_4 } else { "Use a password manager." }
+#let l-hint5 = if "credentials" in locale and "security_hint_5" in locale.credentials { locale.credentials.security_hint_5 } else { "Delete this document after use." }
 
 #set page(
   paper: "a4",
@@ -22,11 +56,11 @@
       #grid(
         columns: (1fr, 1fr),
         align: (left, right),
-        [#text(fill: color-accent, weight: "bold")[#upper(locale.credentials.confidential)]],
+        [#text(fill: accent-color, weight: "bold")[#upper(l-confidential)]],
         [#data.metadata.document_number]
       )
       #v(0.2em)
-      #line(length: 100%, stroke: border-thin + color-accent)
+      #line(length: 100%, stroke: border-thin + accent-color)
     ]
   },
   footer: context {
@@ -38,21 +72,21 @@
         columns: (1fr, auto, 1fr),
         align: (left, center, right),
         [#data.metadata.client_name],
-        [#locale.common.page #counter(page).display()],
+        [#l-page #counter(page).display()],
         [#data.metadata.created_at.date]
       )
     ]
   }
 )
 
-#set text(font: font-body, size: size-medium, lang: "de")
+#set text(font: fonts.body, size: size-medium, lang: "de")
 #set par(justify: true, leading: 0.65em)
 
 // Heading styles
 #show heading.where(level: 1): it => {
   v(25pt)
   block(sticky: true, width: 100%)[
-    #text(size: size-xxlarge, weight: "bold", fill: color-accent)[#it.body]
+    #text(size: size-xxlarge, weight: "bold", fill: accent-color)[#it.body]
   ]
   v(12pt)
 }
@@ -75,7 +109,7 @@
 #align(center)[
   #if "logo" in company and company.logo != none [
     #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
-    #image("/data/" + company.logo, width: logo-width)
+    #image("/" + company.logo, width: logo-width)
   ] else [
     #box(
       stroke: 1pt + color-border,
@@ -98,7 +132,7 @@
 
 // Document type and number
 #align(center)[
-  #text(size: size-xlarge, fill: color-accent, weight: "bold")[#upper(locale.credentials.title)]
+  #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(l-title)]
   #text(size: size-xlarge, fill: color-text-light)[
     · #data.metadata.document_number
   ]
@@ -113,9 +147,9 @@
     row-gutter: 14pt,
     column-gutter: 20pt,
     align: (right, left),
-    [*#locale.common.project:*], [#data.metadata.project_name],
-    [*#locale.common.client:*], [#data.metadata.client_name],
-    [*#locale.common.date:*], [#data.metadata.created_at.date],
+    [*#l-project:*], [#data.metadata.project_name],
+    [*#l-client:*], [#data.metadata.client_name],
+    [*#l-date:*], [#data.metadata.created_at.date],
   )
 ]
 
@@ -124,18 +158,18 @@
 // Security warning
 #align(center)[
   #box(
-    stroke: 1.5pt + color-accent,
+    stroke: 1.5pt + accent-color,
     radius: 6pt,
     inset: 1em,
     width: 70%,
   )[
     #align(center)[
-      #text(size: size-medium, fill: color-accent, weight: "bold")[
-        #upper(locale.credentials.confidential)
+      #text(size: size-medium, fill: accent-color, weight: "bold")[
+        #upper(l-confidential)
       ]
       #v(0.3em)
       #text(size: size-small)[
-        #locale.credentials.confidential_notice
+        #l-confidential-notice
       ]
     ]
   ]
@@ -157,7 +191,7 @@
 // Email
 #align(center)[
   #set text(size: size-small, fill: color-text-light)
-  #company.contact.email
+  #if "contact" in company and "email" in company.contact [#company.contact.email]
 ]
 
 #v(40pt)
@@ -189,7 +223,7 @@
 
   // Technical settings
   #if "technical" in service and service.technical.len() > 0 [
-    == #locale.credentials.technical_settings
+    == #l-technical
 
     #block(
       fill: color-background,
@@ -212,14 +246,14 @@
 
   // Ports
   #if "ports" in service and service.ports.len() > 0 [
-    == #locale.credentials.ports_protocols
+    == #l-ports
 
     #table(
       columns: (auto, auto, auto),
       inset: 0.6em,
       stroke: border-thin + color-border,
       fill: (x, y) => if y == 0 { color-background } else { none },
-      [*#locale.credentials.port*], [*#locale.credentials.protocol*], [*#locale.credentials.description*],
+      [*#l-port*], [*#l-protocol*], [*#l-description*],
       ..service.ports.map(port => (
         [#port.port],
         [#port.protocol],
@@ -231,7 +265,7 @@
 
   // Credentials
   #if "credentials" in service and service.credentials.len() > 0 [
-    == #locale.credentials.title
+    == #l-title
 
     #for cred in service.credentials [
       #block(
@@ -250,11 +284,11 @@
           stroke: none,
           inset: 0.3em,
 
-          [*#locale.credentials.username:*], [#raw(cred.username)],
-          [*#locale.credentials.password:*], [#raw(cred.password)],
+          [*#l-username:*], [#raw(cred.username)],
+          [*#l-password:*], [#raw(cred.password)],
 
           ..if "credential_type" in cred and cred.credential_type != none {
-            ([*#locale.credentials.type:*], [#cred.credential_type])
+            ([*#l-type:*], [#cred.credential_type])
           } else {
             ()
           },
@@ -266,7 +300,7 @@
 
   // Notes
   #if "notes" in service and service.notes != none [
-    == #locale.credentials.notes
+    == #l-notes
     #service.notes
   ]
 ]
@@ -281,20 +315,20 @@
 
 #align(center)[
   #box(
-    stroke: border-normal + color-accent,
+    stroke: border-normal + accent-color,
     radius: 6pt,
     inset: 1.2em,
     width: 90%,
   )[
-    #text(size: size-normal, weight: "bold", fill: color-accent)[#locale.credentials.security_notices]
+    #text(size: size-normal, weight: "bold", fill: accent-color)[#l-security]
     #v(0.5em)
     #set text(size: size-small)
     #align(left)[
-      - #locale.credentials.security_hint_1
-      - #locale.credentials.security_hint_2
-      - #locale.credentials.security_hint_3
-      - #locale.credentials.security_hint_4
-      - #locale.credentials.security_hint_5
+      - #l-hint1
+      - #l-hint2
+      - #l-hint3
+      - #l-hint4
+      - #l-hint5
     ]
   ]
 ]

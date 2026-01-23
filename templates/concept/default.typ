@@ -1,15 +1,13 @@
 // Concept/Design Document Template (Konzept)
 // Based on casoon-documents structure
 // Supports both JSON input and direct .typ content files
+//
+// USAGE: The `company` and `locale` parameters must be passed by the document:
+//   #let company = json("/data/company.json")
+//   #let locale = json("/locale/de.json")
+//   #show: concept.with(company: company, locale: locale, ...)
 
 #import "../common/styles.typ": *
-
-// Load company data
-#let company = json("../../data/company.json")
-
-// Localization
-#let lang = if "language" in company { company.language } else { "de" }
-#let locale = json("../../locale/" + lang + ".json")
 
 // Document function for flexible use
 #let concept(
@@ -23,8 +21,18 @@
   created_at: none,
   authors: (),
   show_toc: true,
+  company: none,
+  locale: none,
   body
 ) = {
+  // Use passed company/locale or empty defaults
+  let company = if company != none { company } else { (:) }
+  let locale = if locale != none { locale } else { (common: (:), concept: (:)) }
+  
+  // Get branding from company data
+  let accent-color = get-accent-color(company)
+  let primary-color = get-primary-color(company)
+  let fonts = get-font-preset(company)
 
   set page(
     paper: "a4",
@@ -46,6 +54,11 @@
     ],
 
     footer: context [
+      #let l-document = if "common" in locale and "document" in locale.common { locale.common.document } else { "Document" }
+      #let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
+      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
+      #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
+      
       #line(length: 100%, stroke: border-thin)
       #v(5pt)
       #set text(size: size-xs)
@@ -55,43 +68,50 @@
 
         // Column 1: Company Info
         [
-          #strong[#company.name] #linebreak()
-          #company.address.street #company.address.house_number #linebreak()
-          #company.address.postal_code #company.address.city
+          #if "name" in company [#strong[#company.name] #linebreak()]
+          #if "address" in company [
+            #if "street" in company.address [#company.address.street ]
+            #if "house_number" in company.address [#company.address.house_number]
+            #linebreak()
+            #if "postal_code" in company.address [#company.address.postal_code ]
+            #if "city" in company.address [#company.address.city]
+          ]
         ],
 
         // Column 2: Contact
         [
-          Tel.: #company.contact.phone #linebreak()
-          Email: #company.contact.email #linebreak()
-          #if "website" in company.contact [Web: #company.contact.website]
+          #if "contact" in company [
+            #if "phone" in company.contact [Tel.: #company.contact.phone #linebreak()]
+            #if "email" in company.contact [Email: #company.contact.email #linebreak()]
+            #if "website" in company.contact [Web: #company.contact.website]
+          ]
         ],
 
         // Column 3: Document Info
         [
-          #strong[#locale.common.document:] #linebreak()
+          #strong[#l-document:] #linebreak()
           #document_number #linebreak()
-          #locale.common.page #counter(page).display()
+          #l-page #counter(page).display()
         ],
 
         // Column 4: Date
         [
-          #strong[#locale.common.created:] #linebreak()
+          #strong[#l-created:] #linebreak()
           #if created_at != none [#created_at] #linebreak()
-          #locale.common.status: #status
+          #l-status: #status
         ],
       )
     ]
   )
 
-  set text(font: font-body, size: size-medium, lang: "de")
+  set text(font: fonts.body, size: size-medium, lang: "de")
   set par(justify: true, leading: 0.65em)
   set heading(numbering: "1.1")
 
   // Heading styles
   show heading.where(level: 1): it => {
     v(20pt)
-    text(size: size-xxlarge, weight: "bold", fill: color-accent)[#it]
+    text(size: size-xxlarge, weight: "bold", fill: accent-color)[#it]
     v(10pt)
   }
 
@@ -119,10 +139,19 @@
     #align(center)[
       #v(50pt)
 
+      // Locale labels with fallbacks
+      #let l-concept = if "concept" in locale and "title" in locale.concept { locale.concept.title } else { "Concept" }
+      #let l-project = if "common" in locale and "project" in locale.common { locale.common.project } else { "Project" }
+      #let l-client = if "common" in locale and "client" in locale.common { locale.common.client } else { "Client" }
+      #let l-version = if "common" in locale and "version" in locale.common { locale.common.version } else { "Version" }
+      #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
+      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
+      #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
+
       // Logo
       #if "logo" in company and company.logo != none [
         #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
-        #image("../../" + company.logo, width: logo-width)
+        #image("/" + company.logo, width: logo-width)
         #v(30pt)
       ]
 
@@ -132,7 +161,7 @@
       #v(20pt)
 
       // Document type and number
-      #text(size: size-xlarge, fill: color-accent, weight: "bold")[#upper(locale.concept.title)]
+      #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(l-concept)]
       #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
 
       #v(30pt)
@@ -144,15 +173,15 @@
         row-gutter: 14pt,
         align: (right, left),
 
-        [*#locale.common.project:*], [#project_name],
-        [*#locale.common.client:*], [#client_name],
-        [*#locale.common.version:*], [#version],
-        [*#locale.common.status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
+        [*#l-project:*], [#project_name],
+        [*#l-client:*], [#client_name],
+        [*#l-version:*], [#version],
+        [*#l-status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
         ..if created_at != none {
-          ([*#locale.common.created:*], [#created_at])
+          ([*#l-created:*], [#created_at])
         } else { () },
         ..if authors.len() > 0 {
-          ([*#locale.common.authors:*], [#authors.join(", ")])
+          ([*#l-authors:*], [#authors.join(", ")])
         } else { () },
       )
 
@@ -173,18 +202,21 @@
   // TABLE OF CONTENTS
   // ============================================================================
 
-  if show_toc [
-    #outline(
-      title: [
-        #set text(size: size-xxlarge, weight: "bold")
-        #locale.common.table_of_contents
-      ],
-      indent: 1em,
-      depth: 3,
-    )
+  if show_toc {
+    let l-toc = if "common" in locale and "table_of_contents" in locale.common { locale.common.table_of_contents } else { "Table of Contents" }
+    [
+      #outline(
+        title: [
+          #set text(size: size-xxlarge, weight: "bold")
+          #l-toc
+        ],
+        indent: 1em,
+        depth: 3,
+      )
 
-    #pagebreak()
-  ]
+      #pagebreak()
+    ]
+  }
 
   // ============================================================================
   // MAIN CONTENT
@@ -193,9 +225,22 @@
   body
 }
 
-// For JSON-based usage
+// For JSON-based usage (via docgen CLI)
 #let data = if "data" in sys.inputs {
   json(sys.inputs.data)
+} else {
+  none
+}
+
+// Load company and locale from sys.inputs (passed by docgen)
+#let _company = if "company" in sys.inputs {
+  json(sys.inputs.company)
+} else {
+  none
+}
+
+#let _locale = if "locale" in sys.inputs {
+  json(sys.inputs.locale)
 } else {
   none
 }
@@ -230,6 +275,8 @@
     created_at: created-date,
     authors: if "authors" in data.metadata { data.metadata.authors } else { () },
     show_toc: if "show_toc" in data.metadata { data.metadata.show_toc } else { true },
+    company: _company,
+    locale: _locale,
     content-body
   )
 }

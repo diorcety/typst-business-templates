@@ -77,7 +77,7 @@ E-commerce concept for "Hofbauer's Biohof" organic farm shop:
 - Shopware 6 platform recommendation
 - Subscription box system
 - Timeline & cost breakdown
-- Uses `@local/docgen-concept:0.3.0` package
+- Uses `@local/docgen-concept:0.4.0` package
 
 **Compile:**
 ```bash
@@ -96,7 +96,7 @@ WordPress user manual for "Zimmermann Schreinerei":
 - Page editing guide
 - Image upload instructions
 - WooCommerce basics
-- Uses `@local/docgen-documentation:0.3.0` package
+- Uses `@local/docgen-documentation:0.4.0` package
 
 **Compile:**
 ```bash
@@ -180,14 +180,17 @@ This example demonstrates **both workflows** supported by docgen:
 
 **Example:**
 ```typ
-#import "@local/docgen-concept:0.3.0": concept
+#import "@local/docgen-concept:0.4.0": concept
 
-#let company = json("../../../data/company.json")
+// Load company and locale from project root (absolute paths)
+#let company = json("/data/company.json")
+#let locale = json("/locale/de.json")
 
 #show: concept.with(
   title: "My Project Concept",
   client_name: "Client Name",
   company: company,
+  locale: locale,
 )
 
 = Introduction

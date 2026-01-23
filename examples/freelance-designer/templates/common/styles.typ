@@ -1,28 +1,10 @@
 // Common Typst Styles
 // This file contains reusable style definitions for all templates
 // Based on casoon-documents styling
-
-// Load company data for branding colors and fonts (if available)
-#let company-data = json("../../data/company.json")
-
-// ============================================================================
-// LOCALIZATION
-// ============================================================================
-// Load locale based on company.json language setting (default: "de")
-// Available: "de" (German), "en" (English)
-
-#let lang = if "language" in company-data { company-data.language } else { "de" }
-#let locale = json("../../locale/" + lang + ".json")
-
-// Helper function to get localized string
-#let t(section, key) = {
-  if section in locale and key in locale.at(section) {
-    locale.at(section).at(key)
-  } else {
-    // Fallback: return key itself
-    key
-  }
-}
+//
+// NOTE: This file defines DEFAULTS only. Company-specific values (colors, fonts)
+// are passed via the `company` parameter in template functions.
+// This allows templates to work as Typst packages without filesystem access issues.
 
 // ============================================================================
 // FONT PRESETS (Google Fonts)
@@ -103,31 +85,46 @@
 )
 
 // Get font preset from company data or use default
-#let active-preset = if "branding" in company-data and "font_preset" in company-data.branding {
-  let preset-name = company-data.branding.font_preset
-  if preset-name in font-presets {
-    font-presets.at(preset-name)
+// This function is called by templates with the company parameter
+#let get-font-preset(company) = {
+  if company != none and "branding" in company and "font_preset" in company.branding {
+    let preset-name = company.branding.font_preset
+    if preset-name in font-presets {
+      font-presets.at(preset-name)
+    } else {
+      font-presets.at("default")
+    }
   } else {
     font-presets.at("default")
   }
-} else {
-  font-presets.at("default")
 }
+
+// Default preset (used when no company data available)
+#let active-preset = font-presets.at("default")
 
 // ============================================================================
 // COLOR PALETTE
 // ============================================================================
 
-#let color-primary = if "branding" in company-data and "primary_color" in company-data.branding {
-  rgb(company-data.branding.primary_color)
-} else {
-  rgb("#2c3e50")
+// Default colors (overridden by company branding in templates)
+#let color-primary = rgb("#2c3e50")
+#let color-accent = rgb("#E94B3C")
+
+// Helper functions to get colors from company data
+#let get-primary-color(company) = {
+  if company != none and "branding" in company and "primary_color" in company.branding {
+    rgb(company.branding.primary_color)
+  } else {
+    color-primary
+  }
 }
 
-#let color-accent = if "branding" in company-data and "accent_color" in company-data.branding {
-  rgb(company-data.branding.accent_color)
-} else {
-  rgb("#E94B3C")
+#let get-accent-color(company) = {
+  if company != none and "branding" in company and "accent_color" in company.branding {
+    rgb(company.branding.accent_color)
+  } else {
+    color-accent
+  }
 }
 
 #let color-secondary = rgb("#34495e")

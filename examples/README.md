@@ -80,9 +80,11 @@ docgen template install documentation
 
 2. **Write .typ documents with package imports:**
 ```typ
-#import "@local/docgen-concept:0.3.0": concept
+#import "@local/docgen-concept:0.4.0": concept
 
-#let company = json("../../../data/company.json")
+// Load company and locale from project root (absolute paths)
+#let company = json("/data/company.json")
+#let locale = json("/locale/de.json")
 
 #show: concept.with(
   title: "E-Commerce Shop für Biobauernhof",
@@ -92,6 +94,7 @@ docgen template install documentation
   version: "1.0",
   status: "final",
   company: company,
+  locale: locale,
 )
 
 = Projektziel
@@ -131,7 +134,7 @@ docgen template install invoice
 docgen template update
 
 # Remove a template version
-docgen template remove concept 0.3.0
+docgen template remove concept 0.4.0
 ```
 
 ### Package Locations

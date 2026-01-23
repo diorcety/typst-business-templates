@@ -742,6 +742,22 @@ fn compile_document(
         )
     );
 
+    // Determine company.json and locale paths
+    let company_path = "/data/company.json";
+    let company_json_path = Path::new("data/company.json");
+
+    // Read language from company.json to determine locale
+    let locale_path = if company_json_path.exists() {
+        let company_content = std::fs::read_to_string(company_json_path).unwrap_or_default();
+        let lang = serde_json::from_str::<serde_json::Value>(&company_content)
+            .ok()
+            .and_then(|v| v.get("language").and_then(|l| l.as_str().map(String::from)))
+            .unwrap_or_else(|| "de".to_string());
+        format!("/locale/{}.json", lang)
+    } else {
+        "/locale/de.json".to_string()
+    };
+
     // Check if input is a .typ file (direct compilation mode)
     let status = if input.extension().map_or(false, |ext| ext == "typ") {
         // Direct .typ file compilation
@@ -751,6 +767,10 @@ fn compile_document(
                 "--root",
                 ".",
                 &input.to_string_lossy(),
+                "--input",
+                &format!("company={}", company_path),
+                "--input",
+                &format!("locale={}", locale_path),
                 &output_path.to_string_lossy(),
             ])
             .status()
@@ -770,6 +790,10 @@ fn compile_document(
                 &template_path,
                 "--input",
                 &format!("data={}", data_path),
+                "--input",
+                &format!("company={}", company_path),
+                "--input",
+                &format!("locale={}", locale_path),
                 &output_path.to_string_lossy(),
             ])
             .status()
@@ -1122,20 +1146,23 @@ docgen template install concept
 
 **Then create .typ file:**
 ```typst
-#import "@local/docgen-concept:0.3.0": concept
+#import "@local/docgen-concept:0.4.0": concept
 
-#let company = json("../../../data/company.json")
+// Load company and locale from project root (absolute paths)
+#let company = json("/data/company.json")
+#let locale = json("/locale/de.json")
 
 #show: concept.with(
   title: "E-Commerce Shop Entwicklung",
   document_number: "KO-2025-001",
   client_name: "Firma GmbH",
+  company: company,
+  locale: locale,
   project_name: "Online Shop",
   version: "1.0",
   status: "final",
   created_at: "23.01.2025",
   authors: ("Max Mustermann",),
-  company: company,
 )
 
 = Projektziel
@@ -1272,7 +1299,10 @@ When helping users create documents:
    - Remind user to install package first: `docgen template install concept`
    - Create .typ file with proper imports
    - Use full Typst syntax (headings, lists, tables, etc.)
-   - Load company data: `#let company = json("../../../data/company.json")`
+   - Load company and locale data with absolute paths:
+     `#let company = json("/data/company.json")`
+     `#let locale = json("/locale/de.json")`
+   - Pass both to the template: `company: company, locale: locale`
 
 4. **Validate before compile:**
    - Check all required fields are present

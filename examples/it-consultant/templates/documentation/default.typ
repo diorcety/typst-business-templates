@@ -2,15 +2,13 @@
 // Technical documentation for projects, APIs, systems, etc.
 // Based on casoon-documents structure
 // Supports both JSON input and direct .typ content files
+//
+// USAGE: The `company` and `locale` parameters must be passed by the document:
+//   #let company = json("/data/company.json")
+//   #let locale = json("/locale/de.json")
+//   #show: documentation.with(company: company, locale: locale, ...)
 
 #import "../common/styles.typ": *
-
-// Load company data
-#let company = json("../../data/company.json")
-
-// Localization
-#let lang = if "language" in company { company.language } else { "de" }
-#let locale = json("../../locale/" + lang + ".json")
 
 // Document function for flexible use
 #let documentation(
@@ -26,8 +24,18 @@
   authors: (),
   created_at: none,
   show_toc: true,
+  company: none,
+  locale: none,
   body
 ) = {
+  // Use passed company/locale or empty defaults
+  let company = if company != none { company } else { (:) }
+  let locale = if locale != none { locale } else { (common: (:), documentation: (:)) }
+  
+  // Get branding from company data
+  let accent-color = get-accent-color(company)
+  let primary-color = get-primary-color(company)
+  let fonts = get-font-preset(company)
 
   set page(
     paper: "a4",
@@ -53,13 +61,13 @@
     ]
   )
 
-  set text(font: font-body, size: size-medium, lang: "de")
+  set text(font: fonts.body, size: size-medium, lang: "de")
   set par(justify: true, leading: 0.65em)
   set heading(numbering: "1.1")
 
   // Code block styling
   show raw.where(block: true): it => {
-    set text(size: size-small, font: font-mono)
+    set text(size: size-small, font: fonts.mono)
     block(
       fill: color-background,
       inset: 1em,
@@ -76,14 +84,14 @@
       fill: color-background,
       inset: (x: 3pt, y: 0pt),
       radius: 2pt,
-      text(size: size-small, font: font-mono, it)
+      text(size: size-small, font: fonts.mono, it)
     )
   }
 
   // Heading styles
   show heading.where(level: 1): it => {
     v(25pt)
-    text(size: size-xxlarge, weight: "bold", fill: color-accent)[#it]
+    text(size: size-xxlarge, weight: "bold", fill: accent-color)[#it]
     v(12pt)
   }
 
@@ -120,10 +128,18 @@
     #align(center)[
       #v(50pt)
 
+      // Locale labels with fallbacks
+      #let l-project = if "common" in locale and "project" in locale.common { locale.common.project } else { "Project" }
+      #let l-client = if "common" in locale and "client" in locale.common { locale.common.client } else { "Client" }
+      #let l-version = if "common" in locale and "version" in locale.common { locale.common.version } else { "Version" }
+      #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
+      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
+      #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
+
       // Logo
       #if "logo" in company and company.logo != none [
         #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
-        #image("../../" + company.logo, width: logo-width)
+        #image("/" + company.logo, width: logo-width)
         #v(30pt)
       ]
 
@@ -133,7 +149,7 @@
       #v(20pt)
 
       // Document type and number
-      #text(size: size-xlarge, fill: color-accent, weight: "bold")[#upper(doc_type)]
+      #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(doc_type)]
       #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
 
       #v(30pt)
@@ -146,18 +162,18 @@
         align: (right, left),
 
         ..if project_name != none {
-          ([*#locale.common.project:*], [#project_name])
+          ([*#l-project:*], [#project_name])
         } else { () },
         ..if client_name != none {
-          ([*#locale.common.client:*], [#client_name])
+          ([*#l-client:*], [#client_name])
         } else { () },
-        [*#locale.common.version:*], [#version],
-        [*#locale.common.status:*], [#text(fill: color-accent, weight: "bold")[#upper(status)]],
+        [*#l-version:*], [#version],
+        [*#l-status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
         ..if created_at != none {
-          ([*#locale.common.created:*], [#created_at])
+          ([*#l-created:*], [#created_at])
         } else { () },
         ..if authors.len() > 0 {
-          ([*#locale.common.authors:*], [#authors.join(", ")])
+          ([*#l-authors:*], [#authors.join(", ")])
         } else { () },
       )
 
@@ -178,18 +194,21 @@
   // TABLE OF CONTENTS
   // ============================================================================
 
-  if show_toc [
-    #outline(
-      title: [
-        #set text(size: size-xxlarge, weight: "bold")
-        #locale.common.table_of_contents
-      ],
-      indent: 1em,
-      depth: 3,
-    )
+  if show_toc {
+    let l-toc = if "common" in locale and "table_of_contents" in locale.common { locale.common.table_of_contents } else { "Table of Contents" }
+    [
+      #outline(
+        title: [
+          #set text(size: size-xxlarge, weight: "bold")
+          #l-toc
+        ],
+        indent: 1em,
+        depth: 3,
+      )
 
-    #pagebreak()
-  ]
+      #pagebreak()
+    ]
+  }
 
   // ============================================================================
   // MAIN CONTENT
@@ -198,9 +217,22 @@
   body
 }
 
-// For JSON-based usage
+// For JSON-based usage (via docgen CLI)
 #let data = if "data" in sys.inputs {
   json(sys.inputs.data)
+} else {
+  none
+}
+
+// Load company and locale from sys.inputs (passed by docgen)
+#let _company = if "company" in sys.inputs {
+  json(sys.inputs.company)
+} else {
+  none
+}
+
+#let _locale = if "locale" in sys.inputs {
+  json(sys.inputs.locale)
 } else {
   none
 }
@@ -237,6 +269,8 @@
     created_at: created-date,
     authors: if "authors" in data.metadata { data.metadata.authors } else { () },
     show_toc: if "show_toc" in data.metadata { data.metadata.show_toc } else { true },
+    company: _company,
+    locale: _locale,
     content-body
   )
 }
