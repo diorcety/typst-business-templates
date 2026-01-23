@@ -133,7 +133,7 @@ docgen
 Write documents directly in Typst syntax - perfect for concept documents, documentation, or any content-heavy documents:
 
 ```typ
-#import "@local/docgen-concept:0.4.0": concept
+#import "@local/docgen-concept:0.4.2": concept
 
 // Load company and locale data from project directory
 #let company = json("/data/company.json")
@@ -148,6 +148,8 @@ Write documents directly in Typst syntax - perfect for concept documents, docume
   status: "final",
   company: company,
   locale: locale,
+  // Optional: Pass logo as image for package imports
+  // logo: image("/data/logo.png", width: 150pt),
 )
 
 = Current Situation
@@ -181,11 +183,11 @@ docgen template list
 docgen template install concept
 
 # Use in your documents
-#import "@local/docgen-concept:0.4.0": concept
+#import "@local/docgen-concept:0.4.2": concept
 ```
 
 **Benefits:**
-- Clean imports: `@local/docgen-concept:0.4.0` instead of `../../../templates/`
+- Clean imports: `@local/docgen-concept:0.4.2` instead of `../../../templates/`
 - Version pinning: Documents stay reproducible
 - Automatic installation: Packages install when needed
 - Easy updates: `docgen template update`

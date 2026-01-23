@@ -80,7 +80,7 @@ docgen template install documentation
 
 2. **Write .typ documents with package imports:**
 ```typ
-#import "@local/docgen-concept:0.4.0": concept
+#import "@local/docgen-concept:0.4.2": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -95,6 +95,8 @@ docgen template install documentation
   status: "final",
   company: company,
   locale: locale,
+  // Optional: Pass logo as image for package imports
+  // logo: image("/data/logo.png", width: 150pt),
 )
 
 = Projektziel
@@ -134,7 +136,7 @@ docgen template install invoice
 docgen template update
 
 # Remove a template version
-docgen template remove concept 0.4.0
+docgen template remove concept 0.4.2
 ```
 
 ### Package Locations

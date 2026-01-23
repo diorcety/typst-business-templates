@@ -1146,7 +1146,7 @@ docgen template install concept
 
 **Then create .typ file:**
 ```typst
-#import "@local/docgen-concept:0.4.0": concept
+#import "@local/docgen-concept:0.4.2": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -1163,6 +1163,7 @@ docgen template install concept
   status: "final",
   created_at: "23.01.2025",
   authors: ("Max Mustermann",),
+  // logo: image("/data/logo.png", width: 150pt),  // Optional
 )
 
 = Projektziel

@@ -1,4 +1,4 @@
-#import "@local/docgen-documentation:0.4.0": documentation
+#import "@local/docgen-documentation:0.4.2": documentation
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -18,6 +18,7 @@
   authors: ("Pixelwerk Digitalagentur",),
   company: company,
   locale: locale,
+  // logo: image("/data/logo.png", width: 150pt),  // Optional: pass logo as image
 )
 = Einführung
 

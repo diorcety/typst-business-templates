@@ -3,17 +3,28 @@
 
 #import "../common/styles.typ": *
 
-// Load data from JSON input
-#let data = json(sys.inputs.data)
+// Load data from JSON input (only if available)
+#let data = if "data" in sys.inputs {
+  json(sys.inputs.data)
+} else {
+  none
+}
 
 // Load company and locale from sys.inputs (passed by docgen CLI)
-#let company = if "company" in sys.inputs {
-  json(sys.inputs.company)
+// Only when in JSON workflow (data != none)
+#let company = if data != none and "company" in sys.inputs {
+  let c = json(sys.inputs.company)
+  // Load logo image if logo path is specified
+  if "logo" in c and c.logo != none {
+    let logo-width = if "logo_width" in c { eval(c.logo_width) } else { 150pt }
+    c.insert("_logo_image", image("/" + c.logo, width: logo-width))
+  }
+  c
 } else {
   (:)
 }
 
-#let locale = if "locale" in sys.inputs {
+#let locale = if data != none and "locale" in sys.inputs {
   json(sys.inputs.locale)
 } else {
   (common: (:), credentials: (:))
@@ -46,6 +57,9 @@
 #let l-hint3 = if "credentials" in locale and "security_hint_3" in locale.credentials { locale.credentials.security_hint_3 } else { "Change passwords regularly." }
 #let l-hint4 = if "credentials" in locale and "security_hint_4" in locale.credentials { locale.credentials.security_hint_4 } else { "Use a password manager." }
 #let l-hint5 = if "credentials" in locale and "security_hint_5" in locale.credentials { locale.credentials.security_hint_5 } else { "Delete this document after use." }
+
+// Note: Credentials template is CLI-only (requires JSON data via docgen)
+// If data is none, the template will fail gracefully when accessing data.metadata
 
 #set page(
   paper: "a4",
@@ -105,11 +119,10 @@
 
 #v(50pt)
 
-// Logo placeholder
+// Logo (use pre-loaded _logo_image from JSON workflow)
 #align(center)[
-  #if "logo" in company and company.logo != none [
-    #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
-    #image("/" + company.logo, width: logo-width)
+  #if "_logo_image" in company [
+    #company._logo_image
   ] else [
     #box(
       stroke: 1pt + color-border,

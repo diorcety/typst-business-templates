@@ -2,10 +2,16 @@
 // Based on casoon-documents structure
 // Supports both JSON input and direct .typ content files
 //
-// USAGE: The `company` and `locale` parameters must be passed by the document:
+// USAGE (Package Import):
+//   #import "@local/docgen-concept:0.4.2": concept
 //   #let company = json("/data/company.json")
 //   #let locale = json("/locale/de.json")
-//   #show: concept.with(company: company, locale: locale, ...)
+//   #show: concept.with(
+//     title: "My Concept",
+//     company: company,
+//     locale: locale,
+//     logo: image("/data/logo.png"),  // Logo as image, not path
+//   )
 
 #import "../common/styles.typ": *
 
@@ -23,6 +29,7 @@
   show_toc: true,
   company: none,
   locale: none,
+  logo: none,
   body
 ) = {
   // Use passed company/locale or empty defaults
@@ -148,10 +155,12 @@
       #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
       #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
 
-      // Logo
-      #if "logo" in company and company.logo != none [
-        #let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
-        #image("/" + company.logo, width: logo-width)
+      // Logo (passed as image parameter or loaded from path for JSON workflow)
+      #if logo != none [
+        #logo
+        #v(30pt)
+      ] else if "logo" in company and company.logo != none and company.at("_logo_image", default: none) != none [
+        #company._logo_image
         #v(30pt)
       ]
 
@@ -226,20 +235,27 @@
 }
 
 // For JSON-based usage (via docgen CLI)
+// Only load from sys.inputs when "data" is present (JSON workflow)
 #let data = if "data" in sys.inputs {
   json(sys.inputs.data)
 } else {
   none
 }
 
-// Load company and locale from sys.inputs (passed by docgen)
-#let _company = if "company" in sys.inputs {
-  json(sys.inputs.company)
+// Only load company/locale when in JSON workflow (data != none)
+#let _company = if data != none and "company" in sys.inputs {
+  let c = json(sys.inputs.company)
+  // Load logo image if logo path is specified
+  if "logo" in c and c.logo != none {
+    let logo-width = if "logo_width" in c { eval(c.logo_width) } else { 150pt }
+    c.insert("_logo_image", image("/" + c.logo, width: logo-width))
+  }
+  c
 } else {
   none
 }
 
-#let _locale = if "locale" in sys.inputs {
+#let _locale = if data != none and "locale" in sys.inputs {
   json(sys.inputs.locale)
 } else {
   none
