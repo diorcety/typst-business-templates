@@ -17,7 +17,7 @@ use ui::InteractiveUI;
 #[derive(Parser)]
 #[command(name = "docgen")]
 #[command(author = "Typst Business Templates")]
-#[command(version = "0.2.0")]
+#[command(version)]
 #[command(about = "Generate professional business documents with Typst", long_about = None)]
 struct Cli {
     #[command(subcommand)]
@@ -399,7 +399,12 @@ fn init_project(name: &str) -> Result<()> {
     Ok(())
 }
 
-fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<String>, encrypt: bool) -> Result<()> {
+fn compile_document(
+    input: &Path,
+    output: Option<PathBuf>,
+    template: Option<String>,
+    encrypt: bool,
+) -> Result<()> {
     if !input.exists() {
         anyhow::bail!("{}: {}", t("compile", "file_not_found"), input.display());
     }
@@ -439,28 +444,28 @@ fn compile_document(input: &Path, output: Option<PathBuf>, template: Option<Stri
 
     if status.success() {
         println!("{} {}", "✓".green(), t("compile", "success"));
-        
+
         // Handle encryption if requested
         if encrypt {
             // Check if qpdf is available first
             encrypt::check_qpdf_available()?;
-            
+
             println!("{} {}", "→".blue(), "Encrypting PDF...");
             let encryption_opts = encrypt::prompt_encryption_options()?;
             let temp_path = output_path.with_extension("pdf.tmp");
-            
+
             // Rename original to temp
             std::fs::rename(&output_path, &temp_path)?;
-            
+
             // Encrypt temp to final output
             encrypt::encrypt_pdf(&temp_path, &output_path, encryption_opts)?;
-            
+
             // Remove temp file
             std::fs::remove_file(&temp_path)?;
-            
+
             println!("{} {}", "✓".green(), "PDF encrypted successfully");
         }
-        
+
         Ok(())
     } else {
         anyhow::bail!("{}", t("compile", "failed"))
