@@ -2,6 +2,7 @@ mod db;
 mod encrypt;
 mod locale;
 mod ui;
+mod embedded;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
@@ -306,6 +307,7 @@ fn init_project(name: &str) -> Result<()> {
         name.green()
     );
 
+
     let base = Path::new(name);
 
     // Get current year for initial directory structure
@@ -384,10 +386,25 @@ fn init_project(name: &str) -> Result<()> {
 }"##;
     std::fs::write(base.join("data/company.json"), company)?;
 
+    // Write embedded templates
+    for template in embedded::get_templates() {
+        let template_path = base.join("templates").join(template.path);
+        std::fs::create_dir_all(template_path.parent().unwrap())?;
+        std::fs::write(&template_path, template.content)?;
+    }
+
+    // Write embedded locales
+    let locale_dir = base.join("locale");
+    std::fs::create_dir_all(&locale_dir)?;
+    for locale in embedded::get_locales() {
+        std::fs::write(locale_dir.join(locale.path), locale.content)?;
+    }
+
     // Create .gitignore
     std::fs::write(base.join(".gitignore"), "output/*.pdf\ndata/docgen.db\n")?;
 
     println!("{} {}", "✓".green(), t("init", "created"));
+
     println!();
     println!("{}:", t("init", "next_steps"));
     println!("  cd {}", name);
@@ -497,7 +514,7 @@ fn build_all(path: &Path, output: &Path) -> Result<()> {
         match compile_document(input, Some(output_file), None, false) {
             Ok(_) => count += 1,
             Err(e) => {
-                eprintln!(
+                println!(
                     "{} {}: {}",
                     "✗".red(),
                     tf("compile", "error_at", &[&input.display().to_string()]),
@@ -559,7 +576,7 @@ fn watch_directory(path: &Path) -> Result<()> {
                     }
                 }
             }
-            Ok(Err(e)) => eprintln!("{}: {}", t("common", "error"), e),
+            Ok(Err(e)) => println!("{}: {}", t("common", "error"), e),
             Err(_) => {}
         }
     }
