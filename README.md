@@ -126,7 +126,7 @@ nano data/company.json
 docgen
 ```
 
-## New: Direct .typ File Support & Template Packages
+## Direct .typ File Support & Template Packages
 
 ### Direct .typ Documents
 
@@ -139,10 +139,10 @@ Write documents directly in Typst syntax - perfect for concept documents, docume
 #let company = json("company.json")
 
 #show: concept.with(
-  title: "E-Mail Migration Strategy",
-  document_number: "CAS-KON-2025-018",
-  client_name: "BHG Satow",
-  project_name: "E-Mail Migration",
+  title: "Cloud Migration Strategy",
+  document_number: "DOC-2025-001",
+  client_name: "Example Corp",
+  project_name: "Cloud Transformation",
   version: "1.0",
   status: "final",
   company: company,
