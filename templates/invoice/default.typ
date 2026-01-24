@@ -52,7 +52,7 @@
     #place(
       left + bottom,
       dx: 0pt,
-      dy: -72pt,
+      dy: -10pt,
       block(width: 500pt)[
         #grid(
           columns: (125pt, 125pt, 125pt, 125pt),

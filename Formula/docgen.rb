@@ -6,7 +6,7 @@
 class Docgen < Formula
   desc "CLI tool for generating professional business documents with Typst"
   homepage "https://github.com/casoon/typst-business-templates"
-  version "0.2.0"
+  version "0.4.4"
   license "MIT"
 
   on_macos do
