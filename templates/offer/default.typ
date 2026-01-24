@@ -44,7 +44,7 @@
 
 #set page(
   paper: "a4",
-  margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 122pt),
+  margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
 
   footer: context [
     #set text(size: 7pt, font: "Helvetica")
@@ -52,7 +52,7 @@
     #place(
       left + bottom,
       dx: 0pt,
-      dy: -72pt,
+      dy: -10pt,
       block(width: 500pt)[
         #grid(
           columns: (125pt, 125pt, 125pt, 125pt),
@@ -125,7 +125,7 @@
   dx: 0pt,
   dy: 0pt,
   if "logo" in company and company.logo != none [
-    #image("/data/" + company.logo, width: 150pt)
+    #image("/" + company.logo, width: 150pt)
   ] else [
     #box(
       width: 150pt,
