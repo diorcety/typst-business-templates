@@ -2,6 +2,70 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-01-25
+
+### 🎉 Major: Project-Local Template System
+
+**Breaking Change:** Complete redesign of template architecture for portability and simplicity.
+
+**Old System (≤ 0.4.x):**
+- Templates installed globally in `~/Library/Application Support/typst/packages/`
+- Required manual version management
+- Not portable across machines
+- Hard to customize
+
+**New System (0.5.0+):**
+- **Standard templates** in `.docgen/templates/` (auto-updated, not in Git)
+- **Custom templates** in `templates/` (stable, in Git)
+- Everything project-local - works on any machine
+- Simple forking workflow for customization
+
+### Added
+- **`docgen template init`** - Initialize project templates
+- **`docgen template fork <name> --name <custom>`** - Fork and customize templates
+- **`docgen template list`** - List standard and custom templates
+- **`docgen template update`** - Manually update standard templates
+- **Auto-update on compile** - Standard templates sync with docgen version automatically
+- **`.gitignore` management** - Auto-adds `.docgen/` to gitignore
+
+### Changed
+- **Template imports** now use project-relative paths:
+  - Standard: `#import "/.docgen/templates/concept/default.typ": concept`
+  - Custom: `#import "/templates/my-concept/default.typ": my_concept`
+- **No more package installation** - Templates copied to project instead
+- **Documentation rewritten** - New workflow explained in README
+
+### Removed
+- ~~`docgen template install`~~ - No longer needed
+- ~~`docgen template remove`~~ - No longer needed
+- ~~Global package management~~ - All templates are project-local now
+- ~~Version pinning in imports~~ - Standard templates always current
+
+### Migration Guide (0.4.x → 0.5.0)
+
+**For existing projects:**
+
+1. Run `docgen template init` in your project
+2. Update .typ files to use new import paths:
+   ```typ
+   // Old:
+   #import "@local/docgen-concept:0.4.12": concept
+   
+   // New:
+   #import "/.docgen/templates/concept/default.typ": concept
+   ```
+3. If you had customized templates, fork them:
+   ```bash
+   docgen template fork concept --name my-concept
+   # Then copy your customizations to templates/my-concept/
+   ```
+
+**Benefits:**
+- ✅ Clone project → works immediately (no setup)
+- ✅ Upgrade docgen → templates auto-update
+- ✅ Custom templates protected from updates
+- ✅ Everything in Git → full version control
+
 ## [0.4.12] - 2025-01-25
 
 ### Added

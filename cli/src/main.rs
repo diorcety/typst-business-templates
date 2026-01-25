@@ -1,6 +1,7 @@
 mod db;
 mod embedded;
 mod encrypt;
+mod local_templates;
 mod locale;
 mod packages;
 mod ui;
@@ -240,49 +241,44 @@ enum ProjectAction {
 
 #[derive(Subcommand)]
 enum TemplateAction {
-    /// List all installed template packages
+    /// Initialize project templates
     ///
-    /// Shows installed templates in system Typst package directory.
+    /// Creates .docgen/templates/ with standard templates.
+    /// Standard templates are auto-updated on every compile.
+    ///
+    /// Example: docgen template init
+    Init,
+
+    /// Fork a standard template to custom template
+    ///
+    /// Copies a template from .docgen/templates/ to templates/custom-name/
+    /// Custom templates are stable and never auto-updated.
+    ///
+    /// Examples:
+    ///   docgen template fork concept --name my-concept
+    ///   docgen template fork invoice --name custom-invoice
+    Fork {
+        /// Template name to fork (concept, invoice, offer, etc.)
+        template: String,
+
+        /// Custom name for the forked template
+        #[arg(short, long)]
+        name: String,
+    },
+
+    /// List available templates
+    ///
+    /// Shows standard templates (.docgen/templates/) and custom templates (templates/)
     ///
     /// Example: docgen template list
     List,
-    /// Install a template package
+
+    /// Update standard templates to current version
     ///
-    /// Installs a template to system Typst packages as @local/docgen-{name}:{version}.
-    /// Required for using .typ documents with #import statements.
-    ///
-    /// Available templates: concept, documentation, invoice, offer, credentials
-    ///
-    /// Examples:
-    ///   docgen template install concept
-    ///   docgen template install documentation --version 0.2.0
-    Install {
-        /// Template name (concept, documentation, invoice, offer, credentials)
-        name: String,
-        /// Specific version (default: current docgen version)
-        version: Option<String>,
-    },
-    /// Remove a template package
-    ///
-    /// Uninstalls a specific version of a template from system packages.
-    ///
-    /// Example: docgen template remove concept 0.3.0
-    Remove {
-        /// Template name
-        name: String,
-        /// Version to remove
-        version: String,
-    },
-    /// Update all installed templates to current docgen version
-    ///
-    /// Checks all installed templates and updates them to match the
-    /// current docgen version if newer.
+    /// Manually trigger update of .docgen/templates/ (normally auto-updated)
     ///
     /// Example: docgen template update
-    Update {
-        /// Optional: specific template to update
-        name: Option<String>,
-    },
+    Update,
 }
 
 fn main() -> Result<()> {
@@ -459,124 +455,109 @@ fn handle_project(action: ProjectAction) -> Result<()> {
 
 fn handle_template(action: TemplateAction) -> Result<()> {
     match action {
+        TemplateAction::Init => {
+            println!("{} Initializing project templates...", "→".blue());
+            local_templates::init_project()?;
+            println!("{} Project initialized successfully!", "✓".green());
+            println!();
+            println!("Created:");
+            println!("  .docgen/templates/  (standard templates, auto-updated)");
+            println!("  templates/          (custom templates, stable)");
+            println!("  .gitignore          (updated to exclude .docgen/)");
+            println!();
+            println!("Import in .typ files:");
+            println!("  #import \"/.docgen/templates/concept/default.typ\": concept");
+        }
+
+        TemplateAction::Fork { template, name } => {
+            println!(
+                "{} Forking template '{}' to 'templates/{}'...",
+                "→".blue(),
+                template,
+                name
+            );
+            local_templates::fork_template(&template, &name)?;
+            println!("{} Template forked successfully!", "✓".green());
+            println!();
+            println!("Custom template created at: templates/{}/", name);
+            println!("This template is now stable and will never be auto-updated.");
+            println!();
+            println!("Import in .typ files:");
+            println!(
+                "  #import \"/templates/{}/default.typ\": {}",
+                name,
+                name.replace('-', "_")
+            );
+            println!();
+            println!("Commit to Git:");
+            println!("  git add templates/{}/", name);
+            println!("  git commit -m \"Add custom template: {}\"", name);
+        }
+
         TemplateAction::List => {
-            let packages = packages::list_installed_packages()?;
-
-            if packages.is_empty() {
-                println!("{}", "No template packages installed.".yellow());
-                println!();
-                println!("Install templates with:");
-                println!("  docgen template install <name>");
-                println!();
-                println!(
-                    "Available templates: {}",
-                    packages::get_available_templates().join(", ")
-                );
-                return Ok(());
-            }
-
-            println!("{}", "Installed template packages:".bold());
+            // List standard templates
+            let standard_dir = local_templates::get_local_templates_dir();
+            println!("{}", "Standard Templates (.docgen/templates/):".bold());
+            println!("{}", "(Auto-updated on every compile)".dimmed());
             println!("{:-<60}", "");
 
-            for (name, version) in packages {
-                println!("  {}@local/{}:{}", "→".blue(), name, version.cyan());
-            }
-
-            println!();
-            println!("Install more templates with: docgen template install <name>");
-        }
-
-        TemplateAction::Install { name, version } => {
-            let default_version = packages::get_docgen_version();
-            let version_str = version.as_deref();
-            let install_version = version_str.unwrap_or(&default_version);
-
-            // Check if already installed
-            if packages::is_package_installed(&name, Some(install_version))? {
-                println!(
-                    "{} Package @local/docgen-{}:{} is already installed",
-                    "✓".green(),
-                    name,
-                    install_version
-                );
-                return Ok(());
-            }
-
-            println!(
-                "{} Installing @local/docgen-{}:{}...",
-                "→".blue(),
-                name,
-                install_version
-            );
-
-            packages::install_package(&name, version_str)?;
-
-            println!("{} Installed successfully", "✓".green());
-            println!();
-            println!("Use in your documents with:");
-            println!(
-                "  #import \"@local/docgen-{}\": {}  (recommended)",
-                name, name
-            );
-            println!(
-                "  #import \"@local/docgen-{}:{}\": {}  (with version)",
-                name, install_version, name
-            );
-        }
-
-        TemplateAction::Remove { name, version } => {
-            println!(
-                "{} Removing @local/docgen-{}:{}...",
-                "→".blue(),
-                name,
-                version
-            );
-
-            packages::remove_package(&name, &version)?;
-
-            println!("{} Removed successfully", "✓".green());
-        }
-
-        TemplateAction::Update { name } => {
-            if let Some(template_name) = name {
-                // Update specific template
-                let current_version = packages::get_docgen_version();
-
-                if packages::is_package_installed(&template_name, Some(&current_version))? {
-                    println!(
-                        "{} @local/docgen-{}:{} is already up to date",
-                        "✓".green(),
-                        template_name,
-                        current_version
-                    );
-                } else {
-                    println!(
-                        "{} Updating @local/docgen-{} to version {}...",
-                        "→".blue(),
-                        template_name,
-                        current_version
-                    );
-
-                    packages::install_package(&template_name, Some(&current_version))?;
-
-                    println!("{} Updated successfully", "✓".green());
-                }
-            } else {
-                // Update all templates
-                println!("{} Checking for updates...", "→".blue());
-
-                let updates = packages::update_all_packages()?;
-
-                if updates.is_empty() {
-                    println!("{} All templates are up to date", "✓".green());
-                } else {
-                    println!();
-                    println!("{} Updated:", "✓".green());
-                    for (name, old_ver, new_ver) in updates {
-                        println!("  @local/docgen-{}: {} → {}", name, old_ver, new_ver.cyan());
+            if standard_dir.exists() {
+                for template in local_templates::get_available_templates() {
+                    let template_path = standard_dir.join(&template);
+                    if template_path.exists() {
+                        println!("  {} {}", "→".blue(), template);
                     }
                 }
+            } else {
+                println!(
+                    "  {}",
+                    "Not initialized. Run: docgen template init".yellow()
+                );
             }
+
+            println!();
+
+            // List custom templates
+            let custom_dir = local_templates::get_custom_templates_dir();
+            println!("{}", "Custom Templates (templates/):".bold());
+            println!("{}", "(Stable, never auto-updated)".dimmed());
+            println!("{:-<60}", "");
+
+            if custom_dir.exists() {
+                let mut found_custom = false;
+                if let Ok(entries) = std::fs::read_dir(&custom_dir) {
+                    for entry in entries.filter_map(|e| e.ok()) {
+                        if entry.file_type().ok().map(|t| t.is_dir()).unwrap_or(false) {
+                            let name = entry.file_name();
+                            let name_str = name.to_string_lossy();
+                            if name_str != ".gitkeep" {
+                                println!("  {} {}", "→".green(), name_str);
+                                found_custom = true;
+                            }
+                        }
+                    }
+                }
+                if !found_custom {
+                    println!("  {}", "No custom templates. Fork with: docgen template fork <name> --name <custom-name>".yellow());
+                }
+            } else {
+                println!(
+                    "  {}",
+                    "Not initialized. Run: docgen template init".yellow()
+                );
+            }
+        }
+
+        TemplateAction::Update => {
+            println!("{} Updating standard templates...", "→".blue());
+            local_templates::ensure_local_templates_updated()?;
+            println!(
+                "{} Standard templates updated to v{}",
+                "✓".green(),
+                local_templates::get_docgen_version()
+            );
+            println!();
+            println!("Note: Custom templates in templates/ are not affected.");
         }
     }
     Ok(())
@@ -745,8 +726,8 @@ fn compile_document(
         anyhow::bail!("{}: {}", t("compile", "file_not_found"), input.display());
     }
 
-    // Auto-install templates as Typst packages (if not already installed)
-    packages::ensure_packages_installed()?;
+    // Auto-update local templates to current version
+    local_templates::ensure_local_templates_updated()?;
 
     let output_path = output.unwrap_or_else(|| input.with_extension("pdf"));
 

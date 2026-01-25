@@ -1,6 +1,6 @@
 [package]
 name = "docgen"
-version = "0.4.12"
+version = "0.5.0"
 edition = "2021"
 description = "CLI tool for generating business documents with Typst templates"
 license = "MIT"

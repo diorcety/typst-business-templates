@@ -56,7 +56,7 @@ An AI assistant (we recommend [Claude](https://claude.ai)) generates the JSON, y
 - **Interactive CLI** - Manage clients, projects, and create documents
 - **SQLite Database** - Automatic numbering, client/project management
 - **Direct .typ File Support** - Write documents directly in Typst without JSON
-- **Template Package System** - Install templates as @local/docgen-* packages
+- **Project-Local Templates** - Standard templates auto-update, fork for customization
 - **Watch Mode** - Auto-rebuild on file changes
 - **10 Font Presets** - Bundled Google Fonts (Inter, Roboto, Montserrat, etc.)
 - **Customizable Branding** - Colors, fonts, logo via company.json
@@ -126,16 +126,53 @@ nano data/company.json
 docgen
 ```
 
-## Direct .typ File Support & Template Packages
+## Direct .typ File Support & Templates
 
-### Direct .typ Documents
+### Template System (v0.5.0+)
 
-Write documents directly in Typst syntax - perfect for concept documents, documentation, or any content-heavy documents:
+Templates live in your project directory for maximum portability:
+
+```
+project/
+├── .docgen/templates/    # Standard templates (auto-updated)
+│   ├── concept/
+│   ├── invoice/
+│   └── ...
+├── templates/            # Your custom templates (stable)
+│   └── my-custom-concept/
+├── data/
+│   ├── company.json
+│   └── logo.png
+└── documents/
+```
+
+**Initialize templates:**
+```bash
+docgen template init
+```
+
+**Standard Templates** (`.docgen/templates/`)
+- Auto-updated on every `docgen compile` or `docgen build`
+- Always match your docgen version
+- Never committed to Git (in `.gitignore`)
+- Perfect for standard business documents
+
+**Custom Templates** (`templates/`)
+- Fork from standard templates when you need customization
+- Stable - never auto-updated
+- Committed to Git - part of your project
+- Full control over layout and structure
+
+### Using Templates in .typ Files
 
 ```typ
-#import "@local/docgen-concept:0.4.2": concept
+// Standard template (auto-updated)
+#import "/.docgen/templates/concept/default.typ": concept
 
-// Load company and locale data from project directory
+// Custom template (stable)
+#import "/templates/my-custom-concept/default.typ": my_custom_concept
+
+// Load company and locale data
 #let company = json("/data/company.json")
 #let locale = json("/locale/de.json")
 
@@ -148,8 +185,6 @@ Write documents directly in Typst syntax - perfect for concept documents, docume
   status: "final",
   company: company,
   locale: locale,
-  // Optional: Pass logo as image for package imports
-  // logo: image("/data/logo.png", width: 150pt),
 )
 
 = Current Situation
@@ -171,31 +206,53 @@ Compile with:
 docgen compile documents/concepts/2025/email-migration.typ
 ```
 
-### Template Package System
-
-Templates are now available as Typst packages (`@local/docgen-*`):
+### Template Commands
 
 ```bash
+# Initialize project templates
+docgen template init
+
 # List available templates
 docgen template list
 
-# Install a template
-docgen template install concept
+# Fork a standard template to customize it
+docgen template fork concept --name my-custom-concept
 
-# Use in your documents
-#import "@local/docgen-concept:0.4.2": concept
+# Update standard templates (normally automatic)
+docgen template update
 ```
 
-**Benefits:**
-- Clean imports: `@local/docgen-concept:0.4.2` instead of `../../../templates/`
-- Version pinning: Documents stay reproducible
-- Automatic installation: Packages install when needed
-- Easy updates: `docgen template update`
+**Workflow: Customizing a Template**
 
-**Package locations:**
-- macOS: `~/Library/Application Support/typst/packages/local/`
-- Linux: `~/.local/share/typst/packages/local/`
-- Windows: `%APPDATA%/typst/packages/local/`
+1. Fork the template:
+   ```bash
+   docgen template fork invoice --name branded-invoice
+   ```
+
+2. Edit `templates/branded-invoice/default.typ`:
+   ```typ
+   // Add your custom styling
+   #let primary-color = rgb("#FF6B35")
+   // ... customize as needed
+   ```
+
+3. Commit to Git:
+   ```bash
+   git add templates/branded-invoice/
+   git commit -m "Add custom branded invoice template"
+   ```
+
+4. Use in your documents:
+   ```typ
+   #import "/templates/branded-invoice/default.typ": invoice
+   ```
+
+**Benefits:**
+- ✅ Everything in your project - works on any machine
+- ✅ No system-wide package installation
+- ✅ Commit custom templates to Git
+- ✅ Standard templates always current
+- ✅ Break-change protection - custom templates stay stable
 
 ## Workflow Options
 
@@ -383,11 +440,17 @@ docgen compile documents/invoices/2025/invoice.json
 
 ## Template Customization
 
-Templates are written in [Typst](https://typst.app/docs), a modern alternative to LaTeX:
+Templates are written in [Typst](https://typst.app/docs), a modern alternative to LaTeX.
 
-- Edit colors in `templates/common/styles.typ`
-- Modify layouts in `templates/<type>/default.typ`
-- Add your logo to `data/company.json`
+**To customize a template:**
+
+1. Fork it: `docgen template fork invoice --name my-invoice`
+2. Edit: `templates/my-invoice/default.typ`
+3. Commit: `git add templates/my-invoice/`
+4. Use: `#import "/templates/my-invoice/default.typ": invoice`
+
+**Standard templates** (`.docgen/templates/`) are auto-updated and should not be edited.
+**Custom templates** (`templates/`) are yours to modify and version control.
 
 ### Company Configuration
 

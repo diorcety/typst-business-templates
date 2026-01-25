@@ -254,7 +254,12 @@ fn create_latest_symlink(template_name: &str) -> Result<()> {
         .filter(|name| name != "latest")
         .collect();
 
-    versions.sort();
+    // Sort versions semantically (0.4.9 < 0.4.12, not lexicographically)
+    versions.sort_by(|a, b| {
+        let a_parts: Vec<u32> = a.split('.').filter_map(|s| s.parse().ok()).collect();
+        let b_parts: Vec<u32> = b.split('.').filter_map(|s| s.parse().ok()).collect();
+        a_parts.cmp(&b_parts)
+    });
 
     if let Some(latest_version) = versions.last() {
         let latest_link = package_dir.join("latest");
