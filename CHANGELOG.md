@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.11] - 2025-01-25
+
+### Fixed
+- **Concept Template Logo & Footer**
+  - Logo now displays correctly in package-import mode (`@local/docgen-concept`)
+  - Logo pre-loading: Automatically converts `company.logo` path to `_logo_image`
+  - Footer: Changed to simple one-line layout (like credentials template)
+    - Format: [Client Name] | [Page X] | [Date]
+    - Previous multi-line accounting-footer was incorrect for concept documents
+  - Concept template now matches credentials template layout (clean & minimal)
+
 ## [0.4.10] - 2025-01-25
 
 ### Fixed
