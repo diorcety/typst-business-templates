@@ -2,6 +2,7 @@
 // Multi-level payment reminder system
 
 // Load data from JSON input
+#import "../common/footers.typ": accounting-footer
 #let data = json(sys.inputs.data)
 
 // Load company data
@@ -44,61 +45,7 @@
   paper: "a4",
   margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
 
-  footer: context [
-    #set text(size: 7pt, font: "Helvetica")
-
-    #place(
-      left + bottom,
-      dx: 0pt,
-      dy: -10pt,
-      block(width: 500pt)[
-        #grid(
-          columns: (125pt, 125pt, 125pt, 125pt),
-          column-gutter: 0pt,
-          align: (top, top, top, top),
-
-          [
-            #text(weight: "bold")[#company.name]\
-            #if "business_owner" in company and company.business_owner != none [
-              #company.business_owner\
-            ]
-            #company.address.street #company.address.house_number\
-            #company.address.postal_code #company.address.city
-          ],
-
-          [
-            #if "phone" in company.contact and company.contact.phone != none [
-              Tel.: #company.contact.phone\
-            ]
-            #if "email" in company.contact and company.contact.email != none [
-              Email: #company.contact.email\
-            ]
-            #if "website" in company.contact and company.contact.website != none [
-              Web: #company.contact.website
-            ]
-          ],
-
-          [
-            Geschäftsinhaber:\
-            #if "business_owner" in company and company.business_owner != none [
-              #company.business_owner\
-            ]
-            USt-IdNr.:\
-            #if "vat_id" in company and company.vat_id != none [
-              #company.vat_id
-            ]
-          ],
-
-          [
-            #if "bank_account" in company and company.bank_account != none [
-              Bank: #company.bank_account.bank_name\
-              Kontoinhaber: #company.bank_account.account_holder\
-              IBAN: #company.bank_account.iban\
-              BIC/SWIFT-Code: #company.bank_account.bic
-            ]
-          ],
-        )
-      ]
+  footer: accounting-footer(company: company)
     )
   ]
 )

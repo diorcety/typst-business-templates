@@ -14,7 +14,7 @@
 //   )
 
 #import "../common/styles.typ": *
-#import "../common/footers.typ": document-footer
+#import "../common/footers.typ": accounting-footer
 
 // Document function for flexible use
 #let concept(
@@ -61,12 +61,8 @@
       ]
     ],
 
-    footer: document-footer(
+    footer: accounting-footer(
       company: company,
-      locale: locale,
-      document_number: document_number,
-      created_at: created_at,
-      status: status,
     )
   )
 
