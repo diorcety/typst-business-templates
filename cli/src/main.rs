@@ -686,12 +686,9 @@ fn init_project(name: &str) -> Result<()> {
 }"##;
     std::fs::write(base.join("data/company.json"), company)?;
 
-    // Write embedded templates
-    for template in embedded::get_templates() {
-        let template_path = base.join("templates").join(template.path);
-        std::fs::create_dir_all(template_path.parent().unwrap())?;
-        std::fs::write(&template_path, template.content)?;
-    }
+    // Initialize templates using the new v0.5.0 system
+    std::env::set_current_dir(&base)?;
+    local_templates::init_project()?;
 
     // Write embedded locales
     let locale_dir = base.join("locale");
@@ -781,7 +778,7 @@ fn compile_document(
         // JSON-based compilation with template
         let doc_type = template
             .unwrap_or_else(|| detect_document_type(input).unwrap_or("invoice".to_string()));
-        let template_path = format!("templates/{}/default.typ", doc_type);
+        let template_path = format!(".docgen/templates/{}/default.typ", doc_type);
         let data_path = format!("/{}", input.display());
 
         Command::new("typst")

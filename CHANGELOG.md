@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-01-25
+
+### Fixed
+- **Critical: JSON workflow template paths**
+  - Fixed: JSON documents (invoice, offer, credentials) used wrong template path
+  - Changed from `templates/` to `.docgen/templates/` for JSON workflow
+  - Fixed: Syntax error in offer template (extra closing brackets)
+  - Fixed: `docgen init` now uses new v0.5.0 template system
+  - All JSON and .typ documents now work correctly
+
 ## [0.5.1] - 2026-01-25
 
 ### Fixed

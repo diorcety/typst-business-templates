@@ -47,10 +47,7 @@
 #set page(
   paper: "a4",
   margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
-
   footer: accounting-footer(company: company)
-    )
-  ]
 )
 
 #set text(
