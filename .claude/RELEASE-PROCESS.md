@@ -49,21 +49,22 @@ git push origin v0.4.x
 ### 3. Binary bauen
 
 ```bash
+cd /Users/jseidel/GitHub/typst-business-templates
+
+# Binary bauen
 cd cli
 cargo build --release
-
-# Binary vorbereiten
 cd ..
-mkdir -p releases/v0.4.x
-cp cli/target/release/docgen releases/v0.4.x/
 
-# Tarball für macOS ARM64 erstellen
-cd releases/v0.4.x
-tar -czf docgen-aarch64-apple-darwin.tar.gz docgen
+# Tarball erstellen (für alle macOS - funktioniert auf ARM und Intel via Rosetta)
+tar -czf docgen-0.4.x-x86_64-apple-darwin.tar.gz -C cli/target/release docgen
 
 # Checksum berechnen
-shasum -a 256 docgen-aarch64-apple-darwin.tar.gz
+shasum -a 256 docgen-0.4.x-x86_64-apple-darwin.tar.gz
 # Output kopieren für Formula!
+
+# WICHTIG: Auch tarball ohne Version erstellen für Homebrew
+cp docgen-0.4.x-x86_64-apple-darwin.tar.gz docgen-x86_64-apple-darwin.tar.gz
 ```
 
 ### 4. GitHub Release erstellen
@@ -71,6 +72,10 @@ shasum -a 256 docgen-aarch64-apple-darwin.tar.gz
 ```bash
 cd /Users/jseidel/GitHub/typst-business-templates
 
+# Commits pushen
+git push origin main
+
+# GitHub Release mit BEIDEN Tarballs erstellen
 gh release create v0.4.x \
   --title "v0.4.x - [Titel]" \
   --notes "## What's New
@@ -81,8 +86,13 @@ gh release create v0.4.x \
 \`\`\`bash
 brew tap casoon/tap
 brew install docgen
-\`\`\`" \
-  releases/v0.4.x/docgen-aarch64-apple-darwin.tar.gz
+\`\`\`
+
+**Full Changelog**: https://github.com/casoon/typst-business-templates/compare/v0.4.[x-1]...v0.4.x" \
+  docgen-0.4.x-x86_64-apple-darwin.tar.gz
+
+# WICHTIG: Auch tarball ohne Version hochladen (für Homebrew Formula)
+gh release upload v0.4.x docgen-x86_64-apple-darwin.tar.gz
 ```
 
 ### 5. Homebrew Formula aktualisieren
@@ -94,20 +104,19 @@ brew install docgen
 **Aktualisierung:**
 
 ```bash
-# 1. Haupt-Repo Formula aktualisieren (optional, für Dokumentation)
-vim Formula/docgen.rb
+cd /Users/jseidel/GitHub/typst-business-templates
 
-# Ändern:
-version "0.4.x"
+# 1. Haupt-Repo Formula aktualisieren
+# Ändern in Formula/docgen.rb:
+# - version "0.4.x"
+# - sha256 "[CHECKSUM_VON_OBEN]" (in der on_macos Sektion)
 
-# macOS ARM64 checksum (vom tar-Schritt oben)
-on_arm do
-  url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-aarch64-apple-darwin.tar.gz"
-  sha256 "[CHECKSUM_HIER]"
-end
-
-# Andere Plattformen auf Platzhalter setzen (wenn nicht gebaut)
-sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+# Beispiel:
+# version "0.4.8"
+# on_macos do
+#   url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-x86_64-apple-darwin.tar.gz"
+#   sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
+# end
 
 # 2. Committen im Haupt-Repo
 git add Formula/docgen.rb
@@ -120,19 +129,24 @@ cp Formula/docgen.rb /opt/homebrew/Library/Taps/casoon/homebrew-tap/Formula/docg
 # 4. Im homebrew-tap committen und pushen
 cd /opt/homebrew/Library/Taps/casoon/homebrew-tap
 git add Formula/docgen.rb
-git commit -m "Release v0.4.x: [Beschreibung]"
+git commit -m "Update docgen to v0.4.x
+
+- [Änderung 1]
+- [Änderung 2]
+"
 git push origin main
 ```
 
 ### 6. Installation testen
 
 ```bash
+# WICHTIG: Asset braucht ~30 Sekunden bis es verfügbar ist
+# Bei 404-Fehlern kurz warten und nochmal versuchen
+
 # Homebrew aktualisieren
 brew update
 
-# Installieren oder upgraden
-brew install docgen
-# oder
+# Upgraden
 brew upgrade docgen
 
 # Version prüfen
@@ -141,6 +155,11 @@ docgen --version
 
 # Funktionalität testen
 docgen --help
+
+# Template-Kompilierung testen
+cd examples/it-consultant/documents
+docgen compile protocols/2025/protocol-001.json
+docgen compile specifications/2025/specification-001.json
 ```
 
 ## Checkliste vor Release
