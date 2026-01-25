@@ -321,8 +321,8 @@
   
   let content-body = if "content_file" in data {
     include(data.content_file)
-  } else if "content" in data and "markdown" in data.content {
-    eval(data.content.markdown, mode: "markup")
+  } else if "content" in data {
+    eval("[" + data.content + "]", mode: "code")
   } else {
     []
   }

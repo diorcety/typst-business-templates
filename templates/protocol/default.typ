@@ -150,11 +150,11 @@
         - #participant
       ]
     ]
-    v(8pt)
+    #v(8pt)
   ]
 
   if absent.len() > 0 [
-    block(
+    #block(
       inset: (left: 1em),
     )[
       #text(weight: "bold", size: size-normal)[Entschuldigt:]
@@ -163,7 +163,7 @@
         - #person
       ]
     ]
-    v(8pt)
+    #v(8pt)
   ]
 
   v(15pt)
@@ -246,7 +246,7 @@
   let content-body = if "content_file" in data {
     include(data.content_file)
   } else if "content" in data {
-    eval(data.content, mode: "markup")
+    eval("[" + data.content + "]", mode: "code")
   } else {
     []
   }
