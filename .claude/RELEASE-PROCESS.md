@@ -1,132 +1,130 @@
 # Release Process für typst-business-templates
 
+## ⚠️ WICHTIG: Nutze IMMER den GitHub Actions Workflow!
+
+Dieser Workflow baut automatisch für **alle Plattformen** (macOS ARM/Intel, Linux ARM/Intel, Windows) und erstellt das Release.
+
+**NIEMALS manuell Binaries bauen und hochladen!**
+
 ## Übersicht
 
-Dieses Projekt wird über Homebrew verteilt. Es gibt zwei Repositories:
-1. **Haupt-Repo**: `casoon/typst-business-templates` - Code und Templates
+Es gibt zwei Repositories:
+1. **Haupt-Repo**: `casoon/typst-business-templates` - Code, Templates und GitHub Actions
 2. **Homebrew Tap**: `casoon/homebrew-tap` - Homebrew Formula
 
-## Release-Schritte
+Der GitHub Actions Workflow (`.github/workflows/release.yml`) automatisiert:
+- ✅ Cross-Platform Builds (macOS ARM + Intel, Linux ARM + Intel, Windows)
+- ✅ Tarball-Erstellung mit korrekten Namen
+- ✅ Checksum-Generierung
+- ✅ GitHub Release Erstellung
+- ✅ Homebrew Tap Benachrichtigung (wenn Token konfiguriert)
+
+## Release-Schritte (EINFACH!)
 
 ### 1. Version vorbereiten
 
-**Dateien aktualisieren:**
-```bash
-# cli/Cargo.toml
-version = "0.4.x"
-
-# CHANGELOG.md erstellen/aktualisieren
-# Alle Änderungen dokumentieren
-```
-
-### 2. Code committen und taggen
-
 ```bash
 cd /Users/jseidel/GitHub/typst-business-templates
 
+# cli/Cargo.toml aktualisieren
+# version = "0.4.x"
+
+# CHANGELOG.md aktualisieren
+# [0.4.x] - YYYY-MM-DD
+# ### Added / Fixed / Changed
+```
+
+### 2. Änderungen committen
+
+```bash
 # Alle Änderungen stagen
 git add -A
 
-# Commit mit ausführlicher Message
-git commit -m "Release v0.4.x: [Beschreibung]
-
-- Feature 1
-- Feature 2
-- Fix 1"
-
-# Tag erstellen
-git tag -a v0.4.x -m "Release v0.4.x: [Kurzbeschreibung]
-
-Features:
-- Feature 1
-- Feature 2"
+# Commit mit Versionsbump
+git commit -m "Bump version to 0.4.x"
 
 # Zu GitHub pushen
 git push origin main
+```
+
+### 3. Tag erstellen und pushen → Workflow startet automatisch!
+
+```bash
+# Tag mit Release Notes erstellen
+git tag -a v0.4.x -m "Release v0.4.x: [Titel]
+
+## Fixed
+- Fix 1
+- Fix 2
+
+## Added
+- Feature 1
+- Feature 2
+
+## Changed
+- Change 1"
+
+# Tag pushen → GitHub Actions Workflow startet automatisch!
 git push origin v0.4.x
 ```
 
-### 3. Binary bauen
+**Das war's!** Der Workflow übernimmt jetzt:
+1. Baut für alle Plattformen
+2. Erstellt Tarballs/Zips
+3. Generiert Checksums
+4. Erstellt GitHub Release mit allen Assets
+
+### 4. Workflow-Status prüfen
 
 ```bash
-cd /Users/jseidel/GitHub/typst-business-templates
+# Workflow Status anzeigen
+gh run list --workflow=release.yml --limit 1
 
-# Binary bauen
-cd cli
-cargo build --release
-cd ..
+# Warten bis ✓ erscheint (dauert ~3-5 Minuten)
 
-# Tarball erstellen (für alle macOS - funktioniert auf ARM und Intel via Rosetta)
-tar -czf docgen-0.4.x-x86_64-apple-darwin.tar.gz -C cli/target/release docgen
+# Release prüfen
+gh release view v0.4.x
 
-# Checksum berechnen
-shasum -a 256 docgen-0.4.x-x86_64-apple-darwin.tar.gz
-# Output kopieren für Formula!
-
-# WICHTIG: Auch tarball ohne Version erstellen für Homebrew
-cp docgen-0.4.x-x86_64-apple-darwin.tar.gz docgen-x86_64-apple-darwin.tar.gz
+# Assets anzeigen
+gh release view v0.4.x --json assets --jq '.assets[].name'
 ```
 
-### 4. GitHub Release erstellen
-
-```bash
-cd /Users/jseidel/GitHub/typst-business-templates
-
-# Commits pushen
-git push origin main
-
-# GitHub Release mit BEIDEN Tarballs erstellen
-gh release create v0.4.x \
-  --title "v0.4.x - [Titel]" \
-  --notes "## What's New
-  
-[Release Notes hier einfügen]
-
-### Installation
-\`\`\`bash
-brew tap casoon/tap
-brew install docgen
-\`\`\`
-
-**Full Changelog**: https://github.com/casoon/typst-business-templates/compare/v0.4.[x-1]...v0.4.x" \
-  docgen-0.4.x-x86_64-apple-darwin.tar.gz
-
-# WICHTIG: Auch tarball ohne Version hochladen (für Homebrew Formula)
-gh release upload v0.4.x docgen-x86_64-apple-darwin.tar.gz
-```
+Erwartete Assets:
+- `docgen-aarch64-apple-darwin.tar.gz` (macOS ARM)
+- `docgen-x86_64-apple-darwin.tar.gz` (macOS Intel)
+- `docgen-aarch64-unknown-linux-gnu.tar.gz` (Linux ARM)
+- `docgen-x86_64-unknown-linux-gnu.tar.gz` (Linux Intel)
+- `docgen-x86_64-pc-windows-msvc.exe.zip` (Windows)
+- `checksums.txt`
 
 ### 5. Homebrew Formula aktualisieren
 
-**WICHTIG: Es gibt zwei Formula-Dateien:**
-- `Formula/docgen.rb` (im Haupt-Repo, nur zur Dokumentation)
-- `/opt/homebrew/Library/Taps/casoon/homebrew-tap/Formula/docgen.rb` (die aktive Formula)
-
-**Aktualisierung:**
+**WICHTIG:** Die Formula muss noch manuell aktualisiert werden (automatische Update ist optional via Token).
 
 ```bash
 cd /Users/jseidel/GitHub/typst-business-templates
 
-# 1. Haupt-Repo Formula aktualisieren
-# Ändern in Formula/docgen.rb:
-# - version "0.4.x"
-# - sha256 "[CHECKSUM_VON_OBEN]" (in der on_macos Sektion)
+# Checksums aus dem Release holen
+gh release view v0.4.x --json assets --jq '.assets[] | select(.name == "checksums.txt") | .url' | xargs curl -sL
 
-# Beispiel:
-# version "0.4.8"
-# on_macos do
-#   url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-x86_64-apple-darwin.tar.gz"
-#   sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
-# end
+# Formula aktualisieren in Formula/docgen.rb:
+# 1. version = "0.4.x"
+# 2. SHA256 für aarch64-apple-darwin (ARM) eintragen
+# 3. SHA256 für x86_64-apple-darwin (Intel) eintragen
 
-# 2. Committen im Haupt-Repo
+# Beispiel aus checksums.txt:
+# 5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a  docgen-aarch64-apple-darwin.tar.gz
+# a1b2c3d4e5f6...  docgen-x86_64-apple-darwin.tar.gz
+
+# Formula committen
 git add Formula/docgen.rb
 git commit -m "Update Formula checksums for v0.4.x"
 git push origin main
 
-# 3. WICHTIG: Formula ins homebrew-tap kopieren
+# Formula ins homebrew-tap kopieren
 cp Formula/docgen.rb /opt/homebrew/Library/Taps/casoon/homebrew-tap/Formula/docgen.rb
 
-# 4. Im homebrew-tap committen und pushen
+# Im homebrew-tap committen und pushen
 cd /opt/homebrew/Library/Taps/casoon/homebrew-tap
 git add Formula/docgen.rb
 git commit -m "Update docgen to v0.4.x
@@ -140,9 +138,6 @@ git push origin main
 ### 6. Installation testen
 
 ```bash
-# WICHTIG: Asset braucht ~30 Sekunden bis es verfügbar ist
-# Bei 404-Fehlern kurz warten und nochmal versuchen
-
 # Homebrew aktualisieren
 brew update
 
@@ -157,7 +152,7 @@ docgen --version
 docgen --help
 
 # Template-Kompilierung testen
-cd examples/it-consultant/documents
+cd /Users/jseidel/GitHub/typst-business-templates/examples/it-consultant/documents
 docgen compile protocols/2025/protocol-001.json
 docgen compile specifications/2025/specification-001.json
 ```
@@ -166,36 +161,58 @@ docgen compile specifications/2025/specification-001.json
 
 - [ ] Version in `cli/Cargo.toml` aktualisiert
 - [ ] `CHANGELOG.md` geschrieben
-- [ ] Alle Tests laufen durch
-- [ ] Code committed und getagged
-- [ ] Binary gebaut und Checksum berechnet
-- [ ] GitHub Release erstellt mit Binary
-- [ ] Formula im Haupt-Repo aktualisiert
-- [ ] Formula ins homebrew-tap kopiert
-- [ ] homebrew-tap gepusht
+- [ ] Code committed und gepusht
+- [ ] Tag mit Release Notes erstellt
+- [ ] **Tag gepusht → GitHub Actions Workflow gestartet**
+- [ ] Workflow erfolgreich abgeschlossen (✓)
+- [ ] Alle 6 Assets im Release vorhanden
+- [ ] Formula mit Checksums aktualisiert
+- [ ] Formula ins homebrew-tap kopiert und gepusht
 - [ ] Installation über brew getestet
-- [ ] Funktionalität getestet
+- [ ] Template-Kompilierung getestet
+
+## Warum GitHub Actions?
+
+**Vorteile des Workflows:**
+- ✅ **Native Builds** für alle Plattformen (kein Rosetta)
+- ✅ **Konsistenz** - gleicher Build-Prozess jedes Mal
+- ✅ **Schneller** - paralleles Bauen auf GitHub-Servern
+- ✅ **Keine lokalen Builds nötig** - spart Zeit
+- ✅ **Reproduzierbar** - jeder Build ist dokumentiert
+- ✅ **Checksums automatisch** - keine manuellen Fehler
+
+**Nachteile manueller Builds:**
+- ❌ Nur eine Plattform (dein Mac)
+- ❌ Fehleranfällig (falsche Dateinamen, fehlende Checksums)
+- ❌ Langsamer (manuell Tarballs erstellen, hochladen)
+- ❌ Nicht reproduzierbar
 
 ## Troubleshooting
 
-### "Warning: docgen X.X.X already installed"
+### Workflow schlägt fehl
+
 ```bash
-brew uninstall docgen
-brew install docgen
+# Workflow-Log anzeigen
+gh run view --log
+
+# Häufige Fehler:
+# - Cargo.lock nicht aktualisiert → cargo build lokal laufen lassen
+# - Build-Fehler → Code-Probleme beheben
 ```
 
-### "Tap remote mismatch"
-Das Tap zeigt auf `casoon/homebrew-tap`, nicht auf `typst-business-templates`.
-Das ist korrekt! Immer ins homebrew-tap pushen.
+### Release existiert bereits
 
-### Checksum stimmt nicht
 ```bash
-# Neu berechnen
-cd releases/v0.4.x
-shasum -a 256 docgen-aarch64-apple-darwin.tar.gz
+# Release löschen (wenn fehlerhaft)
+gh release delete v0.4.x --yes --cleanup-tag
+
+# Tag neu erstellen und pushen
+git tag -a v0.4.x -m "..."
+git push origin v0.4.x
 ```
 
-### Formula wird nicht aktualisiert
+### Homebrew findet Update nicht
+
 ```bash
 # Tap-Cache löschen
 rm -rf $(brew --cache)/downloads/*docgen*
@@ -203,19 +220,34 @@ rm -rf $(brew --cache)/downloads/*docgen*
 # Tap neu laden
 brew untap casoon/tap
 brew tap casoon/tap
+brew upgrade docgen
+```
+
+### Formula Checksum stimmt nicht
+
+```bash
+# Checksums aus Release holen
+gh release view v0.4.x --json assets --jq '.assets[] | select(.name == "checksums.txt") | .url' | xargs curl -sL
+
+# Richtige Checksums in Formula eintragen
+# Auf macOS:
+# - on_arm → aarch64-apple-darwin SHA256
+# - on_intel → x86_64-apple-darwin SHA256
 ```
 
 ## Repository-Struktur
 
 ```
 typst-business-templates/
+├── .github/workflows/
+│   └── release.yml         # ⭐ GitHub Actions Workflow
 ├── cli/                    # Rust CLI Code
 ├── templates/              # Typst Templates
 ├── Formula/docgen.rb       # Formula (Doku-Kopie)
-└── releases/               # Build-Artefakte (nicht committen)
+└── CHANGELOG.md
 
 homebrew-tap/
-└── Formula/docgen.rb       # Aktive Formula (hierhin pushen!)
+└── Formula/docgen.rb       # Aktive Formula (hierhin kopieren!)
 ```
 
 ## Wichtige Links
@@ -223,6 +255,7 @@ homebrew-tap/
 - Haupt-Repo: https://github.com/casoon/typst-business-templates
 - Homebrew-Tap: https://github.com/casoon/homebrew-tap
 - Releases: https://github.com/casoon/typst-business-templates/releases
+- Workflow: https://github.com/casoon/typst-business-templates/actions/workflows/release.yml
 
 ## Versionsnummern
 
@@ -236,3 +269,22 @@ Beispiele:
 - 0.4.5 → 0.4.6: Neue Templates (Minor)
 - 0.4.6 → 0.4.7: Bug Fixes (Patch)
 - 0.4.7 → 0.5.0: Breaking Changes (Minor für 0.x)
+
+---
+
+## ⚠️ WICHTIGSTE REGEL
+
+**IMMER den GitHub Actions Workflow nutzen!**
+
+```bash
+# Richtig:
+git tag -a v0.4.x -m "Release notes"
+git push origin v0.4.x
+# → Workflow baut für ALLE Plattformen
+
+# Falsch (NIEMALS):
+cargo build --release
+tar -czf docgen.tar.gz ...
+gh release create ...
+# → Nur eine Plattform, fehleranfällig
+```
