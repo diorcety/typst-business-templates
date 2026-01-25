@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8] - 2025-01-25
+
+### Fixed
+- **Content-Loading in protocol und specification Templates**
+  - Protocol Template rendert jetzt vollständigen Content aus JSON
+  - Specification Template rendert jetzt vollständigen Content aus JSON
+  - Syntax-Fehler mit `#v()` in protocol Template behoben
+  - `<` Zeichen in JSON-Beispielen escaped um "unclosed label" Fehler zu vermeiden
+
+### Changed
+- Protocol Template: Content-Loading von `eval(data.content, mode: "markup")` zu `eval("[" + data.content + "]", mode: "code")`
+- Specification Template: Content-Check vereinfacht (direkter Zugriff auf `data.content`)
+
 ## [0.4.7] - 2025-01-25
 
 ### Fixed
