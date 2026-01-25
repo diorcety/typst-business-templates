@@ -1,8 +1,12 @@
 // Local template management for project-based templates
 use anyhow::{Context, Result};
+use include_dir::{include_dir, Dir};
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
+
+// Embed all templates at compile time
+static TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/../templates");
 
 /// Get the .docgen/templates directory in the current project
 pub fn get_local_templates_dir() -> PathBuf {
@@ -53,29 +57,41 @@ pub fn ensure_local_templates_updated() -> Result<()> {
             .context("Failed to create .docgen/templates directory")?;
     }
 
-    // Templates are embedded in the binary via include_dir! macro
-    // For now, we'll use the templates from the repository during development
-    let repo_templates = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .context("Failed to get parent directory")?
-        .join("templates");
-
-    // Copy all templates to .docgen/templates/
+    // Extract embedded templates to .docgen/templates/
     for template_name in get_available_templates() {
-        let source = repo_templates.join(&template_name);
         let dest = templates_dir.join(&template_name);
 
-        if source.exists() {
-            // Remove existing template if it exists
-            if dest.exists() {
-                fs::remove_dir_all(&dest)
-                    .with_context(|| format!("Failed to remove old template: {}", template_name))?;
-            }
-
-            // Copy template directory
-            copy_dir_recursive(&source, &dest)
-                .with_context(|| format!("Failed to copy template: {}", template_name))?;
+        // Remove existing template if it exists
+        if dest.exists() {
+            fs::remove_dir_all(&dest)
+                .with_context(|| format!("Failed to remove old template: {}", template_name))?;
         }
+
+        // Get template from embedded resources
+        if let Some(template_dir) = TEMPLATES_DIR.get_dir(&template_name) {
+            // Extract template directory
+            extract_embedded_dir(template_dir, &dest)
+                .with_context(|| format!("Failed to extract template: {}", template_name))?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Extract an embedded directory to the filesystem
+fn extract_embedded_dir(dir: &Dir, dest: &Path) -> Result<()> {
+    fs::create_dir_all(dest)?;
+
+    // Extract all files
+    for file in dir.files() {
+        let file_path = dest.join(file.path().file_name().unwrap());
+        fs::write(&file_path, file.contents())?;
+    }
+
+    // Recursively extract subdirectories
+    for subdir in dir.dirs() {
+        let subdir_path = dest.join(subdir.path().file_name().unwrap());
+        extract_embedded_dir(subdir, &subdir_path)?;
     }
 
     Ok(())

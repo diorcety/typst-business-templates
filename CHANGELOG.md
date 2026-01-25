@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-01-25
+
+### Fixed
+- **Critical: Templates now embedded in binary**
+  - Fixed: Templates were not extracted from binary (empty .docgen/templates/)
+  - Templates are now embedded at compile-time using `include_dir` crate
+  - Works immediately after installation without repository access
+  - Fixes issue where `docgen template init` created empty directory
+
 ## [0.5.0] - 2026-01-25
 
 ### 🎉 Major: Project-Local Template System
