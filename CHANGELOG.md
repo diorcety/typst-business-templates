@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.10] - 2025-01-25
+
+### Fixed
+- **Concept Template Footer**
+  - Concept template now uses `accounting-footer` (same as invoice/offer)
+  - Consistent business footer across all accounting and concept documents
+
+### Changed
+- **Complete Footer Migration to Centralized System**
+  - All accounting templates now use `accounting-footer` from `common/footers.typ`:
+    - invoice, offer, credit-note, delivery-note, letter
+    - order-confirmation, quotation-request, reminder, time-sheet
+  - Concept template migrated to `accounting-footer`
+  - Code reduction: -515 lines of duplicate footer code eliminated
+  - Total footer code reduction (v0.4.9 + v0.4.10): -806 lines
+  - Single source of truth for all footer layouts
+
 ## [0.4.9] - 2025-01-25
 
 ### Added
