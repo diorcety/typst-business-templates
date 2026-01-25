@@ -134,7 +134,7 @@
     )
   ]
 
-  #v(12pt)
+  v(12pt)
 
   // ============================================================================
   // PARTICIPANTS
@@ -150,11 +150,11 @@
         - #participant
       ]
     ]
-    #v(8pt)
+    v(8pt)
   ]
 
   if absent.len() > 0 [
-    #block(
+    block(
       inset: (left: 1em),
     )[
       #text(weight: "bold", size: size-normal)[Entschuldigt:]
@@ -163,10 +163,10 @@
         - #person
       ]
     ]
-    #v(8pt)
+    v(8pt)
   ]
 
-  #v(15pt)
+  v(15pt)
 
   // ============================================================================
   // TABLE OF CONTENTS (optional)
