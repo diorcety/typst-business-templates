@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.12] - 2025-01-25
+
+### Added
+- **Automatic Template Package Installation**
+  - `docgen compile` now automatically installs templates as Typst packages if not already installed
+  - No manual `docgen template install` required anymore
+  - Ensures templates are always at the correct version matching docgen CLI
+- **Versionless Package Imports** (Recommended)
+  - Symlinks created for versionless imports: `@local/docgen-concept` → latest version
+  - Old versioned imports still supported: `@local/docgen-concept:0.4.12`
+  - Recommendation: Use versionless imports to always get latest template version
+  - Templates automatically update when docgen is updated
+
+### Changed
+- **Documentation Updated for Versionless Imports**
+  - Example code now shows recommended versionless syntax: `#import "@local/docgen-concept": concept`
+  - Installation message shows both versionless (recommended) and versioned options
+  - Solves fundamental versioning problem: templates now sync with docgen version
+
+### Fixed
+- **Template Version Mismatch**
+  - Fixed: Hard-coded template versions in .typ files prevented updates from taking effect
+  - Fixed: Users had to manually update version numbers in all .typ files after docgen update
+  - Now: Versionless imports automatically use newest installed version
+
 ## [0.4.11] - 2025-01-25
 
 ### Fixed

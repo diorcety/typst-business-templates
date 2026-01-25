@@ -515,7 +515,11 @@ fn handle_template(action: TemplateAction) -> Result<()> {
             println!();
             println!("Use in your documents with:");
             println!(
-                "  #import \"@local/docgen-{}:{}\": {}",
+                "  #import \"@local/docgen-{}\": {}  (recommended)",
+                name, name
+            );
+            println!(
+                "  #import \"@local/docgen-{}:{}\": {}  (with version)",
                 name, install_version, name
             );
         }
@@ -740,6 +744,9 @@ fn compile_document(
     if !input.exists() {
         anyhow::bail!("{}: {}", t("compile", "file_not_found"), input.display());
     }
+
+    // Auto-install templates as Typst packages (if not already installed)
+    packages::ensure_packages_installed()?;
 
     let output_path = output.unwrap_or_else(|| input.with_extension("pdf"));
 
@@ -1211,7 +1218,7 @@ docgen template install concept
 
 **Then create .typ file:**
 ```typst
-#import "@local/docgen-concept:0.4.2": concept
+#import "@local/docgen-concept": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -1258,7 +1265,7 @@ docgen compile documents/concepts/2025/project-concept.typ
 ```
 
 ### 5. DOCUMENTATION - .typ Workflow
-Similar to concept, use `@local/docgen-documentation:0.3.0`
+Similar to concept, use `@local/docgen-documentation` (without version number)
 
 ## COMPANY.JSON CONFIGURATION
 

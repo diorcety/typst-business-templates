@@ -219,6 +219,66 @@ pub fn update_all_packages() -> Result<Vec<(String, String, String)>> {
     Ok(updated)
 }
 
+/// Ensure all templates are installed as Typst packages (auto-install on first use)
+pub fn ensure_packages_installed() -> Result<()> {
+    let current_version = get_docgen_version();
+    let available_templates = get_available_templates();
+
+    for template_name in available_templates {
+        // Check if current version is installed
+        if !is_package_installed(&template_name, Some(&current_version))? {
+            install_package(&template_name, Some(&current_version))?;
+        }
+
+        // Create/update symlink for versionless import (@local/docgen-concept → latest)
+        create_latest_symlink(&template_name)?;
+    }
+
+    Ok(())
+}
+
+/// Create a symlink "latest" pointing to the newest version for versionless imports
+fn create_latest_symlink(template_name: &str) -> Result<()> {
+    let packages_dir = get_packages_dir()?;
+    let package_dir = packages_dir.join(format!("docgen-{}", template_name));
+
+    if !package_dir.exists() {
+        return Ok(());
+    }
+
+    // Find the highest version
+    let mut versions: Vec<String> = fs::read_dir(&package_dir)?
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().ok().map(|t| t.is_dir()).unwrap_or(false))
+        .filter_map(|e| e.file_name().to_str().map(String::from))
+        .filter(|name| name != "latest")
+        .collect();
+
+    versions.sort();
+
+    if let Some(latest_version) = versions.last() {
+        let latest_link = package_dir.join("latest");
+        let target = package_dir.join(latest_version);
+
+        // Remove existing symlink if it exists
+        if latest_link.exists() || latest_link.symlink_metadata().is_ok() {
+            #[cfg(unix)]
+            std::fs::remove_file(&latest_link).ok();
+            #[cfg(windows)]
+            std::fs::remove_dir(&latest_link).ok();
+        }
+
+        // Create new symlink
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(&target, &latest_link)?;
+
+        #[cfg(windows)]
+        std::os::windows::fs::symlink_dir(&target, &latest_link)?;
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
