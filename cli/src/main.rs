@@ -146,20 +146,21 @@ enum Commands {
         #[command(subcommand)]
         action: ProjectAction,
     },
-    /// Template package management
+    /// Template management
     ///
-    /// Install and manage Typst template packages for .typ documents:
-    ///   - list: Show installed packages
-    ///   - install: Install a template (concept, documentation)
-    ///   - remove: Uninstall a template version
-    ///   - update: Update all templates to current version
+    /// Manage project-local templates for document generation:
+    ///   - init: Initialize templates in .docgen/templates/
+    ///   - list: Show available templates
+    ///   - fork: Copy a standard template to templates/ for customization
+    ///   - update: Update standard templates (normally automatic)
     ///
-    /// Templates are installed to system Typst package directory as
-    /// @local/docgen-{name}:{version}
+    /// Standard templates are stored in .docgen/templates/ and auto-update.
+    /// Custom templates go in templates/ and remain stable.
     ///
     /// Examples:
+    ///   docgen template init
     ///   docgen template list
-    ///   docgen template install concept
+    ///   docgen template fork concept --name branded-concept
     ///   docgen template update
     Template {
         #[command(subcommand)]
@@ -1189,14 +1190,9 @@ File: `documents/credentials/2025/ZD-2025-001.json`
 ### 4. CONCEPT (Konzept) - .typ Workflow
 File: `documents/concepts/2025/project-concept.typ`
 
-**First: Install template package (one-time)**
-```bash
-docgen template install concept
-```
-
-**Then create .typ file:**
+**Templates auto-initialize on first compile. Create .typ file:**
 ```typst
-#import "@local/docgen-concept": concept
+#import "/.docgen/templates/concept/default.typ": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -1213,7 +1209,6 @@ docgen template install concept
   status: "final",
   created_at: "23.01.2025",
   authors: ("Max Mustermann",),
-  // logo: image("/data/logo.png", width: 150pt),  // Optional
 )
 
 = Projektziel
@@ -1243,7 +1238,7 @@ docgen compile documents/concepts/2025/project-concept.typ
 ```
 
 ### 5. DOCUMENTATION - .typ Workflow
-Similar to concept, use `@local/docgen-documentation` (without version number)
+Similar to concept, use `#import "/.docgen/templates/documentation/default.typ": documentation`
 
 ## COMPANY.JSON CONFIGURATION
 
@@ -1326,11 +1321,11 @@ docgen build documents/invoices
 # Watch for changes
 docgen watch documents/
 
-# Template package management
-docgen template list
-docgen template install concept
-docgen template install documentation
-docgen template update
+# Template management
+docgen template init              # Initialize project templates (one-time)
+docgen template list              # Show available templates
+docgen template fork concept --name branded-concept  # Customize a template
+docgen template update            # Update templates (normally automatic)
 ```
 
 ## AI WORKFLOW RECOMMENDATIONS
@@ -1347,8 +1342,8 @@ When helping users create documents:
    - Save to appropriate directory with proper naming (RE-YYYY-NNN.json)
 
 3. **For concepts/documentation (.typ):**
-   - Remind user to install package first: `docgen template install concept`
-   - Create .typ file with proper imports
+   - Templates auto-initialize on first compile
+   - Create .typ file with project-local import: `#import "/.docgen/templates/concept/default.typ": concept`
    - Use full Typst syntax (headings, lists, tables, etc.)
    - Load company and locale data with absolute paths:
      `#let company = json("/data/company.json")`
@@ -1369,10 +1364,11 @@ When helping users create documents:
 
 ## TROUBLESHOOTING
 
-**"Template not found"** → Run `docgen template install <name>`
+**"Template not found"** → Templates auto-initialize on compile. If issues persist, run `docgen template init`
 **"Font not found"** → Font preset in company.json doesn't exist, use one from list
 **"Locale not found"** → Check language in company.json matches available locales
 **VAT calculation wrong** → Ensure vat_breakdown matches item totals
+**Import error in .typ** → Use `/.docgen/templates/concept/default.typ` (leading slash required)
 
 ## GETTING HELP
 

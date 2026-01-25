@@ -70,25 +70,25 @@ Secure access document for client website:
 docgen compile documents/credentials/2025/credentials.json
 ```
 
-### 4. Concept Document (.typ with packages)
+### 4. Concept Document (.typ with local templates)
 **File:** `documents/concepts/2025/concept.typ`
 
 E-commerce concept for "Hofbauer's Biohof" organic farm shop:
 - Shopware 6 platform recommendation
 - Subscription box system
 - Timeline & cost breakdown
-- Uses `@local/docgen-concept:0.4.2` package
+- Uses `/.docgen/templates/concept/default.typ` import
 
 **Compile:**
 ```bash
-# First install the package (one-time)
-docgen template install concept
+# First initialize templates (one-time)
+docgen template init
 
 # Then compile
 docgen compile documents/concepts/2025/concept.typ
 ```
 
-### 5. Documentation (.typ with packages)
+### 5. Documentation (.typ with local templates)
 **File:** `documents/documentation/2025/documentation.typ`
 
 WordPress user manual for "Zimmermann Schreinerei":
@@ -96,14 +96,11 @@ WordPress user manual for "Zimmermann Schreinerei":
 - Page editing guide
 - Image upload instructions
 - WooCommerce basics
-- Uses `@local/docgen-documentation:0.4.2` package
+- Uses `/.docgen/templates/documentation/default.typ` import
 
 **Compile:**
 ```bash
-# First install the package (one-time)
-docgen template install documentation
-
-# Then compile
+# Templates auto-update on compile
 docgen compile documents/documentation/2025/documentation.typ
 ```
 
@@ -175,12 +172,12 @@ This example demonstrates **both workflows** supported by docgen:
 
 - Everything in one `.typ` file
 - Full Typst syntax (tables, math, references)
-- Uses template packages (`@local/docgen-*`)
+- Uses project-local templates (`/.docgen/templates/`)
 - Better version control
 
 **Example:**
 ```typ
-#import "@local/docgen-concept:0.4.2": concept
+#import "/.docgen/templates/concept/default.typ": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -191,8 +188,6 @@ This example demonstrates **both workflows** supported by docgen:
   client_name: "Client Name",
   company: company,
   locale: locale,
-  // Optional: Pass logo as image for package imports
-  // logo: image("/data/logo.png", width: 150pt),
 )
 
 = Introduction
@@ -206,9 +201,9 @@ Your content here...
 - ✅ Custom branding (colors, fonts)
 - ✅ Multi-language support (7 languages available)
 - ✅ Both JSON and .typ workflows
-- ✅ Template package system
+- ✅ Project-local template system
 - ✅ Organized by year structure
-- ✅ Logo placeholder when no logo configured
+- ✅ Auto-updating standard templates
 
 ## Learn More
 

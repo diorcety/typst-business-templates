@@ -16,11 +16,16 @@ Each project is **fully functional** and can be used as a template for your own 
 
 ### Usage
 
-Each example project is self-contained with its own `templates/` directory, just like a real project created with `docgen init`.
+Each example project is self-contained - just like a real project created with `docgen init`.
+
+**Initialize templates (first time only):**
+```bash
+cd examples/digitalagentur
+docgen template init
+```
 
 **Compile all documents:**
 ```bash
-cd examples/digitalagentur
 docgen build
 ```
 
@@ -36,12 +41,7 @@ docgen compile documents/concepts/2025/concept.typ
 docgen compile documents/documentation/2025/documentation.typ
 ```
 
-**Note:** The digitalagentur example includes .typ documents (concept, documentation) that use the template package system. For these documents, the templates must be installed as packages first:
-
-```bash
-docgen template install concept
-docgen template install documentation
-```
+**Note:** Templates are automatically updated when you run `docgen compile` or `docgen build`.
 
 ### PDF Encryption
 
@@ -66,21 +66,21 @@ docgen compile examples/digitalagentur/data/credentials.json -o examples/digital
 
 > Requires `qpdf` installed: `brew install qpdf` (macOS) or `apt install qpdf` (Linux)
 
-## Direct .typ Documents (Template Package System)
+## Direct .typ Documents (Project-Local Templates)
 
-The digitalagentur example project demonstrates writing documents directly in Typst syntax using the template package system - perfect for concept documents and documentation.
+The digitalagentur example project demonstrates writing documents directly in Typst syntax using project-local templates - perfect for concept documents and documentation.
 
 ### How It Works
 
-1. **Install template packages (one-time):**
+1. **Initialize project templates (one-time):**
 ```bash
-docgen template install concept
-docgen template install documentation
+cd examples/digitalagentur
+docgen template init
 ```
 
-2. **Write .typ documents with package imports:**
+2. **Write .typ documents with local template imports:**
 ```typ
-#import "@local/docgen-concept:0.4.2": concept
+#import "/.docgen/templates/concept/default.typ": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -95,8 +95,6 @@ docgen template install documentation
   status: "final",
   company: company,
   locale: locale,
-  // Optional: Pass logo as image for package imports
-  // logo: image("/data/logo.png", width: 150pt),
 )
 
 = Projektziel
@@ -110,6 +108,8 @@ cd examples/digitalagentur
 docgen compile documents/concepts/2025/concept.typ
 ```
 
+Templates are automatically updated to match your docgen version when you compile.
+
 See the [digitalagentur example](digitalagentur/) for complete working examples of concept and documentation .typ files.
 
 ### Benefits of .typ Documents
@@ -121,33 +121,30 @@ See the [digitalagentur example](digitalagentur/) for complete working examples 
 | **Version control** | Split across files | Single file |
 | **Best for** | Invoices, offers, credentials | Concepts, documentation, reports |
 
-### Template Package Commands
+### Template Commands
 
 ```bash
-# List all available templates
+# Initialize project templates (one-time)
+docgen template init
+
+# List available templates
 docgen template list
 
-# Install specific templates
-docgen template install concept
-docgen template install documentation
-docgen template install invoice
-
-# Update all templates
+# Update standard templates (normally automatic)
 docgen template update
 
-# Remove a template version
-docgen template remove concept 0.4.2
+# Fork a template for customization
+docgen template fork concept --name my-custom-concept
 ```
 
-### Package Locations
+### Template Locations
 
-Installed packages are stored in your system's Typst package directory:
+Templates are stored in your project directory for maximum portability:
 
-| OS | Location |
-|----|----------|
-| **macOS** | `~/Library/Application Support/typst/packages/local/docgen-*/` |
-| **Linux** | `~/.local/share/typst/packages/local/docgen-*/` |
-| **Windows** | `%APPDATA%/typst/packages/local/docgen-*/` |
+| Directory | Purpose | Git |
+|-----------|---------|-----|
+| `.docgen/templates/` | Standard templates (auto-updated) | Ignored |
+| `templates/` | Custom templates (stable) | Committed |
 
 ## Learn More
 

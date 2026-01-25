@@ -1,4 +1,4 @@
-#import "@local/docgen-concept:0.4.2": concept
+#import "/.docgen/templates/concept/default.typ": concept
 
 // Load company and locale from project root (absolute paths)
 #let company = json("/data/company.json")
@@ -15,7 +15,6 @@
   created_at: "2025-01-15",
   company: company,
   locale: locale,
-  // logo: image("/data/logo.png", width: 150pt),  // Optional: pass logo as image
 )
 
 = Ausgangssituation
