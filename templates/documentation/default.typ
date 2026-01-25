@@ -15,6 +15,7 @@
 //   )
 
 #import "../common/styles.typ": *
+#import "../common/footers.typ": document-footer
 
 // Document function for flexible use
 #let documentation(
@@ -63,55 +64,13 @@
       ]
     ],
 
-    footer: context [
-      #let l-document = if "common" in locale and "document" in locale.common { locale.common.document } else { "Document" }
-      #let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
-      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
-      #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
-      
-      #line(length: 100%, stroke: border-thin)
-      #v(5pt)
-      #set text(size: size-xs)
-      #grid(
-        columns: (125pt, 125pt, 125pt, 125pt),
-        column-gutter: 0pt,
-
-        // Column 1: Company Info
-        [
-          #if "name" in company [#strong[#company.name] #linebreak()]
-          #if "address" in company [
-            #if "street" in company.address [#company.address.street ]
-            #if "house_number" in company.address [#company.address.house_number]
-            #linebreak()
-            #if "postal_code" in company.address [#company.address.postal_code ]
-            #if "city" in company.address [#company.address.city]
-          ]
-        ],
-
-        // Column 2: Contact
-        [
-          #if "contact" in company [
-            #if "phone" in company.contact [Tel.: #company.contact.phone #linebreak()]
-            #if "email" in company.contact [Email: #company.contact.email #linebreak()]
-            #if "website" in company.contact [Web: #company.contact.website]
-          ]
-        ],
-
-        // Column 3: Document Info
-        [
-          #strong[#l-document:] #linebreak()
-          #document_number #linebreak()
-          #l-page #counter(page).display()
-        ],
-
-        // Column 4: Date
-        [
-          #strong[#l-created:] #linebreak()
-          #if created_at != none [#created_at] #linebreak()
-          #l-status: #status
-        ],
-      )
-    ]
+    footer: document-footer(
+      company: company,
+      locale: locale,
+      document_number: document_number,
+      created_at: created_at,
+      status: status,
+    )
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -189,12 +148,12 @@
       #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
       #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
 
-      // Logo (use passed logo parameter or pre-loaded _logo_image from JSON workflow)
+      // Logo (use passed logo parameter or load from company.logo)
       #if logo != none [
         #logo
         #v(30pt)
-      ] else if "_logo_image" in company [
-        #company._logo_image
+      ] else if company != none and "logo" in company and company.logo != none [
+        #image("/" + company.logo, width: 150pt)
         #v(30pt)
       ]
 

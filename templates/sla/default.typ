@@ -3,6 +3,7 @@
 // Based on contract structure with metrics focus
 
 #import "../common/styles.typ": *
+#import "../common/footers.typ": document-footer
 
 // Document function
 #let sla(
@@ -48,49 +49,14 @@
       ]
     ],
 
-    footer: context [
-      #let l-document = if "common" in locale and "document" in locale.common { locale.common.document } else { "Document" }
-      #let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
-      
-      #line(length: 100%, stroke: border-thin)
-      #v(5pt)
-      #set text(size: size-xs)
-      #grid(
-        columns: (125pt, 125pt, 125pt, 125pt),
-        column-gutter: 0pt,
-
-        [
-          #if "name" in company [#strong[#company.name] #linebreak()]
-          #if "address" in company [
-            #if "street" in company.address [#company.address.street ]
-            #if "house_number" in company.address [#company.address.house_number]
-            #linebreak()
-            #if "postal_code" in company.address [#company.address.postal_code ]
-            #if "city" in company.address [#company.address.city]
-          ]
-        ],
-
-        [
-          #if "contact" in company [
-            #if "phone" in company.contact [Tel.: #company.contact.phone #linebreak()]
-            #if "email" in company.contact [Email: #company.contact.email #linebreak()]
-            #if "website" in company.contact [Web: #company.contact.website]
-          ]
-        ],
-
-        [
-          #strong[#l-document:] #linebreak()
-          #document_number #linebreak()
-          #l-page #counter(page).display()
-        ],
-
-        [
-          #strong[Version:] #version #linebreak()
-          #strong[Status:] #status #linebreak()
-          #if effective_date != none [Gültig ab: #effective_date]
-        ],
-      )
-    ]
+    footer: document-footer(
+      company: company,
+      locale: locale,
+      document_number: document_number,
+      status: status,
+      version: version,
+      last_updated: effective_date,
+    )
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")

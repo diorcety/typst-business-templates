@@ -2,6 +2,7 @@
 // Based on concept/documentation structure
 
 #import "../common/styles.typ": *
+#import "../common/footers.typ": minimal-footer
 
 // Document function
 #let protocol(
@@ -46,21 +47,11 @@
       ]
     ],
 
-    footer: context [
-      #let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
-      
-      #line(length: 100%, stroke: border-thin)
-      #v(5pt)
-      #set text(size: size-xs)
-      #grid(
-        columns: (1fr, auto, 1fr),
-        align: (left, center, right),
-
-        [#if "name" in company [#company.name]],
-        [#l-page #counter(page).display()],
-        [#document_number],
-      )
-    ]
+    footer: minimal-footer(
+      company: company,
+      locale: locale,
+      document_number: document_number,
+    )
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -87,11 +78,12 @@
     #v(30pt)
 
     // Logo
+    // Logo (use passed logo parameter or load from company.logo)
     #if logo != none [
       #logo
       #v(20pt)
-    ] else if "_logo_image" in company [
-      #company._logo_image
+    ] else if company != none and "logo" in company and company.logo != none [
+      #image("/" + company.logo, width: 150pt)
       #v(20pt)
     ]
 
