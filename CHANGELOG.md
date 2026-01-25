@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.7] - 2025-01-25
+
+### Fixed
+- **CLI Template-Erkennung** für alle 12 neuen Template-Typen erweitert
+  - letter, credit-note, reminder, delivery-note, order-confirmation, time-sheet, quotation-request
+  - contract, protocol, specification, proposal, sla
+- **Init-Befehl** erstellt jetzt Verzeichnisse für alle Template-Typen
+
+### Changed
+- `docgen compile` erkennt automatisch alle neuen Template-Typen anhand von Pfad und Dateinamen
+- `docgen init` erstellt vollständige Verzeichnisstruktur mit allen 17 Template-Typen
+
 ## [0.4.6] - 2025-01-25
 
 ### Added

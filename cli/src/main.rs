@@ -616,11 +616,25 @@ fn init_project(name: &str) -> Result<()> {
 
     let dirs = [
         "data",
+        // Accounting-Layout Templates
         &format!("documents/invoices/{}", current_year),
         &format!("documents/offers/{}", current_year),
+        &format!("documents/letters/{}", current_year),
+        &format!("documents/credit-notes/{}", current_year),
+        &format!("documents/reminders/{}", current_year),
+        &format!("documents/delivery-notes/{}", current_year),
+        &format!("documents/order-confirmations/{}", current_year),
+        &format!("documents/time-sheets/{}", current_year),
+        &format!("documents/quotation-requests/{}", current_year),
+        // Document-Layout Templates
         &format!("documents/credentials/{}", current_year),
         &format!("documents/concepts/{}", current_year),
         &format!("documents/documentation/{}", current_year),
+        &format!("documents/contracts/{}", current_year),
+        &format!("documents/protocols/{}", current_year),
+        &format!("documents/specifications/{}", current_year),
+        &format!("documents/proposals/{}", current_year),
+        &format!("documents/slas/{}", current_year),
         &format!("output/{}", current_year),
         "templates",
     ];
@@ -933,14 +947,65 @@ fn watch_directory(path: &Path) -> Result<()> {
 
 fn detect_document_type(path: &Path) -> Option<String> {
     let s = path.to_string_lossy().to_lowercase();
+
+    // Accounting-Layout Templates
     if s.contains("invoice") || s.contains("rechnung") || s.contains("/re-") {
         Some("invoice".to_string())
     } else if s.contains("offer") || s.contains("angebot") || s.contains("/an-") {
         Some("offer".to_string())
-    } else if s.contains("credential") || s.contains("zugang") || s.contains("/zd-") {
+    } else if s.contains("letter") || s.contains("brief") || s.contains("/br-") {
+        Some("letter".to_string())
+    } else if s.contains("credit-note")
+        || s.contains("credit_note")
+        || s.contains("gutschrift")
+        || s.contains("/gs-")
+    {
+        Some("credit-note".to_string())
+    } else if s.contains("reminder") || s.contains("mahnung") || s.contains("/m") {
+        Some("reminder".to_string())
+    } else if s.contains("delivery-note")
+        || s.contains("delivery_note")
+        || s.contains("lieferschein")
+        || s.contains("/ls-")
+    {
+        Some("delivery-note".to_string())
+    } else if s.contains("order-confirmation")
+        || s.contains("order_confirmation")
+        || s.contains("auftragsbestätigung")
+        || s.contains("/ab-")
+    {
+        Some("order-confirmation".to_string())
+    } else if s.contains("time-sheet")
+        || s.contains("time_sheet")
+        || s.contains("timesheet")
+        || s.contains("stundenzettel")
+        || s.contains("/ts-")
+    {
+        Some("time-sheet".to_string())
+    } else if s.contains("quotation-request")
+        || s.contains("quotation_request")
+        || s.contains("angebotsanfrage")
+        || s.contains("/anf-")
+    {
+        Some("quotation-request".to_string())
+    }
+    // Document-Layout Templates
+    else if s.contains("credential") || s.contains("zugang") || s.contains("/zd-") {
         Some("credentials".to_string())
     } else if s.contains("concept") || s.contains("konzept") || s.contains("/ko-") {
         Some("concept".to_string())
+    } else if s.contains("documentation") || s.contains("dokumentation") || s.contains("/dok-") {
+        Some("documentation".to_string())
+    } else if s.contains("contract") || s.contains("vertrag") || s.contains("/vtr-") {
+        Some("contract".to_string())
+    } else if s.contains("protocol") || s.contains("protokoll") || s.contains("/prot-") {
+        Some("protocol".to_string())
+    } else if s.contains("specification") || s.contains("spezifikation") || s.contains("/spec-") {
+        Some("specification".to_string())
+    } else if s.contains("proposal") || s.contains("vorschlag") || s.contains("/pro-") {
+        Some("proposal".to_string())
+    } else if s.contains("sla") || s.contains("/sla-") {
+        Some("sla".to_string())
     } else {
         None
     }
