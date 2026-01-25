@@ -6,17 +6,17 @@
 class Docgen < Formula
   desc "CLI tool for generating professional business documents with Typst"
   homepage "https://github.com/casoon/typst-business-templates"
-  version "0.4.7"
+  version "0.4.8"
   license "MIT"
 
   on_macos do
     on_arm do
       url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-aarch64-apple-darwin.tar.gz"
-      sha256 "cdd4b9983fe23e3d600d12924047332afc2f74879ea0ac4426742e9464494885"
+      sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
     end
     on_intel do
       url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-x86_64-apple-darwin.tar.gz"
-      sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+      sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
     end
   end
 
