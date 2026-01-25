@@ -1,0 +1,116 @@
+{
+  "metadata": {
+    "timesheet_number": "TS-2025-001",
+    "period": "01.01.2025 - 15.01.2025",
+    "employee": "Max Mustermann",
+    "project_name": "DataFlow Analytics - API Migration"
+  },
+  "client": {
+    "company": "DataFlow Analytics AG",
+    "name": "Frau Dr. Sarah Schmidt",
+    "address": {
+      "street": "Datenweg",
+      "house_number": "15",
+      "postal_code": "10115",
+      "city": "Berlin"
+    }
+  },
+  "entries": [
+    {
+      "date": {
+        "date": "2025-01-02"
+      },
+      "description": "Analyse der bestehenden API-Struktur und Dokumentation",
+      "time_start": "09:00",
+      "time_end": "17:00",
+      "hours": 8.0
+    },
+    {
+      "date": {
+        "date": "2025-01-03"
+      },
+      "description": "Entwicklung Migrations-Konzept und Zeitplan",
+      "time_start": "09:00",
+      "time_end": "16:30",
+      "hours": 7.5
+    },
+    {
+      "date": {
+        "date": "2025-01-06"
+      },
+      "description": "Implementation neuer REST-Endpoints (User Management)",
+      "time_start": "09:00",
+      "time_end": "18:00",
+      "hours": 9.0
+    },
+    {
+      "date": {
+        "date": "2025-01-07"
+      },
+      "description": "Implementation neuer REST-Endpoints (Data Processing)",
+      "time_start": "09:00",
+      "time_end": "17:30",
+      "hours": 8.5
+    },
+    {
+      "date": {
+        "date": "2025-01-08"
+      },
+      "description": "Unit Tests für neue Endpoints, Code Review",
+      "time_start": "09:00",
+      "time_end": "16:00",
+      "hours": 7.0
+    },
+    {
+      "date": {
+        "date": "2025-01-09"
+      },
+      "description": "Integration Testing und Bug-Fixing",
+      "time_start": "09:00",
+      "time_end": "17:00",
+      "hours": 8.0
+    },
+    {
+      "date": {
+        "date": "2025-01-10"
+      },
+      "description": "Dokumentation API-Endpoints (Swagger/OpenAPI)",
+      "time_start": "09:00",
+      "time_end": "13:00",
+      "hours": 4.0
+    },
+    {
+      "date": {
+        "date": "2025-01-13"
+      },
+      "description": "Deployment auf Staging-Umgebung und Tests",
+      "time_start": "10:00",
+      "time_end": "18:00",
+      "hours": 8.0
+    },
+    {
+      "date": {
+        "date": "2025-01-14"
+      },
+      "description": "Performance-Optimierung und Monitoring-Setup",
+      "time_start": "09:00",
+      "time_end": "15:30",
+      "hours": 6.5
+    },
+    {
+      "date": {
+        "date": "2025-01-15"
+      },
+      "description": "Client-Meeting und Abnahme, Dokumentation Updates",
+      "time_start": "10:00",
+      "time_end": "15:00",
+      "hours": 5.0
+    }
+  ],
+  "totals": {
+    "total_hours": 71.5,
+    "billable_hours": 71.5,
+    "non_billable_hours": 0.0
+  },
+  "notes": "Alle geplanten Meilensteine wurden erreicht. Nächster Sprint startet am 16.01.2025."
+}

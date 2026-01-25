@@ -1,248 +1,160 @@
-# IT Consultant - Example Project
+# IT-Consultant Examples
 
-This is a complete, self-contained example project for **TechVision Consulting**, an IT security and cloud consulting firm from Berlin, Germany.
+Dieses Verzeichnis enthält vollständige Beispiele für alle verfügbaren Dokumenttypen.
 
-## Project Structure
+## Überblick
 
-This project follows the standard structure created by `docgen init`:
+Alle Beispiele basieren auf einem realistischen IT-Beratungs-Szenario mit folgenden Projekten:
+
+### Hauptprojekt: API Migration für DataFlow Analytics AG
+- **Client**: DataFlow Analytics AG (Dr. Sarah Schmidt, CTO)
+- **Projekt**: Migration einer Legacy-API zu modernem REST-API Design
+- **Umfang**: User Management, Data Processing, Reporting Endpoints
+- **Timeline**: Q1 2025 (14 Wochen)
+
+### Nebenprojekt: Cloud Migration für TechVision GmbH
+- **Client**: TechVision GmbH (Thomas Weber, CTO)
+- **Projekt**: Migration On-Premise Infrastruktur zu AWS
+- **Umfang**: 15 VMs, Datenbanken, File Storage
+- **Timeline**: Q1-Q2 2025 (14 Wochen)
+
+## Verfügbare Dokumenttypen
+
+### 📄 Accounting-Layout (Rechnungswesen)
+
+| Typ | Datei | Beschreibung |
+|-----|-------|--------------|
+| **Invoice** | `invoices/2025/invoice-*.json` | Rechnungen für erbrachte Leistungen |
+| **Offer** | `offers/2025/offer-*.json` | Angebote für IT-Dienstleistungen |
+| **Letter** | `letters/2025/letter-001.json` | Geschäftsbrief (Projektanfrage) |
+| **Credit Note** | `credit-notes/2025/credit-note-001.json` | Gutschrift für stornierte Leistungen |
+| **Reminder** | `reminders/2025/reminder-001.json` | 1. Mahnung für überfällige Rechnung |
+| **Delivery Note** | `delivery-notes/2025/delivery-note-001.json` | Lieferschein für Hardware |
+| **Order Confirmation** | `order-confirmations/2025/order-confirmation-001.json` | Auftragsbestätigung API-Projekt |
+| **Time Sheet** | `time-sheets/2025/timesheet-001.json` | Stundenzettel mit 71.5h über 2 Wochen |
+
+### 📋 Document-Layout (Projektdokumentation)
+
+| Typ | Datei | Beschreibung |
+|-----|-------|--------------|
+| **Concept** | `concepts/2025/concept-*.typ` | Projektkonzepte |
+| **Documentation** | `documentation/2025/documentation-*.typ` | Technische Dokumentation |
+| **Contract** | `contracts/2025/contract-001.json` | Dienstleistungsvertrag (6 Monate) |
+| **Protocol** | `protocols/2025/protocol-001.json` | Kick-off Meeting Protokoll |
+| **Specification** | `specifications/2025/specification-001.json` | API Spezifikation mit OpenAPI |
+| **Proposal** | `proposals/2025/proposal-001.json` | Cloud Migration Projektvorschlag |
+| **SLA** | `slas/2025/sla-001.json` | Service Level Agreement (12 Monate) |
+| **Quotation Request** | `quotation-requests/2025/quotation-request-001.json` | Angebotsanfrage für Tools |
+
+### 🔒 Special-Layout
+
+| Typ | Datei | Beschreibung |
+|-----|-------|--------------|
+| **Credentials** | `credentials/2024/credentials-*.json` | Zugangsdaten für Systeme |
+
+## Verwendung
+
+### Mit docgen CLI
+
+```bash
+# Aus dem Projekt-Root
+cd examples/it-consultant
+
+# Einzelnes Dokument generieren
+docgen generate letter documents/letters/2025/letter-001.json
+
+# Alle Dokumente eines Typs generieren
+docgen generate contract documents/contracts/2025/*.json
+
+# Output anzeigen
+open output/letters/2025/letter-001.pdf
+```
+
+### Als Typst Package
+
+Die JSON-Dateien enthalten vollständige Metadaten und können direkt mit den Templates verwendet werden:
+
+```bash
+typst compile \\
+  --input data=documents/letters/2025/letter-001.json \\
+  --input company=data/company.json \\
+  --input locale=locale/de.json \\
+  ../../templates/letter/default.typ \\
+  output/letter-001.pdf
+```
+
+## Dateien-Struktur
 
 ```
 it-consultant/
 ├── data/
-│   └── company.json          # Company information & branding
-├── documents/
-│   ├── invoices/2025/        # Invoices (JSON format)
-│   ├── offers/2025/          # Offers (JSON format)
-│   └── credentials/2025/     # Access credentials (JSON format)
-├── locale/                   # Localization files (de, en, es, fr, it, nl, pt)
-├── templates/                # Typst templates for all document types
-└── output/                   # Generated PDFs
+│   ├── company.json              # Firmendaten
+│   ├── concept-content.typ       # Content für Konzept-Dokumente
+│   └── documentation-content.typ # Content für Dokumentation
+├── locale/
+│   └── de.json                   # Deutsche Übersetzungen
+├── documents/                    # Alle JSON-Dateien für Dokumente
+│   ├── letters/2025/
+│   ├── credit-notes/2025/
+│   ├── reminders/2025/
+│   ├── time-sheets/2025/
+│   ├── delivery-notes/2025/
+│   ├── order-confirmations/2025/
+│   ├── contracts/2025/
+│   ├── protocols/2025/
+│   ├── specifications/2025/
+│   ├── proposals/2025/
+│   ├── slas/2025/
+│   └── quotation-requests/2025/
+├── templates/                    # Branding-spezifische Templates
+└── output/                       # Generierte PDFs
+
 ```
 
-## Company Profile
+## Realistische Szenarien
 
-**TechVision Consulting GmbH**
-- Location: Berlin, Germany (Friedrichstraße)
-- Services: IT security audits, cloud migration, DevOps consulting
-- Owner: Dr. Michael Hoffmann
-- Branding: Green accent color (#00B894), professional font (Source Sans)
-- Contact: info@techvision-consulting.de
-- Rates: 1,400 EUR/day, 175 EUR/hour
+### Szenario 1: Komplettes Projekt-Lifecycle
 
-## Example Documents
+1. **Proposal** (`proposals/2025/proposal-001.json`) - Projektvorschlag Cloud Migration
+2. **Contract** (`contracts/2025/contract-001.json`) - Unterschriebener Vertrag
+3. **Protocol** (`protocols/2025/protocol-001.json`) - Kick-off Meeting
+4. **Specification** (`specifications/2025/specification-001.json`) - API-Spezifikation
+5. **Time Sheet** (`time-sheets/2025/timesheet-001.json`) - Wöchentliche Zeiterfassung
+6. **Order Confirmation** (`order-confirmations/2025/order-confirmation-001.json`) - Auftragsbestätigung
+7. **Invoice** (`invoices/2025/invoice-*.json`) - Monatliche Abrechnung
+8. **SLA** (`slas/2025/sla-001.json`) - Ongoing Support nach Projekt
 
-### 1. Invoice (JSON-based)
-**File:** `documents/invoices/2025/invoice.json`
+### Szenario 2: Zahlungs-Workflow
 
-Professional invoice for "Richter & Partner Rechtsanwälte" IT security project:
-- Total: 21,098.50 EUR (incl. 19% VAT)
-- Services: Security assessment, penetration testing, GDPR compliance, hardening
-- Client: Thomas Richter / Rechtsanwaltskanzlei
-- Payment terms: 30 days net
-- Includes detailed daily breakdown
+1. **Invoice** - Rechnung versandt
+2. **Reminder** (`reminders/2025/reminder-001.json`) - 1. Mahnung nach Zahlungsverzug
+3. **Credit Note** (`credit-notes/2025/credit-note-001.json`) - Teilstorno bei Reduzierung
 
-**Compile:**
-```bash
-docgen compile documents/invoices/2025/invoice.json
-```
+### Szenario 3: Beschaffung
 
-### 2. Offer (JSON-based)
-**File:** `documents/offers/2025/offer.json`
+1. **Quotation Request** (`quotation-requests/2025/quotation-request-001.json`) - Anfrage an Supplier
+2. **Order Confirmation** - Bestätigung vom Supplier
+3. **Delivery Note** (`delivery-notes/2025/delivery-note-001.json`) - Warenlieferung
 
-Comprehensive quote for law firm IT security audit:
-- Total: 26,763.10 EUR (incl. 19% VAT)
-- Services: 
-  - Security assessment (3 days)
-  - Penetration testing (4 days)
-  - GDPR compliance check (2 days)
-  - Security hardening (5 days)
-  - Awareness training (1 workshop)
-  - Documentation & final report
-- Client: Thomas Richter / Richter & Partner Rechtsanwälte
-- Validity: Until February 28, 2025
-- Timeline: 4-6 weeks
+## Anpassung
 
-**Compile:**
-```bash
-docgen compile documents/offers/2025/offer.json
-```
+Um diese Examples für Ihr Unternehmen anzupassen:
 
-### 3. Access Credentials (JSON-based)
-**File:** `documents/credentials/2025/credentials.json`
+1. **Firmendaten ändern**: `data/company.json` editieren
+2. **Logo austauschen**: `data/logo.png` ersetzen
+3. **Texte anpassen**: JSON-Dateien in `documents/` editieren
+4. **Neue Beispiele**: JSON-Dateien kopieren und anpassen
 
-Secure access document for client infrastructure:
-- AWS Console access
-- SSH keys for servers
-- Database credentials
-- Monitoring dashboard access
+## Tipps
 
-**Compile:**
-```bash
-docgen compile documents/credentials/2025/credentials.json
-```
+- Alle Beträge sind in EUR (netto)
+- Datumsformat: YYYY-MM-DD in JSON
+- MwSt.-Satz: 19% (Standard in Deutschland)
+- Zahlungsziel: Standard 14 Tage
 
-## Quick Start
+## Nächste Schritte
 
-### Compile All Documents
-
-```bash
-cd examples/it-consultant
-
-# Compile all documents at once
-docgen build
-```
-
-This will generate:
-- `output/invoice.pdf` - Client invoice
-- `output/offer.pdf` - Project quote
-- `output/credentials.pdf` - Infrastructure access
-
-### Customize for Your Business
-
-1. **Edit company data:**
-   ```bash
-   nano data/company.json
-   ```
-   Change name, address, branding colors, rates, etc.
-
-2. **Add your logo:**
-   - Place logo file in `data/` directory (e.g., `logo.png`)
-   - Add to `company.json`:
-     ```json
-     {
-       "logo": "logo.png",
-       "logo_width": "3cm"
-     }
-     ```
-
-3. **Create new documents:**
-   ```bash
-   # Copy and modify existing examples
-   cp documents/invoices/2025/invoice.json documents/invoices/2025/RE-2025-016.json
-   
-   # Edit the new file
-   nano documents/invoices/2025/RE-2025-016.json
-   ```
-
-## VAT Setup (Regular Business)
-
-This example demonstrates a **regular business** with VAT according to German tax law:
-
-- **19% VAT charged** on all services
-- All items have `"vat_rate": { "code": "Standard", "percentage": "19" }`
-- `vat_breakdown` contains detailed VAT calculation
-- VAT ID included in company data
-
-**In `company.json`:**
-```json
-{
-  "vat_id": "DE345678901",
-  "default_terms": {
-    "vat_rate": 19,
-    "standard_terms": [
-      "Alle Preise verstehen sich zzgl. der gesetzlichen MwSt. (19%).",
-      "Zahlbar innerhalb von 30 Tagen netto."
-    ]
-  }
-}
-```
-
-**In invoices/offers:**
-```json
-{
-  "totals": {
-    "subtotal": { "amount": "22490", "currency": "EUR" },
-    "vat_breakdown": [
-      {
-        "rate": { "code": "Standard", "percentage": "19" },
-        "base": { "amount": "22490", "currency": "EUR" },
-        "amount": { "amount": "4273.10", "currency": "EUR" }
-      }
-    ],
-    "vat_total": { "amount": "4273.10", "currency": "EUR" },
-    "total": { "amount": "26763.10", "currency": "EUR" }
-  }
-}
-```
-
-## Professional Services Pricing
-
-This example shows typical IT consulting pricing structures:
-
-**Daily Rate:**
-- Standard: 1,400 EUR/day (as configured in `company.json`)
-- Used for: assessments, penetration tests, implementation work
-
-**Hourly Rate:**
-- Standard: 175 EUR/hour
-- Used for: short tasks, support, minor adjustments
-
-**Fixed Price:**
-- Used for: workshops, documentation, standard deliverables
-
-**Travel Costs:**
-- Billed separately as per agreement
-
-## Document Workflow
-
-This example uses the **JSON workflow** for all documents:
-
-### 📊 JSON Workflow (Structured Data)
-**Best for:** Invoices, Offers, Credentials
-
-- Data in JSON format
-- Content from templates
-- Easy to generate programmatically
-- Machine-readable
-
-**Structure:**
-```json
-{
-  "metadata": {
-    "invoice_number": "RE-2025-015",
-    "invoice_date": { "date": "2025-01-20" }
-  },
-  "recipient": {
-    "name": "Client Name",
-    "company": "Client Company"
-  },
-  "items": [
-    {
-      "title": "Security Assessment",
-      "quantity": "3",
-      "unit": "Tage",
-      "unit_price": { "amount": "1400" }
-    }
-  ]
-}
-```
-
-## Features Demonstrated
-
-- ✅ Professional German business documents
-- ✅ Regular VAT setup (19%)
-- ✅ Day-based and hourly pricing
-- ✅ Custom branding (green accent, Source Sans font)
-- ✅ Multi-language support (7 languages available)
-- ✅ JSON workflow for structured documents
-- ✅ Organized by year structure
-- ✅ Logo placeholder when no logo configured
-- ✅ Detailed service breakdowns with sub-items
-- ✅ Professional terms and conditions
-
-## Typical Use Cases
-
-This example project covers common IT consulting scenarios:
-
-1. **Security Audits** - Comprehensive infrastructure analysis
-2. **Penetration Testing** - Simulated attacks to find vulnerabilities
-3. **GDPR Compliance** - Data protection assessment for German businesses
-4. **Infrastructure Hardening** - Implementation of security improvements
-5. **Training & Workshops** - Employee awareness programs
-6. **Documentation** - Technical reports and management summaries
-
-## Learn More
-
-- [Main README](../../README.md) - Full project documentation
-- [Examples Overview](../README.md) - All example projects
-- [Typst Documentation](https://typst.app/docs) - Typst syntax reference
+1. Generieren Sie alle Beispiele: `docgen generate-all`
+2. Schauen Sie sich die PDFs im `output/` Verzeichnis an
+3. Passen Sie die JSON-Dateien an Ihre Bedürfnisse an
+4. Erstellen Sie eigene Dokumente basierend auf den Beispielen

@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "delivery_note_number": "LS-2025-001",
+    "order_reference": "PO-2024-892",
+    "delivery_date": {
+      "date": "2025-01-30"
+    },
+    "delivery_time": "14:00 - 16:00 Uhr",
+    "shipping_method": "DHL Express",
+    "tracking_number": "JJD012345678901234567"
+  },
+  "recipient": {
+    "name": "Herr Thomas Weber",
+    "company": "TechVision GmbH - IT-Abteilung",
+    "address": {
+      "street": "Innovation Street",
+      "house_number": "42",
+      "postal_code": "80331",
+      "city": "München"
+    }
+  },
+  "delivery_address": {
+    "company": "TechVision GmbH",
+    "name": "Warenannahme / Empfang",
+    "address": {
+      "street": "Innovation Street",
+      "house_number": "42",
+      "postal_code": "80331",
+      "city": "München"
+    }
+  },
+  "items": [
+    {
+      "position": 1,
+      "article_number": "HW-SRV-001",
+      "description": "Dell PowerEdge R750 Server (Konfigurations-Details siehe Beiblatt)",
+      "quantity": 2,
+      "unit": "stueck",
+      "notes": "Seriennummern: SRV001-2025-A, SRV001-2025-B"
+    },
+    {
+      "position": 2,
+      "article_number": "HW-NET-042",
+      "description": "Cisco Catalyst 9300 Switch - 48 Port",
+      "quantity": 1,
+      "unit": "stueck",
+      "notes": "Seriennummer: NET042-2025-C"
+    },
+    {
+      "position": 3,
+      "article_number": "HW-RACK-U42",
+      "description": "19\" Server Rack - 42U mit Belüftung",
+      "quantity": 1,
+      "unit": "stueck",
+      "notes": "Inklusive Montage-Kit und Kabelmanagement"
+    },
+    {
+      "position": 4,
+      "article_number": "CAB-ETH-10M",
+      "description": "CAT6a Ethernet Kabel - 10m",
+      "quantity": 12,
+      "unit": "stueck"
+    },
+    {
+      "position": 5,
+      "article_number": "CAB-PWR-C13",
+      "description": "Stromkabel C13 - 2m",
+      "quantity": 8,
+      "unit": "stueck"
+    },
+    {
+      "position": 6,
+      "article_number": "DOC-SETUP-KIT",
+      "description": "Setup-Dokumentation und Installations-USB",
+      "quantity": 1,
+      "unit": "stueck",
+      "notes": "Enthält: Quick Start Guides, Treiber-USB, Garantie-Unterlagen"
+    }
+  ],
+  "special_notes": "WICHTIG: Die Hardware ist für die Installation am 31.01.2025 vorgesehen. Bitte lagern Sie die Geräte bis dahin in klimatisierter Umgebung.\n\nDie Verpackungen enthalten empfindliche Elektronik - bitte vorsichtig behandeln und nicht stapeln.\n\nBei Beschädigungen oder fehlenden Teilen bitte unverzüglich den Lieferanten kontaktieren (Hotline: +49 89 1234567)."
+}

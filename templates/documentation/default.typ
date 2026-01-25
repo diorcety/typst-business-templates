@@ -46,7 +46,7 @@
 
   set page(
     paper: "a4",
-    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 100pt),
+    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
 
     header: context [
       #if counter(page).get().first() > 1 [

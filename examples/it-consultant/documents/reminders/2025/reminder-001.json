@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "reminder_number": "M1-2025-001",
+    "reminder_level": "1",
+    "date": {
+      "date": "2025-01-25"
+    },
+    "payment_deadline": {
+      "date": "2025-02-05"
+    }
+  },
+  "recipient": {
+    "name": "Herr Michael Becker",
+    "company": "CloudSys Solutions GmbH",
+    "address": {
+      "street": "Serverstraße",
+      "house_number": "88",
+      "postal_code": "60311",
+      "city": "Frankfurt"
+    }
+  },
+  "salutation": "Sehr geehrter Herr Becker,",
+  "introduction": "bei der Durchsicht unserer Buchhaltung ist uns aufgefallen, dass folgende Rechnung noch nicht beglichen wurde:",
+  "outstanding_invoices": [
+    {
+      "invoice_number": "RE-2024-189",
+      "invoice_date": {
+        "date": "2024-12-15"
+      },
+      "due_date": {
+        "date": "2025-01-14"
+      },
+      "amount": {
+        "amount": 4760.00,
+        "currency": "EUR"
+      },
+      "outstanding": {
+        "amount": 4760.00,
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "total_outstanding": {
+      "amount": 4760.00,
+      "currency": "EUR"
+    },
+    "reminder_fee": {
+      "amount": 0.00,
+      "currency": "EUR"
+    },
+    "total_due": {
+      "amount": 4760.00,
+      "currency": "EUR"
+    }
+  },
+  "custom_text": "Sollten Sie die Zahlung bereits veranlasst haben, betrachten Sie dieses Schreiben bitte als gegenstandslos. Bei Fragen stehen wir Ihnen gerne zur Verfügung."
+}

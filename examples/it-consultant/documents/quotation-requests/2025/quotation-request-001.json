@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "request_number": "ANF-2025-001",
+    "date": {
+      "date": "2025-01-28"
+    },
+    "response_deadline": {
+      "date": "2025-02-15"
+    },
+    "project_reference": "Cloud Infrastructure Upgrade"
+  },
+  "supplier": {
+    "company": "CloudTech Solutions GmbH",
+    "name": "Vertriebsabteilung",
+    "address": {
+      "street": "Cloudstraße",
+      "house_number": "99",
+      "postal_code": "10178",
+      "city": "Berlin"
+    }
+  },
+  "salutation": {
+    "greeting": "Sehr geehrte Damen und Herren,",
+    "introduction": "im Rahmen unseres Cloud Infrastructure Upgrade Projekts bitten wir Sie um ein detailliertes Angebot für folgende Leistungen und Produkte:"
+  },
+  "items": [
+    {
+      "position": 1,
+      "title": "AWS Enterprise Support Subscription",
+      "description": "AWS Enterprise Support für 12 Monate mit 24/7 technischem Support",
+      "quantity": 1,
+      "unit": "jahr",
+      "specification": "inkl. Technical Account Manager, Response Time < 15min für kritische Issues"
+    },
+    {
+      "position": 2,
+      "title": "Monitoring & Logging Solution",
+      "description": "Datadog oder vergleichbare Monitoring-Lösung",
+      "quantity": 50,
+      "unit": "hosts",
+      "specification": "APM, Infrastructure Monitoring, Log Management, 13 Monate Retention",
+      "requirements": [
+        "Integration mit AWS CloudWatch",
+        "Custom Dashboards und Alerting",
+        "API-Zugriff für Automatisierung",
+        "SAML SSO Integration"
+      ]
+    },
+    {
+      "position": 3,
+      "title": "Backup & Disaster Recovery Solution",
+      "description": "Backup-Lösung für AWS-Infrastruktur",
+      "quantity": 10,
+      "unit": "tb",
+      "specification": "AWS Backup oder vergleichbar",
+      "requirements": [
+        "Automatisierte Backups (täglich)",
+        "Point-in-Time Recovery",
+        "Cross-Region Backup Replication",
+        "Backup-Retention: 30 Tage",
+        "Encryption at Rest und in Transit"
+      ]
+    },
+    {
+      "position": 4,
+      "title": "Security & Compliance Tools",
+      "description": "Security Scanning und Compliance Monitoring",
+      "quantity": 1,
+      "unit": "pauschale",
+      "specification": "AWS Security Hub + GuardDuty oder vergleichbar",
+      "requirements": [
+        "Vulnerability Scanning",
+        "CIS Benchmark Compliance",
+        "GDPR Compliance Reporting",
+        "Automated Remediation wo möglich"
+      ]
+    },
+    {
+      "position": 5,
+      "title": "Infrastructure-as-Code Training",
+      "description": "Terraform Advanced Training für 5 Personen",
+      "quantity": 5,
+      "unit": "personen",
+      "specification": "2-tägiges Training (on-site oder remote)",
+      "requirements": [
+        "Terraform Best Practices",
+        "Module Development",
+        "State Management",
+        "CI/CD Integration",
+        "Hands-on Labs",
+        "Training-Materialien inklusive"
+      ]
+    }
+  ],
+  "terms": {
+    "delivery_terms": "Lizenzen und Subscriptions sollten sofort nach Vertragsabschluss aktivierbar sein. Training bevorzugt im März 2025.",
+    "delivery_deadline": {
+      "date": "2025-03-15"
+    },
+    "payment_terms": "Zahlungsziel 30 Tage netto nach Rechnungsstellung. Für Subscriptions bevorzugen wir jährliche Vorauszahlung mit Mengenrabatt.",
+    "quality_requirements": "Alle Lösungen müssen AWS Well-Architected Framework konform sein. Support muss in deutscher Sprache verfügbar sein."
+  },
+  "additional_notes": "Wir planen eine langfristige Partnerschaft und sind an Volume-Rabatten interessiert. Falls Sie weitere Services anbieten, die für unser Projekt relevant sein könnten (z.B. Cost Optimization Tools, Performance Monitoring), fügen Sie diese bitte Ihrem Angebot bei.\n\nBei technischen Rückfragen wenden Sie sich bitte an Max Mustermann (max@it-consulting.de).",
+  "response_requirements": [
+    "Detaillierte Preisaufstellung (Einmalkosten und laufende Kosten)",
+    "Vertragslaufzeiten und Kündigungsfristen",
+    "Onboarding-Prozess und Zeitplan",
+    "Support-Level und Reaktionszeiten",
+    "Referenzkunden (mindestens 2)",
+    "SLA-Dokumente",
+    "Technische Spezifikationen der Lösungen",
+    "Schulungsunterlagen/Agenda für das Training"
+  ],
+  "attachments": [
+    "Technische Anforderungen Cloud Infrastructure",
+    "Compliance Requirements Checkliste"
+  ]
+}

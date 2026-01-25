@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "credit_note_number": "GS-2025-001",
+    "invoice_reference": "RE-2024-156",
+    "date": {
+      "date": "2025-01-20"
+    },
+    "reason": "Teilstorno - Nicht erbrachte Leistungen"
+  },
+  "recipient": {
+    "name": "Frau Dr. Sarah Schmidt",
+    "company": "DataFlow Analytics AG",
+    "address": {
+      "street": "Datenweg",
+      "house_number": "15",
+      "postal_code": "10115",
+      "city": "Berlin"
+    }
+  },
+  "salutation": {
+    "greeting": "Sehr geehrte Frau Dr. Schmidt,",
+    "introduction": "aufgrund der Reduzierung des Projektumfangs erstatten wir Ihnen hiermit die nicht in Anspruch genommenen Leistungen."
+  },
+  "items": [
+    {
+      "position": 1,
+      "description": "Backend-Entwicklung (Stornierung von 20 Stunden)",
+      "quantity": 20,
+      "unit": "stunde",
+      "vat_rate": {
+        "percentage": 19
+      },
+      "unit_price": {
+        "amount": 95.00,
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": 1900.00,
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": 1900.00,
+      "currency": "EUR"
+    },
+    "vat_breakdown": [
+      {
+        "rate": {
+          "percentage": 19
+        },
+        "amount": {
+          "amount": 361.00,
+          "currency": "EUR"
+        }
+      }
+    ],
+    "total": {
+      "amount": 2261.00,
+      "currency": "EUR"
+    }
+  }
+}

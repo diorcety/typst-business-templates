@@ -1,0 +1,134 @@
+{
+  "metadata": {
+    "confirmation_number": "AB-2025-001",
+    "order_reference": "BE-2025-015",
+    "date": {
+      "date": "2025-01-29"
+    },
+    "delivery_date": {
+      "date": "2025-02-12"
+    }
+  },
+  "recipient": {
+    "company": "DataFlow Analytics AG",
+    "name": "Frau Dr. Sarah Schmidt",
+    "address": {
+      "street": "Datenweg",
+      "house_number": "15",
+      "postal_code": "10115",
+      "city": "Berlin"
+    }
+  },
+  "salutation": {
+    "greeting": "Sehr geehrte Frau Dr. Schmidt,",
+    "introduction": "vielen Dank für Ihre Bestellung. Wir bestätigen hiermit Ihren Auftrag wie folgt:"
+  },
+  "items": [
+    {
+      "position": 1,
+      "article_number": "DEV-API-MIG",
+      "title": "API Migration Projekt - Phase 1",
+      "description": "Analyse und Konzeption der API-Migration gemäß Spezifikation SPEC-2025-001",
+      "quantity": 1,
+      "unit": "pauschale",
+      "unit_price": {
+        "amount": 7600.00,
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": 7600.00,
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 2,
+      "article_number": "DEV-API-MIG",
+      "title": "API Migration Projekt - Phase 2",
+      "description": "Implementation der neuen REST-API Endpoints (User Management, Data Processing, Reporting)",
+      "quantity": 1,
+      "unit": "pauschale",
+      "unit_price": {
+        "amount": 22800.00,
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": 22800.00,
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 3,
+      "article_number": "DEV-TEST",
+      "title": "Testing & Quality Assurance",
+      "description": "Unit Tests, Integration Tests, Performance Tests und UAT-Support",
+      "quantity": 80,
+      "unit": "stunde",
+      "unit_price": {
+        "amount": 95.00,
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": 7600.00,
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 4,
+      "article_number": "DOC-API",
+      "title": "API-Dokumentation",
+      "description": "OpenAPI 3.0 Spezifikation, Swagger UI Setup, Migrations-Anleitung für API-Clients",
+      "quantity": 40,
+      "unit": "stunde",
+      "unit_price": {
+        "amount": 85.00,
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": 3400.00,
+        "currency": "EUR"
+      }
+    },
+    {
+      "position": 5,
+      "article_number": "TRAIN-API",
+      "title": "Knowledge Transfer Workshop",
+      "description": "2-tägiger Workshop für Ihr Entwickler-Team (bis zu 8 Teilnehmer)",
+      "quantity": 2,
+      "unit": "tag",
+      "unit_price": {
+        "amount": 1200.00,
+        "currency": "EUR"
+      },
+      "total": {
+        "amount": 2400.00,
+        "currency": "EUR"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": {
+      "amount": 43800.00,
+      "currency": "EUR"
+    },
+    "vat_breakdown": [
+      {
+        "rate": {
+          "percentage": 19
+        },
+        "amount": {
+          "amount": 8322.00,
+          "currency": "EUR"
+        }
+      }
+    ],
+    "total": {
+      "amount": 52122.00,
+      "currency": "EUR"
+    }
+  },
+  "terms": {
+    "payment_terms": "Abrechnung erfolgt nach Projektfortschritt in 3 Raten:\n- 30% bei Projektstart (15.631,60 EUR brutto)\n- 50% nach Abschluss Phase 2 (26.061,00 EUR brutto)\n- 20% nach erfolgreicher Abnahme (10.424,40 EUR brutto)\n\nZahlungsziel jeweils 14 Tage nach Rechnungsstellung.",
+    "delivery_terms": "Projektstart: 12.02.2025\nGeplante Fertigstellung: 30.04.2025 (ca. 12 Wochen)\n\nMeilensteine:\n- Phase 1 (Analyse): KW 7-8 (12.02. - 23.02.)\n- Phase 2 (Implementation): KW 9-14 (24.02. - 06.04.)\n- Testing & Dokumentation: KW 15-17 (07.04. - 27.04.)\n- Abnahme & Workshop: KW 17-18 (28.04. - 02.05.)"
+  },
+  "custom_text": "Ansprechpartner für das Projekt:\n- Projektleitung: Max Mustermann (max@it-consulting.de, +49 123 456789)\n- Technische Leitung: Anna Fischer (anna@it-consulting.de)\n\nWöchentliche Status-Meetings: Jeden Montag 10:00 Uhr (MS Teams)\n\nZugang zu Projekt-Management Tool: Wird am 10.02.2025 bereitgestellt\n\nWir freuen uns auf die Zusammenarbeit!"
+}

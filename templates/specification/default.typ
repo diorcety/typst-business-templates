@@ -1,42 +1,31 @@
-// Concept/Design Document Template (Konzept)
-// Based on casoon-documents structure
-// Supports both JSON input and direct .typ content files
-//
-// USAGE (Package Import):
-//   #import "@local/docgen-concept:0.4.2": concept
-//   #let company = json("/data/company.json")
-//   #let locale = json("/locale/de.json")
-//   #show: concept.with(
-//     title: "My Concept",
-//     company: company,
-//     locale: locale,
-//     logo: image("/data/logo.png"),  // Logo as image, not path
-//   )
+// Specification Template (Spezifikation/Pflichtenheft) - Document Layout
+// Technical and functional requirements documentation
+// Based on documentation structure with enhanced code support
 
 #import "../common/styles.typ": *
 
-// Document function for flexible use
-#let concept(
+// Document function
+#let specification(
   title: none,
   document_number: none,
+  subject: none,
   client_name: none,
   project_name: none,
   version: "1.0",
   status: "Entwurf",
   tags: (),
-  created_at: none,
   authors: (),
+  created_at: none,
+  last_updated: none,
   show_toc: true,
   company: none,
   locale: none,
   logo: none,
   body
 ) = {
-  // Use passed company/locale or empty defaults
   let company = if company != none { company } else { (:) }
-  let locale = if locale != none { locale } else { (common: (:), concept: (:)) }
+  let locale = if locale != none { locale } else { (common: (:), specification: (:)) }
   
-  // Get branding from company data
   let accent-color = get-accent-color(company)
   let primary-color = get-primary-color(company)
   let fonts = get-font-preset(company)
@@ -52,7 +41,7 @@
           columns: (1fr, auto, 1fr),
           align: (left, center, right),
           [#document_number],
-          [#title],
+          [#if subject != none [#subject] else [#title]],
           [Version #version]
         )
         #v(5pt)
@@ -63,7 +52,6 @@
     footer: context [
       #let l-document = if "common" in locale and "document" in locale.common { locale.common.document } else { "Document" }
       #let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
-      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
       #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
       
       #line(length: 100%, stroke: border-thin)
@@ -73,7 +61,6 @@
         columns: (125pt, 125pt, 125pt, 125pt),
         column-gutter: 0pt,
 
-        // Column 1: Company Info
         [
           #if "name" in company [#strong[#company.name] #linebreak()]
           #if "address" in company [
@@ -85,7 +72,6 @@
           ]
         ],
 
-        // Column 2: Contact
         [
           #if "contact" in company [
             #if "phone" in company.contact [Tel.: #company.contact.phone #linebreak()]
@@ -94,18 +80,16 @@
           ]
         ],
 
-        // Column 3: Document Info
         [
           #strong[#l-document:] #linebreak()
           #document_number #linebreak()
           #l-page #counter(page).display()
         ],
 
-        // Column 4: Date
         [
-          #strong[#l-created:] #linebreak()
-          #if created_at != none [#created_at] #linebreak()
-          #l-status: #status
+          #strong[Version:] #version #linebreak()
+          #l-status: #status #linebreak()
+          #if last_updated != none [Aktualisiert: #last_updated]
         ],
       )
     ]
@@ -115,27 +99,80 @@
   set par(justify: true, leading: 0.65em)
   set heading(numbering: "1.1")
 
+  // Enhanced code block styling
+  show raw.where(block: true): it => {
+    set text(size: size-small, font: fonts.mono)
+    block(
+      fill: color-background,
+      inset: 1em,
+      radius: 3pt,
+      width: 100%,
+      stroke: border-thin + color-border,
+      it
+    )
+  }
+
+  // Inline code styling
+  show raw.where(block: false): it => {
+    box(
+      fill: color-background,
+      inset: (x: 3pt, y: 0pt),
+      radius: 2pt,
+      text(size: size-small, font: fonts.mono, it)
+    )
+  }
+
   // Heading styles
   show heading.where(level: 1): it => {
-    v(20pt)
+    v(25pt)
     text(size: size-xxlarge, weight: "bold", fill: accent-color)[#it]
-    v(10pt)
+    v(12pt)
   }
 
   show heading.where(level: 2): it => {
-    v(15pt)
+    v(18pt)
     text(size: size-xlarge, weight: "bold")[#it]
     v(8pt)
   }
 
   show heading.where(level: 3): it => {
-    v(10pt)
+    v(12pt)
     text(size: size-large, weight: "bold")[#it]
-    v(5pt)
+    v(6pt)
   }
 
+  // Requirements boxes (can be used via custom markup)
+  // Example: #requirement[REQ-001][High][User login must support OAuth2]
+  let requirement(id, priority, content) = {
+    block(
+      fill: if priority == "High" { rgb("#fff3cd") } else if priority == "Medium" { rgb("#d1ecf1") } else { rgb("#f8f9fa") },
+      stroke: border-normal + if priority == "High" { rgb("#ffc107") } else if priority == "Medium" { rgb("#17a2b8") } else { color-border },
+      radius: 4pt,
+      inset: 1em,
+      width: 100%,
+    )[
+      #grid(
+        columns: (80pt, 60pt, 1fr),
+        align: (left, left, left),
+        column-gutter: 10pt,
+        [#text(weight: "bold", font: fonts.mono)[#id]],
+        [#text(weight: "bold", fill: if priority == "High" { rgb("#856404") } else if priority == "Medium" { rgb("#0c5460") } else { color-text })[#priority]],
+        [#content]
+      )
+    ]
+  }
+
+  // Links
+  show link: it => text(fill: rgb("#0066cc"), it)
+
+  // Tables
+  set table(
+    stroke: border-thin + color-border,
+    fill: (x, y) => if y == 0 { color-background }
+  )
+
   // ============================================================================
-  // TITLE PAGE (centered layout like casoon-documents)
+  // TITLE PAGE
   // ============================================================================
 
   page(
@@ -146,16 +183,7 @@
     #align(center)[
       #v(50pt)
 
-      // Locale labels with fallbacks
-      #let l-concept = if "concept" in locale and "title" in locale.concept { locale.concept.title } else { "Concept" }
-      #let l-project = if "common" in locale and "project" in locale.common { locale.common.project } else { "Project" }
-      #let l-client = if "common" in locale and "client" in locale.common { locale.common.client } else { "Client" }
-      #let l-version = if "common" in locale and "version" in locale.common { locale.common.version } else { "Version" }
-      #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
-      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
-      #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
-
-      // Logo (use passed logo parameter or pre-loaded _logo_image from JSON workflow)
+      // Logo
       #if logo != none [
         #logo
         #v(30pt)
@@ -169,8 +197,8 @@
 
       #v(20pt)
 
-      // Document type and number
-      #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(l-concept)]
+      // Document type
+      #text(size: size-xlarge, fill: accent-color, weight: "bold")[SPEZIFIKATION]
       #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
 
       #v(30pt)
@@ -182,15 +210,22 @@
         row-gutter: 14pt,
         align: (right, left),
 
-        [*#l-project:*], [#project_name],
-        [*#l-client:*], [#client_name],
-        [*#l-version:*], [#version],
-        [*#l-status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
+        ..if project_name != none {
+          ([*Projekt:*], [#project_name])
+        } else { () },
+        ..if client_name != none {
+          ([*Auftraggeber:*], [#client_name])
+        } else { () },
+        [*Version:*], [#version],
+        [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
         ..if created_at != none {
-          ([*#l-created:*], [#created_at])
+          ([*Erstellt:*], [#created_at])
+        } else { () },
+        ..if last_updated != none {
+          ([*Aktualisiert:*], [#last_updated])
         } else { () },
         ..if authors.len() > 0 {
-          ([*#l-authors:*], [#authors.join(", ")])
+          ([*Autoren:*], [#authors.join(", ")])
         } else { () },
       )
 
@@ -208,16 +243,21 @@
   ]
 
   // ============================================================================
+  // REVISION HISTORY (optional)
+  // ============================================================================
+
+  // Can be added via content
+
+  // ============================================================================
   // TABLE OF CONTENTS
   // ============================================================================
 
   if show_toc {
-    let l-toc = if "common" in locale and "table_of_contents" in locale.common { locale.common.table_of_contents } else { "Table of Contents" }
     [
       #outline(
         title: [
           #set text(size: size-xxlarge, weight: "bold")
-          #l-toc
+          Inhaltsverzeichnis
         ],
         indent: 1em,
         depth: 3,
@@ -234,18 +274,15 @@
   body
 }
 
-// For JSON-based usage (via docgen CLI)
-// Only load from sys.inputs when "data" is present (JSON workflow)
+// JSON workflow
 #let data = if "data" in sys.inputs {
   json(sys.inputs.data)
 } else {
   none
 }
 
-// Only load company/locale when in JSON workflow (data != none)
 #let _company = if data != none and "company" in sys.inputs {
   let c = json(sys.inputs.company)
-  // Load logo image if logo path is specified
   if "logo" in c and c.logo != none {
     let logo-width = if "logo_width" in c { eval(c.logo_width) } else { 150pt }
     c.insert("_logo_image", image("/" + c.logo, width: logo-width))
@@ -271,24 +308,36 @@
   } else {
     none
   }
+
+  let updated-date = if "last_updated" in data.metadata {
+    if type(data.metadata.last_updated) == dictionary and "date" in data.metadata.last_updated {
+      data.metadata.last_updated.date
+    } else {
+      data.metadata.last_updated
+    }
+  } else {
+    none
+  }
   
   let content-body = if "content_file" in data {
     include(data.content_file)
-  } else if "content" in data {
-    eval(data.content, mode: "markup")
+  } else if "content" in data and "markdown" in data.content {
+    eval(data.content.markdown, mode: "markup")
   } else {
     []
   }
   
-  concept(
+  specification(
     title: data.metadata.title,
     document_number: data.metadata.document_number,
-    client_name: data.metadata.client_name,
-    project_name: data.metadata.project_name,
+    subject: if "subject" in data.metadata { data.metadata.subject } else { none },
+    client_name: if "client_name" in data.metadata { data.metadata.client_name } else { none },
+    project_name: if "project_name" in data.metadata { data.metadata.project_name } else { none },
     version: if "version" in data.metadata { data.metadata.version } else { "1.0" },
     status: if "status" in data.metadata { data.metadata.status } else { "Entwurf" },
     tags: if "tags" in data.metadata { data.metadata.tags } else { () },
     created_at: created-date,
+    last_updated: updated-date,
     authors: if "authors" in data.metadata { data.metadata.authors } else { () },
     show_toc: if "show_toc" in data.metadata { data.metadata.show_toc } else { true },
     company: _company,
