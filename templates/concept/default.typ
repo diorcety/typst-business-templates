@@ -14,7 +14,13 @@
 //   )
 
 #import "../common/styles.typ": *
-#import "../common/footers.typ": accounting-footer
+
+// Load data from JSON input (only if available for JSON workflow)
+#let data = if "data" in sys.inputs {
+  json(sys.inputs.data)
+} else {
+  none
+}
 
 // Document function for flexible use
 #let concept(
@@ -34,7 +40,16 @@
   body
 ) = {
   // Use passed company/locale or empty defaults
-  let company = if company != none { company } else { (:) }
+  let company = if company != none { 
+    // Pre-load logo image if logo path is specified (for package-import mode)
+    if "logo" in company and company.logo != none and "_logo_image" not in company {
+      let logo-width = if "logo_width" in company { eval(company.logo_width) } else { 150pt }
+      company.insert("_logo_image", image("/" + company.logo, width: logo-width))
+    }
+    company
+  } else { 
+    (:) 
+  }
   let locale = if locale != none { locale } else { (common: (:), concept: (:)) }
   
   // Get branding from company data
@@ -61,9 +76,21 @@
       ]
     ],
 
-    footer: accounting-footer(
-      company: company,
-    )
+    footer: context {
+      if counter(page).get().first() > 1 [
+        #line(length: 100%, stroke: border-thin)
+        #v(0.2em)
+        #set text(size: size-small)
+        #let l-page = if "common" in locale and "page" in locale.common { locale.common.page } else { "Page" }
+        #grid(
+          columns: (1fr, auto, 1fr),
+          align: (left, center, right),
+          [#client_name],
+          [#l-page #counter(page).display()],
+          [#created_at]
+        )
+      ]
+    }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -110,12 +137,12 @@
       #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
       #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
 
-      // Logo (use passed logo parameter or load from company.logo)
+      // Logo (use passed logo parameter or pre-loaded _logo_image)
       #if logo != none [
         #logo
         #v(30pt)
-      ] else if company != none and "logo" in company and company.logo != none [
-        #image("/" + company.logo, width: 150pt)
+      ] else if "_logo_image" in company [
+        #company._logo_image
         #v(30pt)
       ]
 
