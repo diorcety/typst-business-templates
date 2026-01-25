@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.9] - 2025-01-25
+
+### Added
+- **Centralized Footer System** in `templates/common/footers.typ`
+  - `document-footer`: Standard 4-column footer for most document-layout templates
+  - `minimal-footer`: Simplified 3-column footer for protocol templates
+  - `accounting-footer`: Business-specific footer (reserved for invoice/offer)
+  - Reduces code duplication: -291 lines of duplicate footer code eliminated
+  - Single source of truth for footer styling and layout
+
+### Fixed
+- **Logo Loading in Package-Import Mode**
+  - Logo now displays correctly when using `#import "@local/docgen-documentation:0.4.9"`
+  - Fixed: Logo pre-loading (`_logo_image`) only worked in JSON-workflow mode
+  - Changed to direct `image()` loading from `company.logo` path
+  - Works in both package-import and JSON-workflow modes
+- **Footer Consistency Across Templates**
+  - All document-layout templates now use centralized footer functions
+  - Unified footer styling and layout across documentation, concept, protocol, specification, contract, proposal, sla
+
+### Changed
+- Updated all document-layout templates to use `common/footers.typ`:
+  - `documentation/default.typ`: Uses `document-footer` with created_at style
+  - `concept/default.typ`: Uses `document-footer` with created_at style
+  - `protocol/default.typ`: Uses `minimal-footer` (3-column)
+  - `specification/default.typ`: Uses `document-footer` with version/last_updated style
+  - `contract/default.typ`: Uses `document-footer` with created_at style
+  - `proposal/default.typ`: Uses `document-footer` with created_at style
+  - `sla/default.typ`: Uses `document-footer` with version/last_updated style
+
 ## [0.4.8] - 2025-01-25
 
 ### Fixed
