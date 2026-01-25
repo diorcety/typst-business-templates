@@ -10,14 +10,8 @@ class Docgen < Formula
   license "MIT"
 
   on_macos do
-    on_arm do
-      url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-aarch64-apple-darwin.tar.gz"
-      sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
-    end
-    on_intel do
-      url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-x86_64-apple-darwin.tar.gz"
-      sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
-    end
+    url "https://github.com/casoon/typst-business-templates/releases/download/v#{version}/docgen-x86_64-apple-darwin.tar.gz"
+    sha256 "5beb03e78e1f286c17d83f72bbba6d80cd18f6a9d7753540c61eefc958159e1a"
   end
 
   on_linux do
