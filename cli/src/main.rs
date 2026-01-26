@@ -3,7 +3,6 @@ mod embedded;
 mod encrypt;
 mod local_templates;
 mod locale;
-mod packages; // TODO: Remove (dead code)
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
@@ -345,15 +344,9 @@ fn handle_client(action: ClientAction) -> Result<()> {
             }
         }
         ClientAction::Add { name } => {
-            let name = match name {
-                Some(n) => n,
-                None => {
-                    use dialoguer::Input;
-                    Input::new()
-                        .with_prompt(t("common", "name"))
-                        .interact_text()?
-                }
-            };
+            let name = name.ok_or_else(|| {
+                anyhow::anyhow!("Name required. Usage: docgen client add --name \"Client Name\"")
+            })?;
 
             let new_client = NewClient {
                 name,
