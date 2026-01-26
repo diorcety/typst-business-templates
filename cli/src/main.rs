@@ -1,4 +1,5 @@
-mod db;
+mod data; // New JSON-based data layer
+mod db; // TODO: Remove after migration
 mod embedded;
 mod encrypt;
 mod local_templates;
@@ -13,7 +14,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
-use db::{Database, NewClient, NewProject};
+// Import new JSON-based stores
+use data::{ClientStore, CounterStore, NewClient, NewProject, ProjectStore};
+
+// TODO: Remove after migration to JSON stores
+use db::Database;
 use locale::{t, tf};
 use ui::InteractiveUI;
 
