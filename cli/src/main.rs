@@ -1,11 +1,9 @@
-mod data; // New JSON-based data layer
-mod db; // TODO: Remove after migration
+mod data;
 mod embedded;
 mod encrypt;
 mod local_templates;
 mod locale;
-mod packages;
-mod ui;
+mod packages; // TODO: Remove (dead code)
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
@@ -17,10 +15,7 @@ use walkdir::WalkDir;
 // Import new JSON-based stores
 use data::{ClientStore, CounterStore, NewClient, NewProject, ProjectStore};
 
-// TODO: Remove after migration to JSON stores
-use db::Database;
 use locale::{t, tf};
-use ui::InteractiveUI;
 
 #[derive(Parser)]
 #[command(name = "docgen")]
@@ -294,11 +289,20 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        // No command = interactive mode
+        // No command = show help (interactive mode removed for simplification)
         None => {
-            let db = Database::open_default()?;
-            let mut ui = InteractiveUI::new(db);
-            ui.run()
+            println!("docgen - Document generation tool\n");
+            println!("Usage: docgen <command>\n");
+            println!("Commands:");
+            println!("  compile <file>     Compile document to PDF");
+            println!("  build <dir>        Build all documents in directory");
+            println!("  watch <dir>        Watch and auto-rebuild");
+            println!("  client list        List all clients");
+            println!("  client add         Add new client");
+            println!("  project list       List projects for client");
+            println!("  template init      Initialize project templates");
+            println!("\nFor more help: docgen --help");
+            Ok(())
         }
         Some(Commands::Init { name }) => init_project(&name),
         Some(Commands::Compile {
@@ -317,11 +321,12 @@ fn main() -> Result<()> {
 }
 
 fn handle_client(action: ClientAction) -> Result<()> {
-    let db = Database::open_default()?;
+    let client_store = ClientStore::default();
+    let mut counter_store = CounterStore::default();
 
     match action {
         ClientAction::List => {
-            let clients = db.list_clients()?;
+            let clients = client_store.list()?;
             if clients.is_empty() {
                 println!("{}", t("client", "no_clients"));
                 println!("{}", t("client", "create_with"));
@@ -355,7 +360,7 @@ fn handle_client(action: ClientAction) -> Result<()> {
                 ..Default::default()
             };
 
-            let client = db.add_client(&new_client)?;
+            let client = client_store.add(new_client, &mut counter_store)?;
             println!(
                 "{} {}",
                 "✓".green(),
@@ -363,10 +368,13 @@ fn handle_client(action: ClientAction) -> Result<()> {
             );
         }
         ClientAction::Show { id } => {
-            let client_id = parse_client_id(&db, &id)?;
-            let client = db.get_client(client_id)?;
-            let projects = db.list_projects_for_client(client_id)?;
-            let documents = db.list_documents_for_client(client_id)?;
+            let client_id = parse_client_id_json(&client_store, &id)?;
+            let client = client_store
+                .get(client_id)?
+                .ok_or_else(|| anyhow::anyhow!("Client not found"))?;
+
+            let project_store = ProjectStore::default();
+            let projects = project_store.list_by_client(client_id)?;
 
             println!();
             println!(
@@ -392,31 +400,24 @@ fn handle_client(action: ClientAction) -> Result<()> {
                 }
             }
 
-            if !documents.is_empty() {
-                println!();
-                println!("{}:", t("document", "last_documents").bold());
-                for d in documents.iter().take(5) {
-                    println!(
-                        "  {} │ {} │ {}",
-                        d.doc_number,
-                        d.type_display(),
-                        d.status_display()
-                    );
-                }
-            }
+            // Note: Document tracking removed (was never used anyway)
         }
     }
     Ok(())
 }
 
 fn handle_project(action: ProjectAction) -> Result<()> {
-    let db = Database::open_default()?;
+    let client_store = ClientStore::default();
+    let project_store = ProjectStore::default();
+    let mut counter_store = CounterStore::default();
 
     match action {
         ProjectAction::List { client } => {
-            let client_id = parse_client_id(&db, &client)?;
-            let client = db.get_client(client_id)?;
-            let projects = db.list_projects_for_client(client_id)?;
+            let client_id = parse_client_id_json(&client_store, &client)?;
+            let client = client_store
+                .get(client_id)?
+                .ok_or_else(|| anyhow::anyhow!("Client not found"))?;
+            let projects = project_store.list_by_client(client_id)?;
 
             println!(
                 "{} - {}",
@@ -439,11 +440,13 @@ fn handle_project(action: ProjectAction) -> Result<()> {
             }
         }
         ProjectAction::Add { client, name } => {
-            let client_id = parse_client_id(&db, &client)?;
-            let client_data = db.get_client(client_id)?;
+            let client_id = parse_client_id_json(&client_store, &client)?;
+            let client_data = client_store
+                .get(client_id)?
+                .ok_or_else(|| anyhow::anyhow!("Client not found"))?;
 
             let new_project = NewProject::new(client_id, name);
-            let project = db.add_project(&new_project)?;
+            let project = project_store.add(new_project, &mut counter_store)?;
 
             println!(
                 "{} {}",
@@ -569,11 +572,12 @@ fn handle_template(action: TemplateAction) -> Result<()> {
     Ok(())
 }
 
-fn parse_client_id(db: &Database, input: &str) -> Result<i64> {
+// JSON-based client ID parser
+fn parse_client_id_json(store: &ClientStore, input: &str) -> Result<i64> {
     // Try direct number
     if let Ok(num) = input.parse::<i64>() {
         // Check if it's a client number or ID
-        let clients = db.list_clients()?;
+        let clients = store.list()?;
         if let Some(c) = clients.iter().find(|c| c.number == num || c.id == num) {
             return Ok(c.id);
         }
@@ -582,7 +586,7 @@ fn parse_client_id(db: &Database, input: &str) -> Result<i64> {
     // Try K-XXX format
     if input.to_uppercase().starts_with("K-") {
         if let Ok(num) = input[2..].parse::<i64>() {
-            let clients = db.list_clients()?;
+            let clients = store.list()?;
             if let Some(c) = clients.iter().find(|c| c.number == num) {
                 return Ok(c.id);
             }
