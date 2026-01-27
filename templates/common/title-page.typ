@@ -162,9 +162,15 @@
         row-gutter: 14pt,
         column-gutter: 20pt,
         align: (right, left),
-        ..metadata.pairs().map(((key, value)) => {
-          ([*#key:*], [#value])
-        }).flatten()
+        ..if type(metadata) == array {
+          // If metadata is an array of tuples, flatten it directly
+          metadata.flatten()
+        } else {
+          // If metadata is a dictionary, convert to array of tuples
+          metadata.pairs().map(((key, value)) => {
+            ([*#key:*], [#value])
+          }).flatten()
+        }
       )
     ]
   ]
