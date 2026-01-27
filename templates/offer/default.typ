@@ -152,7 +152,7 @@
 // Totals section (right-aligned)
 #invoice-totals(
   subtotal: data.totals.subtotal,
-  vat_breakdown: data.totals.vat_breakdown,
+  vat_breakdown: if "vat_breakdown" in data.totals { data.totals.vat_breakdown } else { () },
   total: data.totals.total,
 )
 

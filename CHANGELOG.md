@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.7] - 2026-01-27
+
+### Fixed
+- **Critical:** Made `vat_breakdown` optional in offer template
+  - Offers without VAT (e.g., international offers) now compile successfully
+  - Template now checks if `vat_breakdown` exists before accessing it
+  - Falls back to empty array `()` if not present
+  - Error: `dictionary does not contain key "vat_breakdown"`
+
 ## [0.6.6] - 2026-01-27
 
 ### Fixed
