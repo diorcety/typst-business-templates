@@ -40,7 +40,7 @@
 #set text(font: "Helvetica", size: 10pt, lang: "de")
 
 // Header with logo and metadata
-accounting-header(
+#accounting-header(
   company: company,
   metadata_content: timesheet-metadata(
     timesheet_number: data.metadata.timesheet_number,
@@ -51,7 +51,7 @@ accounting-header(
 )
 
 // Recipient/Client address - DIN 5008
-din5008-address-block(
+#din5008-address-block(
   company: company,
   recipient: if "client" in data { data.client } else { none },
 )

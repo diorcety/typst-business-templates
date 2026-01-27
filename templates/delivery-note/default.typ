@@ -21,7 +21,7 @@
 #set text(font: "Helvetica", size: 10pt, lang: "de")
 
 // Logo and metadata header
-accounting-header(
+#accounting-header(
   company: company,
   metadata_content: delivery-note-metadata(
     delivery_note_number: data.metadata.delivery_note_number,

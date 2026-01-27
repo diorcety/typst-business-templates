@@ -31,7 +31,7 @@
 // HEADER SECTION
 // ============================================================================
 
-accounting-header(
+#accounting-header(
   company: company,
   metadata_content: invoice-metadata(
     invoice_number: data.metadata.invoice_number,
@@ -46,7 +46,7 @@ accounting-header(
 // RECIPIENT ADDRESS (DIN 5008 position at y=160)
 // ============================================================================
 
-din5008-address-block(
+#din5008-address-block(
   company: company,
   recipient: data.recipient,
 )
@@ -158,7 +158,7 @@ din5008-address-block(
 #v(5pt)
 
 // Totals section (right-aligned)
-invoice-totals(
+#invoice-totals(
   subtotal: data.totals.subtotal,
   vat_breakdown: data.totals.vat_breakdown,
   total: data.totals.total,

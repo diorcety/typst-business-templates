@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.3] - 2026-01-27
+
+### Fixed
+- **Critical:** Fixed missing `#` prefix in accounting templates causing function calls to render as text
+  - Fixed `invoice/default.typ`: Added `#` to accounting-header, din5008-address-block, invoice-totals
+  - Fixed `offer/default.typ`: Added `#` to accounting-header, din5008-address-block, invoice-totals
+  - Fixed `delivery-note/default.typ`: Added `#` to accounting-header, din5008-address-block
+  - Fixed `reminder/default.typ`: Added `#` to accounting-header, din5008-address-block
+  - Fixed `time-sheet/default.typ`: Added `#` to accounting-header, din5008-address-block
+  - **Impact:** PDFs now display correctly with rendered headers, addresses, and totals instead of raw code
+
 ## [0.6.2] - 2026-01-27
 
 ### Fixed

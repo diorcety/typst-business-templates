@@ -21,7 +21,7 @@
 #set text(font: "Helvetica", size: 10pt, lang: "de")
 
 // Logo and Metadata
-accounting-header(
+#accounting-header(
   company: company,
   metadata_content: reminder-metadata(
     reminder_number: data.metadata.reminder_number,
@@ -31,7 +31,7 @@ accounting-header(
 )
 
 // Recipient address - DIN 5008
-din5008-address-block(
+#din5008-address-block(
   company: company,
   recipient: data.recipient,
 )
