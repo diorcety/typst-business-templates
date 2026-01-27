@@ -2,13 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.6.0] - 2026-01-26
+## [0.6.0] - 2026-01-27
 
-### 🎉 Major: Simplification - Unix Philosophy Edition
+### 🎉 Major: Simplification & Code Consolidation
 
 **Breaking Changes:** Complete architectural simplification following Unix philosophy.
 
-**Philosophy:** Do one thing well. Plain text over binary. Composable tools.
+**Philosophy:** Do one thing well. Plain text over binary. Composable tools. DRY (Don't Repeat Yourself).
 
 ### Removed
 - **SQLite database** → Replaced with JSON files (`data/clients.json`, `data/projects.json`, `data/counters.json`)
@@ -29,8 +29,23 @@ All notable changes to this project will be documented in this file.
 - **Git-friendly:** JSON files can be diff'd, merged, and version controlled
 
 ### Added
-- **Integration tests:** 11 test cases covering client and project operations
+- **New task-list template:** Professional task/todo list template with checklists, priorities, categories, dependencies
+- **Client/Project delete commands:** `docgen client delete <id>`, `docgen project delete <id>`
+- **6 reusable components in `templates/common/`:**
+  - `formatting.typ` - Date/money formatting (9 templates)
+  - `din5008-address.typ` - DIN 5008 address blocks (9 templates)
+  - `accounting-header.typ` - Logo + metadata box (9 templates)
+  - `unit-formatter.typ` - Unit translations (4 templates)
+  - `locale-helpers.typ` - Locale string resolution
+  - `totals-summary.typ` - Right-aligned totals (4 templates)
+- **4 title-page components:** standard, document, parties, enhanced (used by 9 templates)
+- **Integration tests:** 14 test cases covering client, project, and delete operations
 - **Simpler workflow:** Direct CLI commands integrate easily into scripts and AI workflows
+- **Code reduction:** ~1,200+ lines of duplicate code eliminated
+  - ~710 lines in Phase 1 (formatting, DIN 5008, headers)
+  - ~100 lines in Phase 2 (units, totals)
+  - ~425 lines (title pages)
+- **CLI refactoring:** Commands moved to `cli/src/commands/` module, main.rs reduced by 333 lines (-23%)
 
 ### Migration from v0.5.x
 **Note:** No migration tool needed - v0.6.0 had no production users.
