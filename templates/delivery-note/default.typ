@@ -3,112 +3,40 @@
 
 // Load data from JSON input
 #import "../common/footers.typ": accounting-footer
+#import "../common/formatting.typ": format_german_date
+#import "../common/din5008-address.typ": din5008-address-block-with-delivery
+#import "../common/accounting-header.typ": accounting-header, delivery-note-metadata
 #let data = json(sys.inputs.data)
 
 // Load company data
 #let company = json("/data/company.json")
-
-// Helper function to format date as DD.MM.YY
-#let format_german_date(date_obj) = {
-  let date_str = date_obj.date
-  let parts = date_str.split("-")
-  if parts.len() == 3 {
-    let year = parts.at(0).slice(2, 4)
-    let month = parts.at(1)
-    let day = parts.at(2)
-    day + "." + month + "." + year
-  } else {
-    date_str
-  }
-}
 
 #set page(
   paper: "a4",
   margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
 
   footer: accounting-footer(company: company)
-    )
-  ]
 )
 
 #set text(font: "Helvetica", size: 10pt, lang: "de")
 
-// Logo
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 0pt,
-  if "logo" in company and company.logo != none [
-    #image("/" + company.logo, width: 150pt)
-  ]
+// Logo and metadata header
+accounting-header(
+  company: company,
+  metadata_content: delivery-note-metadata(
+    delivery_note_number: data.metadata.delivery_note_number,
+    delivery_date: data.metadata.delivery_date,
+    order_reference: if "order_reference" in data.metadata { data.metadata.order_reference } else { none },
+    delivery_time: if "delivery_time" in data.metadata { data.metadata.delivery_time } else { none },
+  )
 )
 
-// Metadata
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 80pt,
-  block(width: 195pt)[
-    #set text(size: 8pt)
-    #set par(leading: 0.5em)
-
-    #text(weight: "bold")[Rückfragen an:]\
-    #company.name\
-    #if "phone" in company.contact and company.contact.phone != none [
-      #company.contact.phone\
-    ]
-    #if "email" in company.contact and company.contact.email != none [
-      #company.contact.email
-    ]
-
-    #v(5pt)
-
-    #set text(size: 10pt)
-    *Lieferschein-Nr.:* #data.metadata.delivery_note_number\
-    #if "order_reference" in data.metadata and data.metadata.order_reference != none [
-      *Bestell-Nr.:* #data.metadata.order_reference\
-    ]
-    *Lieferdatum:* #format_german_date(data.metadata.delivery_date)\
-    #if "delivery_time" in data.metadata and data.metadata.delivery_time != none [
-      *Lieferzeit:* #data.metadata.delivery_time\
-    ]
-  ]
+// DIN 5008 address block with delivery address support
+din5008-address-block-with-delivery(
+  company: company,
+  recipient: data.recipient,
+  delivery_address: if "delivery_address" in data { data.delivery_address } else { none },
 )
-
-// Recipient address - DIN 5008
-#v(77.5pt)
-
-#block(height: 20pt)[
-  #set text(size: 8pt, font: "Helvetica")
-  #if "business_owner" in company and company.business_owner != none [
-    #company.business_owner · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ] else [
-    #company.name · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ]
-]
-
-// Delivery address (can be different from billing address)
-#block(height: 120pt)[
-  #set text(size: 12pt, font: "Helvetica")
-
-  #if "delivery_address" in data and data.delivery_address != none [
-    #if "company" in data.delivery_address and data.delivery_address.company != none [
-      #data.delivery_address.company\
-    ]
-    #if "name" in data.delivery_address [
-      #data.delivery_address.name\
-    ]
-    #data.delivery_address.address.street #data.delivery_address.address.house_number\
-    #data.delivery_address.address.postal_code #data.delivery_address.address.city
-  ] else [
-    #data.recipient.name\
-    #if "company" in data.recipient and data.recipient.company != none [
-      #data.recipient.company\
-    ]
-    #data.recipient.address.street #data.recipient.address.house_number\
-    #data.recipient.address.postal_code #data.recipient.address.city
-  ]
-]
 
 // Title
 #block[

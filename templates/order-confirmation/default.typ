@@ -3,119 +3,39 @@
 
 // Load data from JSON input
 #import "../common/footers.typ": accounting-footer
+#import "../common/formatting.typ": format_german_date, format_money
+#import "../common/din5008-address.typ": din5008-address-block
+#import "../common/accounting-header.typ": accounting-header, order-confirmation-metadata
 #let data = json(sys.inputs.data)
 
 // Load company data
 #let company = json("/data/company.json")
-
-// Helper function to format date as DD.MM.YY
-#let format_german_date(date_obj) = {
-  let date_str = date_obj.date
-  let parts = date_str.split("-")
-  if parts.len() == 3 {
-    let year = parts.at(0).slice(2, 4)
-    let month = parts.at(1)
-    let day = parts.at(2)
-    day + "." + month + "." + year
-  } else {
-    date_str
-  }
-}
-
-// Helper function to format money
-#let format_money(amount) = {
-  let str_amount = str(amount)
-  if str_amount.contains(".") {
-    let parts = str_amount.split(".")
-    let integer_part = parts.at(0)
-    let decimal_part = parts.at(1)
-    if decimal_part.len() == 1 {
-      integer_part + "," + decimal_part + "0"
-    } else if decimal_part.len() >= 2 {
-      integer_part + "," + decimal_part.slice(0, 2)
-    } else {
-      integer_part + ",00"
-    }
-  } else {
-    str_amount + ",00"
-  }
-}
 
 #set page(
   paper: "a4",
   margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
 
   footer: accounting-footer(company: company)
-    )
-  ]
 )
 
 #set text(font: "Helvetica", size: 10pt, lang: "de")
 
-// Logo
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 0pt,
-  if "logo" in company and company.logo != none [
-    #image("/" + company.logo, width: 150pt)
-  ]
-)
-
-// Metadata
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 80pt,
-  block(width: 195pt)[
-    #set text(size: 8pt)
-    #set par(leading: 0.5em)
-
-    #text(weight: "bold")[Rückfragen an:]\
-    #company.name\
-    #if "phone" in company.contact and company.contact.phone != none [
-      #company.contact.phone\
-    ]
-    #if "email" in company.contact and company.contact.email != none [
-      #company.contact.email
-    ]
-
-    #v(5pt)
-
-    #set text(size: 10pt)
-    *AB-Nr.:* #data.metadata.confirmation_number\
-    #if "order_reference" in data.metadata and data.metadata.order_reference != none [
-      *Ihre Bestellung:* #data.metadata.order_reference\
-    ]
-    *Datum:* #format_german_date(data.metadata.date)\
-    #if "delivery_date" in data.metadata and data.metadata.delivery_date != none [
-      *Liefertermin:* #format_german_date(data.metadata.delivery_date)\
-    ]
-  ]
+// Logo and metadata
+#accounting-header(
+  company: company,
+  metadata_content: order-confirmation-metadata(
+    confirmation_number: data.metadata.confirmation_number,
+    confirmation_date: data.metadata.confirmation_date,
+    order_number: data.metadata.order_number,
+    expected_delivery: if "expected_delivery" in data.metadata { data.metadata.expected_delivery } else { none },
+  )
 )
 
 // Recipient address - DIN 5008
-#v(77.5pt)
-
-#block(height: 20pt)[
-  #set text(size: 8pt, font: "Helvetica")
-  #if "business_owner" in company and company.business_owner != none [
-    #company.business_owner · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ] else [
-    #company.name · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ]
-]
-
-#block(height: 120pt)[
-  #set text(size: 12pt, font: "Helvetica")
-
-  #if "company" in data.recipient and data.recipient.company != none [
-    #data.recipient.company\
-  ]
-  #data.recipient.name\
-  #data.recipient.address.street #data.recipient.address.house_number\
-  #data.recipient.address.postal_code #data.recipient.address.city
-]
+#din5008-address-block(
+  company: company,
+  recipient: data.recipient,
+)
 
 // Title and intro
 #block[

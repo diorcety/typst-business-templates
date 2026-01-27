@@ -2,47 +2,15 @@
 // Based on casoon-documents simple.typ template
 
 #import "../common/footers.typ": accounting-footer
+#import "../common/formatting.typ": format_german_date, format_money
+#import "../common/din5008-address.typ": din5008-address-block
+#import "../common/accounting-header.typ": accounting-header, invoice-metadata
 
 // Load data from JSON input
 #let data = json(sys.inputs.data)
 
 // Load company data
 #let company = json("/data/company.json")
-
-// Helper function to format date as DD.MM.YY
-#let format_german_date(date_obj) = {
-  let date_str = date_obj.date
-  let parts = date_str.split("-")
-  if parts.len() == 3 {
-    let year = parts.at(0).slice(2, 4)  // Get last 2 digits of year
-    let month = parts.at(1)
-    let day = parts.at(2)
-    day + "." + month + "." + year
-  } else {
-    date_str
-  }
-}
-
-// Helper function to format money with 2 decimal places and comma
-#let format_money(amount) = {
-  let str_amount = str(amount)
-  // Check if already has decimal point
-  if str_amount.contains(".") {
-    let parts = str_amount.split(".")
-    let integer_part = parts.at(0)
-    let decimal_part = parts.at(1)
-    // Pad or truncate to 2 decimals
-    if decimal_part.len() == 1 {
-      integer_part + "," + decimal_part + "0"
-    } else if decimal_part.len() >= 2 {
-      integer_part + "," + decimal_part.slice(0, 2)
-    } else {
-      integer_part + ",00"
-    }
-  } else {
-    str_amount + ",00"
-  }
-}
 
 #set page(
   paper: "a4",
@@ -61,92 +29,25 @@
 // HEADER SECTION
 // ============================================================================
 
-// Logo (right side at x=350, y=50)
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 0pt,
-  if "logo" in company and company.logo != none [
-    #image("/" + company.logo, width: 150pt)
-  ] else [
-    #box(
-      width: 150pt,
-      height: 50pt,
-      stroke: 1pt + luma(200),
-      inset: 10pt,
-      radius: 4pt,
-    )[
-      #align(center + horizon)[
-        #text(size: 8pt, fill: luma(150))[Logo hinzufügen in\ company.json]
-      ]
-    ]
-  ]
-)
-
-// Invoice metadata (right side, below logo at x=350)
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 80pt,
-  block(width: 195pt)[
-    #set text(size: 8pt)
-    #set par(leading: 0.5em)
-    #set align(left)
-
-    #text(weight: "bold")[Rückfragen an:]\
-    #company.name\
-    #if "phone" in company.contact and company.contact.phone != none [
-      #company.contact.phone\
-    ]
-    #if "email" in company.contact and company.contact.email != none [
-      #company.contact.email
-    ]
-
-    #v(5pt)
-
-    #set text(size: 10pt)
-    #set par(leading: 0.6em)
-    *Rechnungs-Nr.:* #data.metadata.invoice_number\
-    #if "customer_number" in data.metadata and data.metadata.customer_number != none [
-      *Kunden-Nr.:* #data.metadata.customer_number\
-    ]
-    *Rechnungsdatum:* #format_german_date(data.metadata.invoice_date)\
-    #if "performance_period" in data.metadata and data.metadata.performance_period != none [
-      *Leistungszeitraum:* #data.metadata.performance_period\
-    ]
-  ]
+accounting-header(
+  company: company,
+  metadata_content: invoice-metadata(
+    invoice_number: data.metadata.invoice_number,
+    invoice_date: data.metadata.invoice_date,
+    customer_number: if "customer_number" in data.metadata { data.metadata.customer_number } else { none },
+    performance_period: if "performance_period" in data.metadata { data.metadata.performance_period } else { none },
+    due_date: if "due_date" in data.metadata { data.metadata.due_date } else { none },
+  )
 )
 
 // ============================================================================
 // RECIPIENT ADDRESS (DIN 5008 position at y=160)
 // ============================================================================
 
-// DIN 5008: Recipient address at y=127.5pt (45mm from top)
-// Sender line 20pt above recipient address
-// Current: top margin 50pt + v(77.5pt) = 127.5pt ≈ 45mm
-#v(77.5pt)
-
-// Sender line (small, above recipient) - DIN 5008
-#block(height: 20pt)[
-  #set text(size: 8pt, font: "Helvetica")
-  #if "business_owner" in company and company.business_owner != none [
-    #company.business_owner · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ] else [
-    #company.name · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ]
-]
-
-// Recipient address - DIN 5008
-#block(height: 120pt)[
-  #set text(size: 12pt, font: "Helvetica")
-
-  #data.recipient.name\
-  #if "company" in data.recipient and data.recipient.company != none and data.recipient.company != data.recipient.name [
-    #data.recipient.company\
-  ]
-  #data.recipient.address.street #data.recipient.address.house_number\
-  #data.recipient.address.postal_code #data.recipient.address.city
-]
+din5008-address-block(
+  company: company,
+  recipient: data.recipient,
+)
 
 // ============================================================================
 // SALUTATION SECTION

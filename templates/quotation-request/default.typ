@@ -3,106 +3,44 @@
 
 // Load data from JSON input
 #import "../common/footers.typ": accounting-footer
+#import "../common/formatting.typ": format_german_date
+#import "../common/din5008-address.typ": din5008-address-block
+#import "../common/accounting-header.typ": accounting-header, quotation-request-metadata
 #let data = json(sys.inputs.data)
 
 // Load company data
 #let company = json("/data/company.json")
 
-// Helper function to format date as DD.MM.YY
-#let format_german_date(date_obj) = {
-  let date_str = date_obj.date
-  let parts = date_str.split("-")
-  if parts.len() == 3 {
-    let year = parts.at(0).slice(2, 4)
-    let month = parts.at(1)
-    let day = parts.at(2)
-    day + "." + month + "." + year
-  } else {
-    date_str
-  }
-}
-
 #set page(
   paper: "a4",
   margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
-
   footer: accounting-footer(company: company)
-    )
-  ]
 )
 
 #set text(font: "Helvetica", size: 10pt, lang: "de")
 
-// Logo
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 0pt,
-  if "logo" in company and company.logo != none [
-    #image("/" + company.logo, width: 150pt)
-  ]
-)
-
-// Metadata
-#place(
-  right + top,
-  dx: 0pt,
-  dy: 80pt,
-  block(width: 195pt)[
-    #set text(size: 8pt)
-    #set par(leading: 0.5em)
-
-    #text(weight: "bold")[Rückfragen an:]\
-    #company.name\
-    #if "phone" in company.contact and company.contact.phone != none [
-      #company.contact.phone\
-    ]
-    #if "email" in company.contact and company.contact.email != none [
-      #company.contact.email
-    ]
-
-    #v(5pt)
-
-    #set text(size: 10pt)
-    *Anfrage-Nr.:* #data.metadata.request_number\
-    *Datum:* #format_german_date(data.metadata.date)\
-    #if "response_deadline" in data.metadata and data.metadata.response_deadline != none [
-      *Antwort bis:* #format_german_date(data.metadata.response_deadline)\
-    ]
-    #if "project_reference" in data.metadata and data.metadata.project_reference != none [
+// Header with logo and metadata
+#accounting-header(
+  company: company,
+  metadata_content: {
+    quotation-request-metadata(
+      request_number: data.metadata.request_number,
+      request_date: data.metadata.date,
+      response_deadline: if "response_deadline" in data.metadata { data.metadata.response_deadline } else { none },
+    )
+    
+    // Add project reference if present
+    if "project_reference" in data.metadata and data.metadata.project_reference != none [
       *Projekt:* #data.metadata.project_reference\
     ]
-  ]
+  }
 )
 
-// Recipient address - DIN 5008
-#v(77.5pt)
-
-#block(height: 20pt)[
-  #set text(size: 8pt, font: "Helvetica")
-  #if "business_owner" in company and company.business_owner != none [
-    #company.business_owner · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ] else [
-    #company.name · #company.address.street #company.address.house_number · #company.address.postal_code #company.address.city
-  ]
-]
-
-#block(height: 120pt)[
-  #set text(size: 12pt, font: "Helvetica")
-
-  #if "supplier" in data and data.supplier != none [
-    #if "company" in data.supplier and data.supplier.company != none [
-      #data.supplier.company\
-    ]
-    #if "name" in data.supplier and data.supplier.name != none [
-      #data.supplier.name\
-    ]
-    #if "address" in data.supplier [
-      #data.supplier.address.street #data.supplier.address.house_number\
-      #data.supplier.address.postal_code #data.supplier.address.city
-    ]
-  ]
-]
+// DIN 5008 address block
+#din5008-address-block(
+  company: company,
+  recipient: if "supplier" in data { data.supplier } else { none },
+)
 
 // Title and intro
 #block[
