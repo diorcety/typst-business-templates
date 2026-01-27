@@ -55,7 +55,7 @@
       
       // VAT breakdown
       #for vat in vat_breakdown {
-        #rows.push(([#l-vat (#vat.rate.percentage%):], [#format_money(vat.amount.amount) EUR]))
+        rows.push(([#l-vat (#vat.rate.percentage%):], [#format_money(vat.amount.amount) EUR]))
       }
       
       // Total

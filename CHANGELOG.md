@@ -2,15 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.6] - 2026-01-27
+
+### Fixed
+- **Critical:** Fixed incorrect `#` prefix inside for-loop in `totals-summary.typ`
+  - Removed `#` from `rows.push()` inside `#for` loop body (line 58)
+  - **Context:** Typst `#for { }` creates a code block where `#` is NOT allowed
+  - **Impact:** Invoices and offers now compile successfully
+  - Error: `the character # is not valid in code` at line 58
+
 ## [0.6.5] - 2026-01-27
 
 ### Fixed
-- **Critical:** Fixed missing `#` prefix in `totals-summary.typ` for code inside content blocks
-  - Added `#` to `for vat in vat_breakdown` (line 57) → `#for vat in vat_breakdown`
-  - Added `#` to all `rows.push()` calls (lines 54, 58, 62)
-  - **Context:** Typst requires `#` prefix for code statements inside `[...]` content blocks
-  - **Impact:** Invoices and offers now compile successfully with VAT breakdown
-  - Error: `unknown variable: vat` was caused by missing `#` prefix
+- **Partial Fix:** Added `#` to code inside content blocks, but incorrectly added it inside for-loop body
+  - Note: v0.6.5 introduced a new error. Upgrade to v0.6.6 for complete fix
 
 ## [0.6.4] - 2026-01-27
 
