@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.8] - 2026-01-27
+
+### Fixed
+- **Critical:** Fixed missing `#` prefix in `standard-title-page` subtitle rendering
+  - `v(10pt)`, `align(center)` and `text(...)` were rendered as plain text instead of being executed as Typst functions
+  - Added `#` prefix to all function calls inside the content block
+  - **Impact:** Task list and other templates using `subtitle` now display correctly instead of showing raw code
+  - Error: `v(10pt) align(center)[ text(size: size-large, fill: color-text-light)[...] ]` visible in PDF
+
 ## [0.6.7] - 2026-01-27
 
 ### Fixed

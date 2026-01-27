@@ -60,9 +60,9 @@
   ]
   
   if subtitle != none [
-    v(10pt)
-    align(center)[
-      text(size: size-large, fill: color-text-light)[#subtitle]
+    #v(10pt)
+    #align(center)[
+      #text(size: size-large, fill: color-text-light)[#subtitle]
     ]
   ]
   
