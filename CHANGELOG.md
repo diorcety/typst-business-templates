@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.4] - 2026-01-27
+
+### Fixed
+- **Critical:** Fixed syntax error in `totals-summary.typ` causing invoice/offer compilation to fail
+  - Changed `for vat in vat_breakdown [` to `for vat in vat_breakdown {` (line 57)
+  - Changed closing `]` to `}` (line 59)
+  - **Impact:** Invoices and offers now compile successfully with VAT breakdown
+  - Error: `unknown variable: vat` due to incorrect for-loop syntax
+
 ## [0.6.3] - 2026-01-27
 
 ### Fixed
