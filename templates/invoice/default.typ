@@ -5,6 +5,8 @@
 #import "../common/formatting.typ": format_german_date, format_money
 #import "../common/din5008-address.typ": din5008-address-block
 #import "../common/accounting-header.typ": accounting-header, invoice-metadata
+#import "../common/unit-formatter.typ": format-unit
+#import "../common/totals-summary.typ": invoice-totals
 
 // Load data from JSON input
 #let data = json(sys.inputs.data)
@@ -118,14 +120,7 @@ din5008-address-block(
       [#item.position],
       [#item.description],
       [#item.quantity],
-      {
-        if item.unit == "monat" [Monat]
-        else if item.unit == "stunde" [Std.]
-        else if item.unit == "stueck" [Stk.]
-        else if item.unit == "tag" [Tag]
-        else if item.unit == "pauschale" [Psch.]
-        else [#item.unit]
-      },
+      format-unit(item.unit),
       [#item.vat_rate.percentage%],
       [#format_money(item.unit_price.amount)],
       [#text(weight: "bold")[#format_money(item.total.amount)]],
@@ -163,33 +158,11 @@ din5008-address-block(
 #v(5pt)
 
 // Totals section (right-aligned)
-#align(right)[
-  #set text(size: 10pt, font: "Helvetica")
-
-  #if data.totals.vat_breakdown.len() > 0 [
-    #grid(
-      columns: (100pt, 80pt),
-      align: (right, right),
-      row-gutter: 10pt,
-
-      [Nettobetrag:], [#format_money(data.totals.subtotal.amount) EUR],
-      [MwSt. (#data.totals.vat_breakdown.at(0).rate.percentage%):], [#format_money(data.totals.vat_breakdown.at(0).amount.amount) EUR],
-      [#set text(size: 11pt)
-       #text(weight: "bold")[Gesamtbetrag:]], [#set text(size: 11pt)
-                                  #text(weight: "bold")[#format_money(data.totals.total.amount) EUR]],
-    )
-  ] else [
-    #grid(
-      columns: (100pt, 80pt),
-      align: (right, right),
-      row-gutter: 10pt,
-
-      [#set text(size: 11pt)
-       #text(weight: "bold")[Gesamtbetrag:]], [#set text(size: 11pt)
-                                  #text(weight: "bold")[#format_money(data.totals.total.amount) EUR]],
-    )
-  ]
-]
+invoice-totals(
+  subtotal: data.totals.subtotal,
+  vat_breakdown: data.totals.vat_breakdown,
+  total: data.totals.total,
+)
 
 #v(5pt)
 

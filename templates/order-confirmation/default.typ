@@ -6,6 +6,8 @@
 #import "../common/formatting.typ": format_german_date, format_money
 #import "../common/din5008-address.typ": din5008-address-block
 #import "../common/accounting-header.typ": accounting-header, order-confirmation-metadata
+#import "../common/unit-formatter.typ": format-unit
+#import "../common/totals-summary.typ": invoice-totals
 #let data = json(sys.inputs.data)
 
 // Load company data
@@ -99,12 +101,7 @@
         #item.description
       ],
       [#item.quantity],
-      {
-        if item.unit == "stueck" [Stk.]
-        else if item.unit == "stunde" [Std.]
-        else if item.unit == "tag" [Tag]
-        else [#item.unit]
-      },
+      [#format-unit(item.unit)],
       [#format_money(item.unit_price.amount) EUR],
       [#text(weight: "bold")[#format_money(item.total.amount) EUR]],
     )
@@ -118,21 +115,11 @@
 #v(5pt)
 
 // Totals
-#align(right)[
-  #set text(size: 10pt, font: "Helvetica")
-
-  #if data.totals.vat_breakdown.len() > 0 [
-    #grid(
-      columns: (100pt, 80pt),
-      align: (right, right),
-      row-gutter: 10pt,
-
-      [Nettobetrag:], [#format_money(data.totals.subtotal.amount) EUR],
-      [MwSt. (#data.totals.vat_breakdown.at(0).rate.percentage%):], [#format_money(data.totals.vat_breakdown.at(0).amount.amount) EUR],
-      [#text(weight: "bold", size: 11pt)[Gesamtbetrag:]], [#text(weight: "bold", size: 11pt)[#format_money(data.totals.total.amount) EUR]],
-    )
-  ]
-]
+#invoice-totals(
+  subtotal: data.totals.subtotal,
+  vat_breakdown: data.totals.vat_breakdown,
+  total: data.totals.total,
+)
 
 #v(10pt)
 

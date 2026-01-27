@@ -5,6 +5,8 @@
 #import "../common/din5008-address.typ": din5008-address-block
 #import "../common/accounting-header.typ": accounting-header, offer-metadata
 #import "../common/footers.typ": accounting-footer
+#import "../common/unit-formatter.typ": format-unit
+#import "../common/totals-summary.typ": invoice-totals
 
 // Load data from input parameter
 #let data = json(sys.inputs.data)
@@ -111,14 +113,7 @@ din5008-address-block(
         #item.description
       ],
       [#item.quantity],
-      {
-        if item.unit == "monat" [Monat]
-        else if item.unit == "stunde" [Std.]
-        else if item.unit == "stueck" [Stk.]
-        else if item.unit == "tag" [Tag]
-        else if item.unit == "pauschale" [Psch.]
-        else [#item.unit]
-      },
+      [#format-unit(item.unit)],
       [#format_money(item.unit_price.amount) EUR],
       [#text(weight: "bold")[#format_money(item.total.amount) EUR]],
     )
@@ -155,19 +150,11 @@ din5008-address-block(
 #v(5pt)
 
 // Totals section (right-aligned)
-#align(right)[
-  #set text(size: 10pt, font: "Helvetica")
-
-  #grid(
-    columns: (120pt, 100pt),
-    align: (right, right),
-    row-gutter: 10pt,
-
-    [#set text(size: 11pt)
-     #text(weight: "bold")[Gesamtbetrag (netto):]], [#set text(size: 11pt)
-                                #text(weight: "bold")[#format_money(data.totals.total.amount) EUR]],
-  )
-]
+invoice-totals(
+  subtotal: data.totals.subtotal,
+  vat_breakdown: data.totals.vat_breakdown,
+  total: data.totals.total,
+)
 
 #v(5pt)
 
