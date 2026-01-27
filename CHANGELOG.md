@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.11] - 2026-01-27
+
+### Changed
+- **Task-list template:** Description now renders inline after title with ` -- ` separator
+  - Previously: Description on separate line with vertical spacing
+  - Now: Compact inline display, reducing visual clutter
+
 ## [0.6.10] - 2026-01-27
 
 ### Added
