@@ -4,6 +4,7 @@
 
 #import "../common/styles.typ": *
 #import "../common/footers.typ": document-footer
+#import "../common/title-page.typ": document-title-page
 
 // Document function
 #let specification(
@@ -140,72 +141,54 @@
   // TITLE PAGE
   // ============================================================================
 
+  // Extract locale labels
+  let spec-label = if "specification" in locale and locale.specification != none and "document_type" in locale.specification {
+    locale.specification.document_type
+  } else {
+    "SPEZIFIKATION"
+  }
+
+  // Build metadata dictionary
+  let metadata-dict = (:)
+  if project_name != none {
+    metadata-dict.insert("Projekt", project_name)
+  }
+  if client_name != none {
+    metadata-dict.insert("Auftraggeber", client_name)
+  }
+  metadata-dict.insert("Version", version)
+  metadata-dict.insert("Status", text(fill: accent-color, weight: "bold")[#upper(status)])
+  if subject != none {
+    metadata-dict.insert("Betreff", subject)
+  }
+  if created_at != none {
+    metadata-dict.insert("Erstellt", created_at)
+  }
+  if last_updated != none {
+    metadata-dict.insert("Aktualisiert", last_updated)
+  }
+  if authors.len() > 0 {
+    metadata-dict.insert("Autoren", authors.join(", "))
+  }
+
   page(
     margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
     header: none,
     footer: none,
   )[
-    #align(center)[
-      #v(50pt)
-
-      // Logo
-      #if logo != none [
-        #logo
-        #v(30pt)
-      ] else if "_logo_image" in company [
-        #company._logo_image
-        #v(30pt)
-      ]
-
-      // Title
-      #text(size: 24pt, weight: "bold")[#title]
-
-      #v(20pt)
-
-      // Document type
-      #text(size: size-xlarge, fill: accent-color, weight: "bold")[SPEZIFIKATION]
-      #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
-
-      #v(30pt)
-
-      // Metadata grid
-      #grid(
-        columns: (auto, auto),
-        column-gutter: 20pt,
-        row-gutter: 14pt,
-        align: (right, left),
-
-        ..if project_name != none {
-          ([*Projekt:*], [#project_name])
-        } else { () },
-        ..if client_name != none {
-          ([*Auftraggeber:*], [#client_name])
-        } else { () },
-        [*Version:*], [#version],
-        [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
-        ..if created_at != none {
-          ([*Erstellt:*], [#created_at])
-        } else { () },
-        ..if last_updated != none {
-          ([*Aktualisiert:*], [#last_updated])
-        } else { () },
-        ..if authors.len() > 0 {
-          ([*Autoren:*], [#authors.join(", ")])
-        } else { () },
-      )
-
-      #v(1fr)
-
-      // Tags
-      #if tags.len() > 0 [
-        #for tag in tags [
-          #pill(tag)
-          #h(8pt)
-        ]
-        #v(40pt)
-      ]
-    ]
+    #document-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: spec-label,
+      document-number: document_number,
+      accent-color: accent-color,
+      metadata: metadata-dict,
+      tags: tags,
+    )
   ]
+
+  pagebreak()
 
   // ============================================================================
   // REVISION HISTORY (optional)

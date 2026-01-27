@@ -4,6 +4,7 @@
 
 #import "../common/styles.typ": *
 #import "../common/footers.typ": document-footer
+#import "../common/title-page.typ": enhanced-title-page
 
 // Document function
 #let proposal(
@@ -58,8 +59,6 @@
       created_at: created_at,
       status: status,
     )
-      )
-    ]
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -102,84 +101,44 @@
     header: none,
     footer: none,
   )[
-    #align(center)[
-      #v(50pt)
+    #enhanced-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: "PROJEKTVORSCHLAG",
+      document-number: document_number,
+      accent-color: accent-color,
+      info-box-content: align(left)[
+        #grid(
+          columns: (auto, auto),
+          column-gutter: 30pt,
+          row-gutter: 14pt,
+          align: (right, left),
 
-      // Logo
-      #if logo != none [
-        #logo
-        #v(30pt)
-      ] else if "_logo_image" in company [
-        #company._logo_image
-        #v(30pt)
-      ]
-
-      // Title
-      #text(size: 28pt, weight: "bold")[#title]
-
-      #v(20pt)
-
-      // Proposal type
-      #text(size: size-xlarge, fill: accent-color, weight: "bold")[PROJEKTVORSCHLAG]
-      #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
-
-      #v(40pt)
-
-      // Key information box
-      #box(
-        width: 85%,
-        stroke: border-normal + accent-color,
-        radius: 6pt,
-        inset: 1.5em,
-        fill: color-background,
-      )[
-        #align(left)[
-          #grid(
-            columns: (auto, auto),
-            column-gutter: 30pt,
-            row-gutter: 14pt,
-            align: (right, left),
-
-            [*Projekt:*], [#text(size: size-large, weight: "bold")[#project_name]],
-            [*Auftraggeber:*], [#client_name],
-            ..if budget != none {
-              ([*Budget:*], [#text(fill: accent-color, weight: "bold")[#budget]])
-            } else { () },
-            ..if timeline != none {
-              ([*Zeitrahmen:*], [#timeline])
-            } else { () },
-            [*Version:*], [#version],
-            [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
-            ..if created_at != none {
-              ([*Datum:*], [#created_at])
-            } else { () },
-            ..if valid_until != none {
-              ([*Gültig bis:*], [#valid_until])
-            } else { () },
-          )
-        ]
-      ]
-
-      #v(1fr)
-
-      // Tags
-      #if tags.len() > 0 [
-        #for tag in tags [
-          #pill(tag)
-          #h(8pt)
-        ]
-        #v(30pt)
-      ]
-
-      // Authors
-      #if authors.len() > 0 [
-        #text(size: size-small, fill: color-text-light)[
-          Erstellt von: #authors.join(", ")
-        ]
-        #v(30pt)
-      ]
-    ]
+          [*Projekt:*], [#text(size: size-large, weight: "bold")[#project_name]],
+          [*Auftraggeber:*], [#client_name],
+          ..if budget != none {
+            ([*Budget:*], [#text(fill: accent-color, weight: "bold")[#budget]])
+          } else { () },
+          ..if timeline != none {
+            ([*Zeitrahmen:*], [#timeline])
+          } else { () },
+          [*Version:*], [#version],
+          [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
+          ..if created_at != none {
+            ([*Datum:*], [#created_at])
+          } else { () },
+          ..if valid_until != none {
+            ([*Gültig bis:*], [#valid_until])
+          } else { () },
+        )
+      ],
+      tags: tags,
+      authors: if authors.len() > 0 { "Erstellt von: " + authors.join(", ") } else { none },
+    )
   ]
+  
+  pagebreak()
 
   // ============================================================================
   // TABLE OF CONTENTS

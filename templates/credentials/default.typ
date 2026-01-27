@@ -2,6 +2,7 @@
 // Based on casoon-documents structure
 
 #import "../common/styles.typ": *
+#import "../common/title-page.typ": standard-title-page
 
 // Load data from JSON input (only if available)
 #let data = if "data" in sys.inputs {
@@ -117,59 +118,15 @@
 // TITLE PAGE
 // ============================================================================
 
-#v(50pt)
+// Build metadata dictionary
+#let meta = (
+  (l-project, data.metadata.project_name),
+  (l-client, data.metadata.client_name),
+  (l-date, data.metadata.created_at.date),
+)
 
-// Logo (use pre-loaded _logo_image from JSON workflow)
-#align(center)[
-  #if "_logo_image" in company [
-    #company._logo_image
-  ] else [
-    #box(
-      stroke: 1pt + color-border,
-      inset: 1em,
-      radius: 4pt,
-    )[
-      #text(size: size-xlarge, fill: color-text-light)[LOGO]
-    ]
-  ]
-]
-
-#v(30pt)
-
-// Document title
-#align(center)[
-  #text(size: size-title, weight: "bold")[#data.metadata.title]
-]
-
-#v(20pt)
-
-// Document type and number
-#align(center)[
-  #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(l-title)]
-  #text(size: size-xlarge, fill: color-text-light)[
-    · #data.metadata.document_number
-  ]
-]
-
-#v(30pt)
-
-// Metadata
-#align(center)[
-  #grid(
-    columns: (auto, auto),
-    row-gutter: 14pt,
-    column-gutter: 20pt,
-    align: (right, left),
-    [*#l-project:*], [#data.metadata.project_name],
-    [*#l-client:*], [#data.metadata.client_name],
-    [*#l-date:*], [#data.metadata.created_at.date],
-  )
-]
-
-#v(1fr)
-
-// Security warning
-#align(center)[
+// Security warning box (credentials-specific custom content)
+#let security-box = align(center)[
   #box(
     stroke: 1.5pt + accent-color,
     radius: 6pt,
@@ -181,14 +138,24 @@
         #upper(l-confidential)
       ]
       #v(0.3em)
-      #text(size: size-small)[
+      #text(size: size-small, fill: color-text-light)[
         #l-confidential-notice
       ]
     ]
   ]
 ]
 
-#v(30pt)
+// Render standard title page with credentials-specific customization
+#standard-title-page(
+  company: company,
+  title: data.metadata.title,
+  subtitle: none,
+  document-type: l-title,
+  document-number: data.metadata.document_number,
+  accent-color: accent-color,
+  metadata: meta,
+  custom-content: security-box,
+)
 
 // Tags as outlined pills
 #if "tags" in data.metadata and data.metadata.tags.len() > 0 [

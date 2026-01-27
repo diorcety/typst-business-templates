@@ -53,8 +53,8 @@ An AI assistant (we recommend [Claude](https://claude.ai)) generates the JSON, y
 - **Credentials Template** - Secure access documentation for clients
 - **Concept Template** - Project concepts and proposals
 - **Documentation Template** - Technical documentation, API docs, project docs
-- **Interactive CLI** - Manage clients, projects, and create documents
-- **SQLite Database** - Automatic numbering, client/project management
+- **Simple CLI** - Manage clients, projects, and create documents
+- **JSON Data Storage** - Human-readable data files with automatic numbering
 - **Direct .typ File Support** - Write documents directly in Typst without JSON
 - **Project-Local Templates** - Standard templates auto-update, fork for customization
 - **Watch Mode** - Auto-rebuild on file changes
@@ -122,8 +122,11 @@ cd my-business
 # Edit your company data
 nano data/company.json
 
-# Start interactive mode
-docgen
+# Add a client
+docgen client add --name "Acme Corp"
+
+# See all commands
+docgen --help
 ```
 
 ## Direct .typ File Support & Templates
@@ -256,28 +259,30 @@ docgen template update
 
 ## Workflow Options
 
-### Option 1: Interactive CLI
+### Option 1: Direct CLI Commands
 
-Run `docgen` for a full-featured terminal UI:
+Simple, direct commands for managing your business data:
 
+```bash
+# Manage clients
+docgen client list
+docgen client add --name "Acme Corp" --company "Acme Corporation GmbH"
+docgen client show K-001
+
+# Manage projects
+docgen project list K-001
+docgen project add K-001 "Website Redesign"
+
+# Compile documents
+docgen compile documents/invoices/RE-2025-001.json
+docgen build documents/invoices/2025/
+docgen watch documents/
 ```
-╔═══════════════════════════════════════════════════════╗
-║  DOCGEN - Document Management                         ║
-╚═══════════════════════════════════════════════════════╝
 
-Clients (3)
-
-┌───┬────────┬──────────────────────┬────────────┬─────────────────┐
-│ # │ Nr.    │ Name                 │ City       │ Email           │
-├───┼────────┼──────────────────────┼────────────┼─────────────────┤
-│ 1 │ K-001  │ Acme Corp            │ Hamburg    │ info@acme.de    │
-│ 2 │ K-002  │ Max Müller           │ Berlin     │ max@example.de  │
-└───┴────────┴──────────────────────┴────────────┴─────────────────┘
-
-> Selection: 1
-```
-
-Select a client to create invoices, offers, credentials, or concepts.
+All data stored in human-readable JSON files:
+- `data/clients.json` - Your clients
+- `data/projects.json` - Your projects
+- `data/counters.json` - Auto-incrementing numbers
 
 ### Option 2: AI-Assisted Creation
 
@@ -315,20 +320,20 @@ docgen compile documents/invoices/RE-2025-001.json
 
 | Command | Description |
 |---------|-------------|
-| `docgen` | Interactive mode |
+| `docgen` | Show help |
 | `docgen init <name>` | Create new project |
 | `docgen compile <file>` | Compile JSON or .typ file to PDF (add `--encrypt` for password protection) |
 | `docgen build [path]` | Build all documents (.json and .typ files) in directory |
 | `docgen watch [path]` | Watch and auto-rebuild on changes |
 | `docgen client list` | List all clients |
-| `docgen client add` | Add new client |
+| `docgen client add --name "Name"` | Add new client (requires --name parameter) |
 | `docgen client show <id>` | Show client details |
 | `docgen project list <client>` | List projects |
 | `docgen project add <client> <name>` | Add project |
-| `docgen template list` | List installed template packages |
-| `docgen template install <name>` | Install a template package |
-| `docgen template remove <name> <version>` | Remove a template package |
-| `docgen template update` | Update all templates to current version |
+| `docgen template init` | Initialize project templates |
+| `docgen template list` | List standard and custom templates |
+| `docgen template fork <name> --name <custom>` | Fork and customize a template |
+| `docgen template update` | Update standard templates to current version |
 
 
 ### PDF Encryption
@@ -338,12 +343,13 @@ Protect sensitive documents (like credentials) with password encryption:
 ```bash
 # Compile with encryption
 docgen compile documents/credentials/2026/client-access.json --encrypt
+# Enter password (will be visible): [type password]
 ```
 
-**Interactive prompts:**
-- User password (required to open PDF)
-- Allow printing? (default: yes)
-- Allow copying text/images? (default: no)
+**Default permissions:**
+- Allow printing: yes
+- Allow copying text/images: no
+- Allow modifications: no
 - Allow document modification? (default: no)
 
 **Requirements:**
@@ -366,7 +372,9 @@ docgen compile documents/credentials/2026/client-access.json --encrypt
 ```
 my-business/
 ├── data/
-│   ├── docgen.db          # SQLite database (auto-created)
+│   ├── clients.json       # Your clients (human-readable)
+│   ├── projects.json      # Your projects (human-readable)
+│   ├── counters.json      # Auto-incrementing numbers
 │   └── company.json       # Your company data & settings
 ├── documents/
 │   ├── invoices/
@@ -380,14 +388,15 @@ my-business/
 │   │   └── 2026/
 │   └── documentation/
 │       └── 2026/
-├── templates/             # Typst templates
+├── .docgen/templates/     # Standard templates (auto-updated)
+├── templates/             # Your custom templates
 └── output/
     └── 2026/              # PDFs organized by year
 ```
 
 ## Document Numbering
 
-Automatic, consistent numbering managed by SQLite:
+Automatic, consistent numbering managed by `data/counters.json`:
 
 | Type | Format | Example |
 |------|--------|---------|
@@ -560,7 +569,7 @@ Create an invoice JSON for client "Acme Corp" (K-001) for the following work:
 ## Documentation
 
 - [Project Overview](docs/PROJECT.md) - Current state and ideas
-- [Database Concept](docs/DATABASE.md) - SQLite schema and usage
+- [Simplification Plan](docs/SIMPLIFICATION-PLAN.md) - Unix philosophy approach
 - [Roadmap](docs/ROADMAP.md) - Detailed plan for upcoming improvements
 
 ## Requirements
@@ -568,14 +577,19 @@ Create an invoice JSON for client "Acme Corp" (K-001) for the following work:
 - [Typst](https://typst.app/) >= 0.11
 - [Rust](https://rustup.rs/) >= 1.70 (for building CLI)
 
-## Roadmap
+## Philosophy
 
+This tool follows Unix philosophy:
+- **Do one thing well**: Generate professional business documents
+- **Plain text**: All data in human-readable JSON
+- **Composable**: Integrate with scripts, AI tools, version control
+- **Simple**: Direct CLI commands, no complex UI
+
+Future improvements focus on simplicity, not feature bloat:
 - [ ] Edit/delete clients and projects
-- [ ] Document status tracking (sent, paid, overdue)
-- [ ] Time tracking integration
-- [ ] Email sending from CLI
+- [ ] Document templates in more languages
 - [ ] E-invoice support (ZUGFeRD/XRechnung)
-- [ ] Web UI for non-technical users
+- [ ] Better AI integration examples
 
 ## License
 

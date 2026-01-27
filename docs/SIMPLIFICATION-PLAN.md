@@ -94,9 +94,9 @@ CREATE TABLE counters (
 
 ## Simplification Strategy
 
-### Phase 1: Database → JSON Files (v0.6.0)
+### Phase 1: Database → JSON Files ✅ COMPLETED (v0.6.0)
 
-**Replace SQLite with simple JSON files:**
+**Replaced SQLite with simple JSON files:**
 
 ```
 data/
@@ -150,91 +150,66 @@ data/
 }
 ```
 
-**Migration Path:**
-```bash
-# Export existing DB to JSON
-docgen migrate db-to-json
+**Implementation Status:**
+- ✅ Created `cli/src/data/mod.rs` - ClientStore, ProjectStore, CounterStore (400 lines)
+- ✅ Created `cli/src/data/models.rs` - Data models (120 lines)
+- ✅ Removed `cli/src/db/` - SQLite wrapper (497 lines removed)
+- ✅ Removed rusqlite dependency
+- ✅ Updated all commands to use JSON stores
+- ✅ Integration tests: 11 test cases passing
 
-# Creates:
-# - data/clients.json (from clients table)
-# - data/projects.json (from projects table)
-# - data/counters.json (from counters table)
-# - Deletes data/docgen.db
-
-# User can commit to Git
-git add data/*.json
-git commit -m "Migrate from SQLite to JSON"
-```
+**Migration:** No migration tool needed - v0.6.0 had no production users.
 
 ---
 
-### Phase 2: Make Client/Project Management Optional (v0.6.0)
+### Phase 2: Remove Interactive UI ✅ COMPLETED (v0.6.0)
 
-**Current:** Client commands are core features
-
-**Simplified:** Client commands are OPTIONAL helpers
-
+**Old Behavior:**
 ```bash
-# Core workflow (NO database needed):
-docgen compile invoice.json  → PDF
-
-# Optional helper commands:
-docgen client list           # Read from data/clients.json
-docgen client add            # Append to data/clients.json
-docgen project list K-001    # Read from data/projects.json
+docgen  # → Opens interactive terminal UI (696 lines of code)
 ```
 
-**If data/clients.json missing:**
+**New Behavior:**
 ```bash
-docgen client list
-→ Error: No clients found. Create data/clients.json manually or run:
-  docgen client add
+docgen  # → Shows help text
+docgen client add  # → Error: --name required
+docgen client add --name "Acme Corp"  # → ✓ K-001 angelegt
 ```
 
-**Key principle:** Commands are convenience, NOT required for PDF generation
+**Implementation Status:**
+- ✅ Removed `cli/src/ui/` - Interactive TUI (696 lines removed)
+- ✅ Removed dialoguer, console, comfy-table dependencies (3 deps)
+- ✅ Changed `docgen` with no args to show help
+- ✅ All commands require explicit parameters
+- ✅ Simpler, script-friendly CLI
 
 ---
 
-### Phase 3: Remove Interactive UI (v0.7.0)
+### Phase 3: Remove Dead Code ✅ COMPLETED (v0.6.0)
 
-**Current:** Interactive mode = 696 lines of UI code
+**Found and removed:**
+- ✅ `cli/src/packages.rs` - Global package management (304 lines removed, never called)
+- ✅ lopdf dependency (never used, 2 deps removed)
+- ✅ Simplified `cli/src/embedded.rs` (removed unused template constants)
+- ✅ Simplified `cli/src/encrypt.rs` (removed dialoguer dependency)
 
-**Simplified:** Remove completely or make optional feature
-
-**Option A: Remove entirely**
-```bash
-# OLD:
-docgen              # Interactive mode
-→ [Terminal UI]
-
-# NEW:
-docgen              # Show help
-→ Usage: docgen <command>
-  compile <file>    Compile document to PDF
-  build <dir>       Build all documents
-  client list       List clients
-  ...
-```
-
-**Option B: Make optional feature flag**
-```toml
-# Cargo.toml
-[features]
-default = []
-interactive = ["dialoguer", "console", "comfy-table"]
-
-# Build without interactive:
-cargo build --release
-
-# Build with interactive:
-cargo build --release --features interactive
-```
-
-**Recommendation:** Option A (remove) - simplifies codebase, reduces dependencies
+**Total reduction:**
+- Code: -1,497 lines
+- Dependencies: 15 → 10 (5 removed)
+- Binary size: ~20% smaller
 
 ---
 
-### Phase 4: Simplified Architecture (v0.7.0)
+Client/project commands are kept as OPTIONAL helpers:
+- Core workflow: `docgen compile invoice.json` (no data files needed)
+- Helper commands: `docgen client add/list/show` (uses data/clients.json)
+- Helper commands: `docgen project add/list` (uses data/projects.json)
+
+**Key principle:** Commands are convenience, NOT required for PDF generation.
+
+---
+
+### Phase 5: Future Architecture Improvements (v0.7.0+)
 
 **Current structure:**
 ```
@@ -308,61 +283,65 @@ cli/src/
     - Use ProjectStore instead of Database
 ```
 
-**Week 2: Remove SQLite**
+**Week 2: Remove SQLite** ✅ COMPLETED
 ```
-[x] Remove db/ directory
-[x] Remove rusqlite dependency
-[x] Update main.rs to use new stores
-[x] Add JSON validation
-[x] Test migration with examples/
-```
-
-**Week 3: Testing & Documentation**
-```
-[x] Add integration tests
-[x] Update README (no more database)
-[x] Update AI guide
-[x] Migration guide for users
+✅ Remove db/ directory (497 lines)
+✅ Remove rusqlite dependency
+✅ Update main.rs to use new stores
+✅ Created ClientStore, ProjectStore, CounterStore
 ```
 
-**Release:** v0.6.0 - "JSON-based, no SQLite"
+**Week 3: Remove UI & Dead Code** ✅ COMPLETED
+```
+✅ Remove ui/ directory (696 lines)
+✅ Remove packages.rs (304 lines)
+✅ Remove dialoguer, console, comfy-table dependencies (3 deps)
+✅ Remove lopdf dependency (never used, 2 deps)
+✅ docgen without args → show help
+✅ All commands require explicit parameters
+```
+
+**Week 4: Testing & Documentation** ✅ COMPLETED
+```
+✅ Add integration tests (11 tests passing)
+✅ Update README (no more database)
+✅ Update CHANGELOG for v0.6.0
+✅ Update SIMPLIFICATION-PLAN.md
+```
+
+**Release:** v0.6.0 - "JSON-based, Unix philosophy" ✅ COMPLETED
+
+**Total Impact:**
+- Removed: 1,497 lines of code
+- Removed: 5 dependencies (15 → 10)
+- Binary size: ~20% smaller
+- Git-friendly: JSON instead of SQLite
+- Script-friendly: No interactive prompts
+- Test coverage: 11 integration tests
 
 ---
 
-### v0.7.0 - "Interactive UI Removal" (1-2 weeks)
+### v0.7.0 - "Future Improvements" (PLANNED)
 
-**Week 1: Remove UI**
+**Focus: Code Quality & Architecture**
 ```
-[x] Remove ui/ directory
-[x] Remove dialoguer, console, comfy-table dependencies
-[x] docgen without args → show help (not UI)
-[x] Update README
-```
-
-**Week 2: Refactoring**
-```
-[x] Split main.rs into modules
-[x] commands/ directory structure
-[x] core/ business logic
-[x] Add 40+ integration tests
+[ ] Split main.rs into modules (currently 1,000+ lines)
+[ ] commands/ directory structure
+[ ] core/ business logic separation
+[ ] More integration tests (target: 30+ tests)
+[ ] Better error messages
+[ ] Edit/delete commands for clients/projects
 ```
 
-**Release:** v0.7.0 - "CLI-only, modular"
-
----
-
-### v0.8.0 - "Production Quality" (2-3 weeks)
-
-**Focus: Code Quality**
+**Optional Features to Consider:**
 ```
-[x] Remove packages.rs dead code
-[x] Custom error types (no anyhow)
-[x] Config validation
-[x] Document validation
-[x] 60%+ test coverage
+[ ] E-invoice support (ZUGFeRD/XRechnung)
+[ ] Multi-language templates (EN, FR, ES)
+[ ] Document status tracking (as optional JSON file)
+[ ] Simple web UI (as separate binary, optional)
 ```
 
-**Release:** v0.8.0 - "Stable, tested, simple"
+**Release:** v0.7.0 - "Mature, stable"
 
 ---
 

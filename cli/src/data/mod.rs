@@ -61,6 +61,7 @@ impl ClientStore {
     }
 
     /// Get client by number (K-XXX)
+    #[allow(dead_code)]
     pub fn get_by_number(&self, number: i64) -> Result<Option<Client>> {
         let clients = self.list()?;
         Ok(clients.into_iter().find(|c| c.number == number))
@@ -94,6 +95,20 @@ impl ClientStore {
         self.save(&clients)?;
 
         Ok(client)
+    }
+
+    /// Delete a client by ID
+    pub fn delete(&self, id: i64) -> Result<()> {
+        let mut clients = self.list()?;
+        let initial_len = clients.len();
+        clients.retain(|c| c.id != id);
+
+        if clients.len() == initial_len {
+            anyhow::bail!("Client with ID {} not found", id);
+        }
+
+        self.save(&clients)?;
+        Ok(())
     }
 
     /// Save all clients
@@ -158,12 +173,13 @@ impl ProjectStore {
             .collect())
     }
 
+    #[allow(dead_code)]
     pub fn get(&self, id: i64) -> Result<Option<Project>> {
         let projects = self.list()?;
         Ok(projects.into_iter().find(|p| p.id == id))
     }
 
-    pub fn add(&self, new_project: NewProject, counter: &mut CounterStore) -> Result<Project> {
+    pub fn add(&self, new_project: NewProject, _counter: &mut CounterStore) -> Result<Project> {
         self.init()?;
 
         let mut projects = self.list()?;
@@ -193,6 +209,20 @@ impl ProjectStore {
         self.save(&projects)?;
 
         Ok(project)
+    }
+
+    /// Delete a project by ID
+    pub fn delete(&self, id: i64) -> Result<()> {
+        let mut projects = self.list()?;
+        let initial_len = projects.len();
+        projects.retain(|p| p.id != id);
+
+        if projects.len() == initial_len {
+            anyhow::bail!("Project with ID {} not found", id);
+        }
+
+        self.save(&projects)?;
+        Ok(())
     }
 
     fn save(&self, projects: &[Project]) -> Result<()> {
@@ -324,6 +354,7 @@ impl CounterStore {
     }
 
     /// Get current value without incrementing
+    #[allow(dead_code)]
     pub fn get(&self, counter_type: &str) -> Result<i64> {
         let counters = self.load()?;
 

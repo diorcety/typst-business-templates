@@ -26,6 +26,7 @@ pub fn get_docgen_version() -> String {
 /// Get list of available embedded template names
 pub fn get_available_templates() -> Vec<String> {
     vec![
+        "common".to_string(), // Shared styles and components
         "concept".to_string(),
         "contract".to_string(),
         "credentials".to_string(),
@@ -42,6 +43,7 @@ pub fn get_available_templates() -> Vec<String> {
         "reminder".to_string(),
         "sla".to_string(),
         "specification".to_string(),
+        "task-list".to_string(),
         "time-sheet".to_string(),
     ]
 }

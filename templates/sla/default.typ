@@ -4,6 +4,7 @@
 
 #import "../common/styles.typ": *
 #import "../common/footers.typ": document-footer
+#import "../common/title-page.typ": parties-title-page
 
 // Document function
 #let sla(
@@ -91,125 +92,144 @@
   // TITLE PAGE
   // ============================================================================
 
+  // Extract locale labels with fallbacks
+  let l-service-provider = if "sla" in locale and "service_provider" in locale.sla { 
+    locale.sla.service_provider 
+  } else { 
+    "Service Provider" 
+  }
+  
+  let l-customer = if "sla" in locale and "customer" in locale.sla { 
+    locale.sla.customer 
+  } else if "common" in locale and "client" in locale.common { 
+    locale.common.client 
+  } else { 
+    "Kunde" 
+  }
+  
+  let l-document-type = if "sla" in locale and "document_type" in locale.sla { 
+    locale.sla.document_type 
+  } else { 
+    "SERVICE LEVEL AGREEMENT" 
+  }
+  
+  let l-version = if "common" in locale and "version" in locale.common { 
+    locale.common.version 
+  } else { 
+    "Version" 
+  }
+  
+  let l-status = if "common" in locale and "status" in locale.common { 
+    locale.common.status 
+  } else { 
+    "Status" 
+  }
+  
+  let l-effective-date = if "sla" in locale and "effective_date" in locale.sla { 
+    locale.sla.effective_date 
+  } else { 
+    "Gültig ab" 
+  }
+  
+  let l-termination-date = if "sla" in locale and "termination_date" in locale.sla { 
+    locale.sla.termination_date 
+  } else { 
+    "Laufzeit bis" 
+  }
+  
+  let l-review-period = if "sla" in locale and "review_period" in locale.sla { 
+    locale.sla.review_period 
+  } else { 
+    "Review-Zyklus" 
+  }
+  
+  let l-created-at = if "common" in locale and "created" in locale.common { 
+    locale.common.created 
+  } else { 
+    "Erstellt am" 
+  }
+
+  // Extract party names and addresses
+  let party1-name = if service_provider != none and type(service_provider) == dictionary [
+    if "company" in service_provider and service_provider.company != none [
+      service_provider.company
+    ] else if "name" in service_provider [
+      service_provider.name
+    ] else [
+      none
+    ]
+  ] else if service_provider != none [
+    service_provider
+  ] else [
+    none
+  ]
+  
+  let party1-address = if service_provider != none and type(service_provider) == dictionary and "address" in service_provider [
+    service_provider.address
+  ] else [
+    none
+  ]
+  
+  let party2-name = if customer != none and type(customer) == dictionary [
+    if "company" in customer and customer.company != none [
+      customer.company
+    ] else if "name" in customer [
+      customer.name
+    ] else [
+      none
+    ]
+  ] else if customer != none [
+    customer
+  ] else [
+    none
+  ]
+  
+  let party2-address = if customer != none and type(customer) == dictionary and "address" in customer [
+    customer.address
+  ] else [
+    none
+  ]
+
+  // Build metadata dictionary
+  let metadata = (:)
+  metadata.insert(l-version, version)
+  metadata.insert(l-status, text(fill: accent-color, weight: "bold")[#upper(status)])
+  if effective_date != none {
+    metadata.insert(l-effective-date, effective_date)
+  }
+  if termination_date != none {
+    metadata.insert(l-termination-date, termination_date)
+  }
+  if review_period != none {
+    metadata.insert(l-review-period, review_period)
+  }
+  if created_at != none {
+    metadata.insert(l-created-at, created_at)
+  }
+
   page(
     margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
     header: none,
     footer: none,
   )[
-    #align(center)[
-      #v(50pt)
-
-      // Logo
-      #if logo != none [
-        #logo
-        #v(30pt)
-      ] else if "_logo_image" in company [
-        #company._logo_image
-        #v(30pt)
-      ]
-
-      // Title
-      #text(size: 24pt, weight: "bold")[#title]
-
-      #v(20pt)
-
-      // SLA type
-      #text(size: size-xlarge, fill: accent-color, weight: "bold")[SERVICE LEVEL AGREEMENT]
-      #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
-
-      #v(40pt)
-
-      // Parties
-      #text(size: size-large, weight: "bold")[Vertragsparteien]
-      
-      #v(15pt)
-
-      #grid(
-        columns: (1fr, 1fr),
-        column-gutter: 30pt,
-        row-gutter: 15pt,
-
-        [
-          #box(
-            width: 100%,
-            stroke: border-normal + color-border,
-            radius: 4pt,
-            inset: 1em,
-          )[
-            #align(left)[
-              #text(weight: "bold", fill: accent-color)[Service Provider]\
-              #v(0.3em)
-              #if service_provider != none [
-                #if type(service_provider) == dictionary [
-                  #if "company" in service_provider [#service_provider.company\]
-                  #if "name" in service_provider [#service_provider.name\]
-                  #if "address" in service_provider [
-                    #service_provider.address.street #service_provider.address.house_number\
-                    #service_provider.address.postal_code #service_provider.address.city
-                  ]
-                ] else [
-                  #service_provider
-                ]
-              ]
-            ]
-          ]
-        ],
-
-        [
-          #box(
-            width: 100%,
-            stroke: border-normal + color-border,
-            radius: 4pt,
-            inset: 1em,
-          )[
-            #align(left)[
-              #text(weight: "bold", fill: accent-color)[Kunde]\
-              #v(0.3em)
-              #if customer != none [
-                #if type(customer) == dictionary [
-                  #if "company" in customer [#customer.company\]
-                  #if "name" in customer [#customer.name\]
-                  #if "address" in customer [
-                    #customer.address.street #customer.address.house_number\
-                    #customer.address.postal_code #customer.address.city
-                  ]
-                ] else [
-                  #customer
-                ]
-              ]
-            ]
-          ]
-        ],
-      )
-
-      #v(1fr)
-
-      // Dates and status
-      #grid(
-        columns: (auto, auto),
-        column-gutter: 20pt,
-        row-gutter: 14pt,
-        align: (right, left),
-
-        [*Version:*], [#version],
-        [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
-        ..if effective_date != none {
-          ([*Gültig ab:*], [#effective_date])
-        } else { () },
-        ..if termination_date != none {
-          ([*Laufzeit bis:*], [#termination_date])
-        } else { () },
-        ..if review_period != none {
-          ([*Review-Zyklus:*], [#review_period])
-        } else { () },
-        ..if created_at != none {
-          ([*Erstellt am:*], [#created_at])
-        } else { () },
-      )
-
-      #v(30pt)
-    ]
+    #parties-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: l-document-type,
+      document-number: document_number,
+      accent-color: accent-color,
+      party1-label: l-service-provider,
+      party1-name: party1-name,
+      party1-address: party1-address,
+      party2-label: l-customer,
+      party2-name: party2-name,
+      party2-address: party2-address,
+      metadata: metadata,
+    )
   ]
+
+  pagebreak()
 
   // ============================================================================
   // TABLE OF CONTENTS

@@ -3,6 +3,7 @@
 
 #import "../common/styles.typ": *
 #import "../common/footers.typ": minimal-footer
+#import "../common/title-page.typ": document-title-page
 
 // Document function
 #let protocol(
@@ -71,94 +72,70 @@
   }
 
   // ============================================================================
-  // HEADER PAGE
+  // TITLE PAGE
   // ============================================================================
 
-  align(center)[
-    #v(30pt)
+  // Build metadata dictionary for the title page
+  let title-metadata = (:)
+  if meeting_date != none {
+    title-metadata.insert("Datum", meeting_date)
+  }
+  if meeting_time != none {
+    title-metadata.insert("Uhrzeit", meeting_time)
+  }
+  if location != none {
+    title-metadata.insert("Ort", location)
+  }
+  if moderator != none {
+    title-metadata.insert("Moderation", moderator)
+  }
+  if note_taker != none {
+    title-metadata.insert("Protokollant", note_taker)
+  }
 
-    // Logo
-    // Logo (use passed logo parameter or load from company.logo)
-    #if logo != none [
-      #logo
-      #v(20pt)
-    ] else if company != none and "logo" in company and company.logo != none [
-      #image("/" + company.logo, width: 150pt)
-      #v(20pt)
-    ]
-
-    // Title
-    #text(size: 20pt, weight: "bold")[#title]
-
-    #v(15pt)
-
-    // Protocol type
-    #text(size: size-large, fill: accent-color, weight: "bold")[BESPRECHUNGSPROTOKOLL]
-    #text(size: size-normal, fill: color-text-light)[ · #document_number]
-
-    #v(20pt)
-  ]
-
-  // ============================================================================
-  // METADATA SECTION
-  // ============================================================================
-
-  block(
-    fill: color-background,
-    inset: 1.2em,
-    radius: 4pt,
-    width: 100%,
-  )[
-    #grid(
-      columns: (120pt, 1fr),
-      row-gutter: 10pt,
-      align: (left, left),
-
-      [*Datum:*], [#if meeting_date != none [#meeting_date]],
-      [*Uhrzeit:*], [#if meeting_time != none [#meeting_time] else [—]],
-      [*Ort:*], [#if location != none [#location] else [—]],
-      ..if moderator != none {
-        ([*Moderation:*], [#moderator])
-      } else { () },
-      ..if note_taker != none {
-        ([*Protokollant:*], [#note_taker])
-      } else { () },
-    )
-  ]
-
-  v(12pt)
-
-  // ============================================================================
-  // PARTICIPANTS
-  // ============================================================================
-
-  if participants.len() > 0 [
-    #block(
-      inset: (left: 1em),
-    )[
-      #text(weight: "bold", size: size-normal)[Teilnehmer:]
-      #v(0.4em)
-      #for participant in participants [
-        - #participant
+  // Build custom content for participants and absent lists
+  let participants-content = {
+    if participants.len() > 0 [
+      #v(12pt)
+      #block(
+        inset: (left: 1em),
+      )[
+        #text(weight: "bold", size: size-normal)[Teilnehmer:]
+        #v(0.4em)
+        #for participant in participants [
+          - #participant
+        ]
       ]
+      #v(8pt)
     ]
-    #v(8pt)
-  ]
 
-  if absent.len() > 0 [
-    #block(
-      inset: (left: 1em),
-    )[
-      #text(weight: "bold", size: size-normal)[Entschuldigt:]
-      #v(0.4em)
-      #for person in absent [
-        - #person
+    if absent.len() > 0 [
+      #block(
+        inset: (left: 1em),
+      )[
+        #text(weight: "bold", size: size-normal)[Entschuldigt:]
+        #v(0.4em)
+        #for person in absent [
+          - #person
+        ]
       ]
+      #v(8pt)
     ]
-    #v(8pt)
-  ]
+  }
 
-  v(15pt)
+  document-title-page(
+    company: company,
+    logo: logo,
+    title: title,
+    document-type: "BESPRECHUNGSPROTOKOLL",
+    document-number: document_number,
+    accent-color: accent-color,
+    metadata: title-metadata,
+    tags: none,
+    custom-content: participants-content,
+  )
+
+  pagebreak()
 
   // ============================================================================
   // TABLE OF CONTENTS (optional)

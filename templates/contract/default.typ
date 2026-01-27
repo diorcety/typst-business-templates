@@ -4,6 +4,7 @@
 
 #import "../common/styles.typ": *
 #import "../common/footers.typ": document-footer
+#import "../common/title-page.typ": parties-title-page
 
 // Document function
 #let contract(
@@ -80,82 +81,36 @@
     header: none,
     footer: none,
   )[
-    #align(center)[
-      #v(50pt)
-
-      // Logo
-      #if logo != none [
-        #logo
-        #v(30pt)
-      ] else if "_logo_image" in company [
-        #company._logo_image
-        #v(30pt)
-      ]
-
-      // Title
-      #text(size: 24pt, weight: "bold")[#title]
-
-      #v(20pt)
-
-      // Contract type
-      #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(contract_type)]
-      #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
-
-      #v(40pt)
-
-      // Parties
-      #text(size: size-large, weight: "bold")[Vertragsparteien]
-      
-      #v(15pt)
-
-      #for (index, party) in parties.enumerate() [
-        #box(
-          width: 80%,
-          stroke: border-normal + color-border,
-          radius: 4pt,
-          inset: 1em,
-        )[
-          #align(left)[
-            #text(weight: "bold", fill: accent-color)[#if index == 0 [Auftragnehmer] else if index == 1 [Auftraggeber] else [Partei #(index + 1)]]\
-            #v(0.3em)
-            #if "company" in party and party.company != none [
-              #party.company\
-            ]
-            #if "name" in party [
-              #party.name\
-            ]
-            #if "address" in party [
-              #party.address.street #party.address.house_number\
-              #party.address.postal_code #party.address.city
-            ]
-          ]
-        ]
-        #v(15pt)
-      ]
-
-      #v(1fr)
-
-      // Dates
-      #grid(
-        columns: (auto, auto),
-        column-gutter: 20pt,
-        row-gutter: 14pt,
-        align: (right, left),
-
-        ..if effective_date != none {
-          ([*Gültig ab:*], [#effective_date])
-        } else { () },
-        ..if termination_date != none {
-          ([*Laufzeit bis:*], [#termination_date])
-        } else { () },
-        ..if created_at != none {
-          ([*Erstellt am:*], [#created_at])
-        } else { () },
-      )
-
-      #v(30pt)
-    ]
+    #parties-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: contract_type,
+      document-number: document_number,
+      accent-color: accent-color,
+      party1-label: "Auftragnehmer",
+      party1-name: if parties.len() > 0 and "company" in parties.at(0) and parties.at(0).company != none { parties.at(0).company } else if parties.len() > 0 and "name" in parties.at(0) { parties.at(0).name } else { none },
+      party1-address: if parties.len() > 0 and "address" in parties.at(0) { parties.at(0).address } else { none },
+      party2-label: "Auftraggeber",
+      party2-name: if parties.len() > 1 and "company" in parties.at(1) and parties.at(1).company != none { parties.at(1).company } else if parties.len() > 1 and "name" in parties.at(1) { parties.at(1).name } else { none },
+      party2-address: if parties.len() > 1 and "address" in parties.at(1) { parties.at(1).address } else { none },
+      metadata: {
+        let meta = (:)
+        if effective_date != none {
+          meta.insert("Gültig ab", effective_date)
+        }
+        if termination_date != none {
+          meta.insert("Laufzeit bis", termination_date)
+        }
+        if created_at != none {
+          meta.insert("Erstellt am", created_at)
+        }
+        meta
+      },
+    )
   ]
+
+  pagebreak()
 
   // ============================================================================
   // TABLE OF CONTENTS

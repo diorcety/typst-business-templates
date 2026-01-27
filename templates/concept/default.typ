@@ -14,6 +14,7 @@
 //   )
 
 #import "../common/styles.typ": *
+#import "../common/title-page.typ": document-title-page
 
 // Load data from JSON input (only if available for JSON workflow)
 #let data = if "data" in sys.inputs {
@@ -117,77 +118,46 @@
   }
 
   // ============================================================================
-  // TITLE PAGE (centered layout like casoon-documents)
+  // TITLE PAGE
   // ============================================================================
 
-  page(
-    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
-    header: none,
-    footer: none,
-  )[
-    #align(center)[
-      #v(50pt)
+  // Locale labels with fallbacks
+  let l-concept = if "concept" in locale and "title" in locale.concept { locale.concept.title } else { "Concept" }
+  let l-project = if "common" in locale and "project" in locale.common { locale.common.project } else { "Project" }
+  let l-client = if "common" in locale and "client" in locale.common { locale.common.client } else { "Client" }
+  let l-version = if "common" in locale and "version" in locale.common { locale.common.version } else { "Version" }
+  let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
+  let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
+  let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
 
-      // Locale labels with fallbacks
-      #let l-concept = if "concept" in locale and "title" in locale.concept { locale.concept.title } else { "Concept" }
-      #let l-project = if "common" in locale and "project" in locale.common { locale.common.project } else { "Project" }
-      #let l-client = if "common" in locale and "client" in locale.common { locale.common.client } else { "Client" }
-      #let l-version = if "common" in locale and "version" in locale.common { locale.common.version } else { "Version" }
-      #let l-status = if "common" in locale and "status" in locale.common { locale.common.status } else { "Status" }
-      #let l-created = if "common" in locale and "created" in locale.common { locale.common.created } else { "Created" }
-      #let l-authors = if "common" in locale and "authors" in locale.common { locale.common.authors } else { "Authors" }
+  // Build metadata dictionary
+  let meta = (
+    (l-project, project_name),
+    (l-client, client_name),
+    (l-version, version),
+    (l-status, text(fill: accent-color, weight: "bold")[#upper(status)]),
+  )
+  
+  if created_at != none {
+    meta.push((l-created, created_at))
+  }
+  
+  if authors.len() > 0 {
+    meta.push((l-authors, authors.join(", ")))
+  }
 
-      // Logo (use passed logo parameter or pre-loaded _logo_image)
-      #if logo != none [
-        #logo
-        #v(30pt)
-      ] else if "_logo_image" in company [
-        #company._logo_image
-        #v(30pt)
-      ]
+  document-title-page(
+    company: company,
+    logo: logo,
+    title: title,
+    document-type: l-concept,
+    document-number: document_number,
+    accent-color: accent-color,
+    metadata: meta,
+    tags: tags,
+  )
 
-      // Title
-      #text(size: 24pt, weight: "bold")[#title]
-
-      #v(20pt)
-
-      // Document type and number
-      #text(size: size-xlarge, fill: accent-color, weight: "bold")[#upper(l-concept)]
-      #text(size: size-xlarge, fill: color-text-light)[ · #document_number]
-
-      #v(30pt)
-
-      // Metadata grid
-      #grid(
-        columns: (auto, auto),
-        column-gutter: 20pt,
-        row-gutter: 14pt,
-        align: (right, left),
-
-        [*#l-project:*], [#project_name],
-        [*#l-client:*], [#client_name],
-        [*#l-version:*], [#version],
-        [*#l-status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
-        ..if created_at != none {
-          ([*#l-created:*], [#created_at])
-        } else { () },
-        ..if authors.len() > 0 {
-          ([*#l-authors:*], [#authors.join(", ")])
-        } else { () },
-      )
-
-      #v(1fr)
-
-      // Tags
-      #if tags.len() > 0 [
-        #for tag in tags [
-          #pill(tag)
-          #h(8pt)
-        ]
-        #v(40pt)
-      ]
-    ]
-  ]
+  pagebreak()
 
   // ============================================================================
   // TABLE OF CONTENTS

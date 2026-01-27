@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-01-26
+
+### 🎉 Major: Simplification - Unix Philosophy Edition
+
+**Breaking Changes:** Complete architectural simplification following Unix philosophy.
+
+**Philosophy:** Do one thing well. Plain text over binary. Composable tools.
+
+### Removed
+- **SQLite database** → Replaced with JSON files (`data/clients.json`, `data/projects.json`, `data/counters.json`)
+- **Interactive TUI** → Removed 696 lines of terminal UI code
+- **Global package management** → Removed 304 lines of dead code
+- **5 dependencies removed:**
+  - `rusqlite` - No longer needed (JSON-based storage)
+  - `dialoguer` - No interactive prompts
+  - `console` - No terminal styling
+  - `comfy-table` - Output simplified
+  - `lopdf` - Was never used
+
+### Changed
+- **Data storage:** Human-readable JSON files instead of binary SQLite
+- **CLI behavior:** No arguments → shows help (was: interactive UI)
+- **Commands:** All require explicit parameters (e.g., `docgen client add --name "Name"`)
+- **Binary size:** ~20% smaller due to dependency reduction
+- **Git-friendly:** JSON files can be diff'd, merged, and version controlled
+
+### Added
+- **Integration tests:** 11 test cases covering client and project operations
+- **Simpler workflow:** Direct CLI commands integrate easily into scripts and AI workflows
+
+### Migration from v0.5.x
+**Note:** No migration tool needed - v0.6.0 had no production users.
+
+If you used v0.5.x locally:
+1. Backup your data: `cp -r data/ data.backup/`
+2. Upgrade: `brew upgrade docgen`
+3. No automatic migration - re-enter data via CLI or edit JSON files directly
+
+JSON format:
+```json
+// data/clients.json
+[{"id":1,"number":1,"name":"Client Name","created_at":"2026-01-26T10:00:00Z", ...}]
+
+// data/counters.json
+{"client":0,"invoice":0,"offer":0,"credentials":0,"concept":0,"documentation":0}
+```
+
 ## [0.5.2] - 2026-01-25
 
 ### Fixed

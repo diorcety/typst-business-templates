@@ -1,3 +1,4 @@
+mod commands;
 mod data;
 mod embedded;
 mod encrypt;
@@ -12,8 +13,6 @@ use std::process::Command;
 use walkdir::WalkDir;
 
 // Import new JSON-based stores
-use data::{ClientStore, CounterStore, NewClient, NewProject, ProjectStore};
-
 use locale::{t, tf};
 
 #[derive(Parser)]
@@ -210,6 +209,17 @@ enum ClientAction {
         /// Client number (e.g., 1) or K-number (e.g., K-001)
         id: String,
     },
+    /// Delete a client
+    ///
+    /// Removes a client from the database. Warning: This cannot be undone.
+    ///
+    /// Examples:
+    ///   docgen client delete K-001
+    ///   docgen client delete 1
+    Delete {
+        /// Client number (e.g., 1) or K-number (e.g., K-001)
+        id: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -236,6 +246,16 @@ enum ProjectAction {
         client: String,
         /// Project name
         name: String,
+    },
+    /// Delete a project
+    ///
+    /// Removes a project from the database. Warning: This cannot be undone.
+    ///
+    /// Examples:
+    ///   docgen project delete P-001-01
+    Delete {
+        /// Project number (e.g., P-001-01)
+        id: String,
     },
 }
 
@@ -312,281 +332,11 @@ fn main() -> Result<()> {
         }) => compile_document(&input, output, template, encrypt),
         Some(Commands::Build { path, output }) => build_all(&path, &output),
         Some(Commands::Watch { path }) => watch_directory(&path),
-        Some(Commands::Client { action }) => handle_client(action),
-        Some(Commands::Project { action }) => handle_project(action),
-        Some(Commands::Template { action }) => handle_template(action),
+        Some(Commands::Client { action }) => commands::client::handle(action),
+        Some(Commands::Project { action }) => commands::project::handle(action),
+        Some(Commands::Template { action }) => commands::template::handle(action),
         Some(Commands::AiGuide) => show_ai_guide(),
     }
-}
-
-fn handle_client(action: ClientAction) -> Result<()> {
-    let client_store = ClientStore::default();
-    let mut counter_store = CounterStore::default();
-
-    match action {
-        ClientAction::List => {
-            let clients = client_store.list()?;
-            if clients.is_empty() {
-                println!("{}", t("client", "no_clients"));
-                println!("{}", t("client", "create_with"));
-                return Ok(());
-            }
-
-            println!("{}", t("client", "clients").bold());
-            println!("{:-<60}", "");
-            for c in clients {
-                println!(
-                    "{:8} │ {:30} │ {}",
-                    c.formatted_number().cyan(),
-                    c.display_name(),
-                    c.city.unwrap_or_default()
-                );
-            }
-        }
-        ClientAction::Add { name } => {
-            let name = name.ok_or_else(|| {
-                anyhow::anyhow!("Name required. Usage: docgen client add --name \"Client Name\"")
-            })?;
-
-            let new_client = NewClient {
-                name,
-                ..Default::default()
-            };
-
-            let client = client_store.add(new_client, &mut counter_store)?;
-            println!(
-                "{} {}",
-                "✓".green(),
-                tf("client", "created", &[&client.formatted_number()])
-            );
-        }
-        ClientAction::Show { id } => {
-            let client_id = parse_client_id_json(&client_store, &id)?;
-            let client = client_store
-                .get(client_id)?
-                .ok_or_else(|| anyhow::anyhow!("Client not found"))?;
-
-            let project_store = ProjectStore::default();
-            let projects = project_store.list_by_client(client_id)?;
-
-            println!();
-            println!(
-                "{} {}",
-                client.formatted_number().cyan(),
-                client.display_name().bold()
-            );
-            println!("{}", client.full_address());
-            if let Some(email) = &client.email {
-                println!("{}", email);
-            }
-
-            if !projects.is_empty() {
-                println!();
-                println!("{}:", t("project", "projects").bold());
-                for p in projects {
-                    println!(
-                        "  {} │ {} │ {}",
-                        p.formatted_number(client.number),
-                        p.name,
-                        p.status
-                    );
-                }
-            }
-
-            // Note: Document tracking removed (was never used anyway)
-        }
-    }
-    Ok(())
-}
-
-fn handle_project(action: ProjectAction) -> Result<()> {
-    let client_store = ClientStore::default();
-    let project_store = ProjectStore::default();
-    let mut counter_store = CounterStore::default();
-
-    match action {
-        ProjectAction::List { client } => {
-            let client_id = parse_client_id_json(&client_store, &client)?;
-            let client = client_store
-                .get(client_id)?
-                .ok_or_else(|| anyhow::anyhow!("Client not found"))?;
-            let projects = project_store.list_by_client(client_id)?;
-
-            println!(
-                "{} - {}",
-                t("project", "for_client").bold(),
-                client.display_name()
-            );
-            println!("{:-<60}", "");
-
-            if projects.is_empty() {
-                println!("{}", t("project", "no_projects"));
-            } else {
-                for p in projects {
-                    println!(
-                        "{:12} │ {:30} │ {}",
-                        p.formatted_number(client.number).cyan(),
-                        p.name,
-                        p.status
-                    );
-                }
-            }
-        }
-        ProjectAction::Add { client, name } => {
-            let client_id = parse_client_id_json(&client_store, &client)?;
-            let client_data = client_store
-                .get(client_id)?
-                .ok_or_else(|| anyhow::anyhow!("Client not found"))?;
-
-            let new_project = NewProject::new(client_id, name);
-            let project = project_store.add(new_project, &mut counter_store)?;
-
-            println!(
-                "{} {}",
-                "✓".green(),
-                tf(
-                    "project",
-                    "created",
-                    &[&project.formatted_number(client_data.number)]
-                )
-            );
-        }
-    }
-    Ok(())
-}
-
-fn handle_template(action: TemplateAction) -> Result<()> {
-    match action {
-        TemplateAction::Init => {
-            println!("{} Initializing project templates...", "→".blue());
-            local_templates::init_project()?;
-            println!("{} Project initialized successfully!", "✓".green());
-            println!();
-            println!("Created:");
-            println!("  .docgen/templates/  (standard templates, auto-updated)");
-            println!("  templates/          (custom templates, stable)");
-            println!("  .gitignore          (updated to exclude .docgen/)");
-            println!();
-            println!("Import in .typ files:");
-            println!("  #import \"/.docgen/templates/concept/default.typ\": concept");
-        }
-
-        TemplateAction::Fork { template, name } => {
-            println!(
-                "{} Forking template '{}' to 'templates/{}'...",
-                "→".blue(),
-                template,
-                name
-            );
-            local_templates::fork_template(&template, &name)?;
-            println!("{} Template forked successfully!", "✓".green());
-            println!();
-            println!("Custom template created at: templates/{}/", name);
-            println!("This template is now stable and will never be auto-updated.");
-            println!();
-            println!("Import in .typ files:");
-            println!(
-                "  #import \"/templates/{}/default.typ\": {}",
-                name,
-                name.replace('-', "_")
-            );
-            println!();
-            println!("Commit to Git:");
-            println!("  git add templates/{}/", name);
-            println!("  git commit -m \"Add custom template: {}\"", name);
-        }
-
-        TemplateAction::List => {
-            // List standard templates
-            let standard_dir = local_templates::get_local_templates_dir();
-            println!("{}", "Standard Templates (.docgen/templates/):".bold());
-            println!("{}", "(Auto-updated on every compile)".dimmed());
-            println!("{:-<60}", "");
-
-            if standard_dir.exists() {
-                for template in local_templates::get_available_templates() {
-                    let template_path = standard_dir.join(&template);
-                    if template_path.exists() {
-                        println!("  {} {}", "→".blue(), template);
-                    }
-                }
-            } else {
-                println!(
-                    "  {}",
-                    "Not initialized. Run: docgen template init".yellow()
-                );
-            }
-
-            println!();
-
-            // List custom templates
-            let custom_dir = local_templates::get_custom_templates_dir();
-            println!("{}", "Custom Templates (templates/):".bold());
-            println!("{}", "(Stable, never auto-updated)".dimmed());
-            println!("{:-<60}", "");
-
-            if custom_dir.exists() {
-                let mut found_custom = false;
-                if let Ok(entries) = std::fs::read_dir(&custom_dir) {
-                    for entry in entries.filter_map(|e| e.ok()) {
-                        if entry.file_type().ok().map(|t| t.is_dir()).unwrap_or(false) {
-                            let name = entry.file_name();
-                            let name_str = name.to_string_lossy();
-                            if name_str != ".gitkeep" {
-                                println!("  {} {}", "→".green(), name_str);
-                                found_custom = true;
-                            }
-                        }
-                    }
-                }
-                if !found_custom {
-                    println!("  {}", "No custom templates. Fork with: docgen template fork <name> --name <custom-name>".yellow());
-                }
-            } else {
-                println!(
-                    "  {}",
-                    "Not initialized. Run: docgen template init".yellow()
-                );
-            }
-        }
-
-        TemplateAction::Update => {
-            println!("{} Updating standard templates...", "→".blue());
-            local_templates::ensure_local_templates_updated()?;
-            println!(
-                "{} Standard templates updated to v{}",
-                "✓".green(),
-                local_templates::get_docgen_version()
-            );
-            println!();
-            println!("Note: Custom templates in templates/ are not affected.");
-        }
-    }
-    Ok(())
-}
-
-// JSON-based client ID parser
-fn parse_client_id_json(store: &ClientStore, input: &str) -> Result<i64> {
-    // Try direct number
-    if let Ok(num) = input.parse::<i64>() {
-        // Check if it's a client number or ID
-        let clients = store.list()?;
-        if let Some(c) = clients.iter().find(|c| c.number == num || c.id == num) {
-            return Ok(c.id);
-        }
-    }
-
-    // Try K-XXX format
-    if input.to_uppercase().starts_with("K-") {
-        if let Ok(num) = input[2..].parse::<i64>() {
-            let clients = store.list()?;
-            if let Some(c) = clients.iter().find(|c| c.number == num) {
-                return Ok(c.id);
-            }
-        }
-    }
-
-    anyhow::bail!("{}: {}", t("client", "not_found"), input)
 }
 
 fn init_project(name: &str) -> Result<()> {
