@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.9] - 2026-01-27
+
+### Fixed
+- **Critical:** Fixed missing `#` prefix for subtask rendering in task-list template
+  - `if "subtasks" in task ...` inside content block was rendered as plain text
+  - Added `#` prefix so subtasks are now recursively rendered instead of showing raw Typst code
+  - **Impact:** Task lists with subtasks now display correctly
+
 ## [0.6.8] - 2026-01-27
 
 ### Fixed

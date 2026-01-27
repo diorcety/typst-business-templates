@@ -270,7 +270,7 @@
       )
       
       // Subtasks
-      if "subtasks" in task and task.subtasks != none {
+      #if "subtasks" in task and task.subtasks != none {
         for subtask in task.subtasks {
           render-task(subtask, level: level + 1)
         }
