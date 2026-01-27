@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2026-01-27
+
+### Fixed
+- **Critical:** Fixed metadata type handling in `title-page.typ` components
+  - `document-title-page()` now accepts both array and dictionary metadata
+  - Fixes compilation errors in documentation, concept, specification, and protocol templates
+  - Error: `type array has no method pairs` when using array-based metadata
+
+### Technical Details
+The `document-title-page()` function now includes type checking to handle both data formats:
+- **Array format:** `[(key1, value1), (key2, value2)]` (used by documentation templates)
+- **Dictionary format:** `(key1: value1, key2: value2)` (used by other templates)
+
+This ensures compatibility across all 9 templates using title-page components.
+
 ## [0.6.0] - 2026-01-27
 
 ### 🎉 Major: Simplification & Code Consolidation
