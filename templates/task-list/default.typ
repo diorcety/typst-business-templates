@@ -238,9 +238,9 @@
             #meta.join(h(0.6em))
           ]
           
-          // Description on new line
+          // Description inline after title
           if "description" in task and task.description != none [
-            #v(0.2em)
+            #h(0.5em) -- #h(0.3em)
             #text(size: size-small, fill: color-text-light, style: "italic")[#task.description]
           ]
           
