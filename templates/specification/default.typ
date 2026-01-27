@@ -23,6 +23,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   let company = if company != none { company } else { (:) }
@@ -51,14 +53,14 @@
       ]
     ],
 
-    footer: document-footer(
+    footer: if show-footer { document-footer(
       company: company,
       locale: locale,
       document_number: document_number,
       status: status,
       version: version,
       last_updated: last_updated,
-    )
+    ) } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -171,24 +173,26 @@
     metadata-dict.insert("Autoren", authors.join(", "))
   }
 
-  page(
-    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
-    header: none,
-    footer: none,
-  )[
-    #document-title-page(
-      company: company,
-      logo: logo,
-      title: title,
-      document-type: spec-label,
-      document-number: document_number,
-      accent-color: accent-color,
-      metadata: metadata-dict,
-      tags: tags,
-    )
-  ]
+  if show-title-page {
+    page(
+      margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
+      header: none,
+      footer: none,
+    )[
+      #document-title-page(
+        company: company,
+        logo: logo,
+        title: title,
+        document-type: spec-label,
+        document-number: document_number,
+        accent-color: accent-color,
+        metadata: metadata-dict,
+        tags: tags,
+      )
+    ]
 
-  pagebreak()
+    pagebreak()
+  }
 
   // ============================================================================
   // REVISION HISTORY (optional)

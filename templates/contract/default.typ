@@ -19,6 +19,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   let company = if company != none { company } else { (:) }
@@ -47,13 +49,13 @@
       ]
     ],
 
-    footer: document-footer(
+    footer: if show-footer { document-footer(
       company: company,
       locale: locale,
       document_number: document_number,
       created_at: created_at,
       status: status,
-    )
+    ) } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -76,41 +78,43 @@
   // TITLE PAGE
   // ============================================================================
 
-  page(
-    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
-    header: none,
-    footer: none,
-  )[
-    #parties-title-page(
-      company: company,
-      logo: logo,
-      title: title,
-      document-type: contract_type,
-      document-number: document_number,
-      accent-color: accent-color,
-      party1-label: "Auftragnehmer",
-      party1-name: if parties.len() > 0 and "company" in parties.at(0) and parties.at(0).company != none { parties.at(0).company } else if parties.len() > 0 and "name" in parties.at(0) { parties.at(0).name } else { none },
-      party1-address: if parties.len() > 0 and "address" in parties.at(0) { parties.at(0).address } else { none },
-      party2-label: "Auftraggeber",
-      party2-name: if parties.len() > 1 and "company" in parties.at(1) and parties.at(1).company != none { parties.at(1).company } else if parties.len() > 1 and "name" in parties.at(1) { parties.at(1).name } else { none },
-      party2-address: if parties.len() > 1 and "address" in parties.at(1) { parties.at(1).address } else { none },
-      metadata: {
-        let meta = (:)
-        if effective_date != none {
-          meta.insert("Gültig ab", effective_date)
-        }
-        if termination_date != none {
-          meta.insert("Laufzeit bis", termination_date)
-        }
-        if created_at != none {
-          meta.insert("Erstellt am", created_at)
-        }
-        meta
-      },
-    )
-  ]
+  if show-title-page {
+    page(
+      margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
+      header: none,
+      footer: none,
+    )[
+      #parties-title-page(
+        company: company,
+        logo: logo,
+        title: title,
+        document-type: contract_type,
+        document-number: document_number,
+        accent-color: accent-color,
+        party1-label: "Auftragnehmer",
+        party1-name: if parties.len() > 0 and "company" in parties.at(0) and parties.at(0).company != none { parties.at(0).company } else if parties.len() > 0 and "name" in parties.at(0) { parties.at(0).name } else { none },
+        party1-address: if parties.len() > 0 and "address" in parties.at(0) { parties.at(0).address } else { none },
+        party2-label: "Auftraggeber",
+        party2-name: if parties.len() > 1 and "company" in parties.at(1) and parties.at(1).company != none { parties.at(1).company } else if parties.len() > 1 and "name" in parties.at(1) { parties.at(1).name } else { none },
+        party2-address: if parties.len() > 1 and "address" in parties.at(1) { parties.at(1).address } else { none },
+        metadata: {
+          let meta = (:)
+          if effective_date != none {
+            meta.insert("Gültig ab", effective_date)
+          }
+          if termination_date != none {
+            meta.insert("Laufzeit bis", termination_date)
+          }
+          if created_at != none {
+            meta.insert("Erstellt am", created_at)
+          }
+          meta
+        },
+      )
+    ]
 
-  pagebreak()
+    pagebreak()
+  }
 
   // ============================================================================
   // TABLE OF CONTENTS

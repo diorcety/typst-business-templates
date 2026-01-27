@@ -53,6 +53,10 @@
   // Company info (optional, will be overridden by JSON workflow)
   company: company,
   
+  // Display options
+  show-title-page: true,
+  show-footer: true,
+  
   // Content
   tasks: (),
   categories: (),
@@ -78,7 +82,7 @@
         #line(length: 100%, stroke: border-thin + accent-color)
       ]
     },
-    footer: context {
+    footer: if show-footer { context {
       if counter(page).get().first() > 1 [
         #line(length: 100%, stroke: border-thin)
         #v(0.2em)
@@ -91,7 +95,7 @@
           [#created]
         )
       ]
-    }
+    } }
   )
   
   // Text settings
@@ -139,17 +143,19 @@
   meta.insert("Datum", created)
   
   // Render standard title page
-  standard-title-page(
-    company: company,
-    title: title,
-    subtitle: subtitle,
-    document-type: "Aufgabenliste",
-    document-number: document-number,
-    accent-color: accent-color,
-    metadata: meta,
-  )
-  
-  pagebreak()
+  if show-title-page {
+    standard-title-page(
+      company: company,
+      title: title,
+      subtitle: subtitle,
+      document-type: "Aufgabenliste",
+      document-number: document-number,
+      accent-color: accent-color,
+      metadata: meta,
+    )
+    
+    pagebreak()
+  }
   
   // ============================================================================
   // TASK RENDERING FUNCTIONS
@@ -236,20 +242,6 @@
           if "description" in task and task.description != none [
             #v(0.2em)
             #text(size: size-small, fill: color-text-light, style: "italic")[#task.description]
-          ]
-          
-          // Tags
-          if "tags" in task and task.tags != none [
-            #v(0.2em)
-            #for tag in task.tags [
-              #box(
-                fill: gray.lighten(90%),
-                inset: (x: 4pt, y: 1pt),
-                radius: 2pt,
-                text(size: size-xs)[#tag]
-              )
-              #h(0.3em)
-            ]
           ]
           
           // Dependencies / Conditions

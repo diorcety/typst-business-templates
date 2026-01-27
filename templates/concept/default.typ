@@ -38,6 +38,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   // Use passed company/locale or empty defaults
@@ -77,7 +79,7 @@
       ]
     ],
 
-    footer: context {
+    footer: if show-footer { context {
       if counter(page).get().first() > 1 [
         #line(length: 100%, stroke: border-thin)
         #v(0.2em)
@@ -91,7 +93,7 @@
           [#created_at]
         )
       ]
-    }
+    } } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -146,18 +148,20 @@
     meta.push((l-authors, authors.join(", ")))
   }
 
-  document-title-page(
-    company: company,
-    logo: logo,
-    title: title,
-    document-type: l-concept,
-    document-number: document_number,
-    accent-color: accent-color,
-    metadata: meta,
-    tags: tags,
-  )
+  if show-title-page {
+    document-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: l-concept,
+      document-number: document_number,
+      accent-color: accent-color,
+      metadata: meta,
+      tags: tags,
+    )
 
-  pagebreak()
+    pagebreak()
+  }
 
   // ============================================================================
   // TABLE OF CONTENTS

@@ -24,6 +24,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   let company = if company != none { company } else { (:) }
@@ -52,13 +54,13 @@
       ]
     ],
 
-    footer: document-footer(
+    footer: if show-footer { document-footer(
       company: company,
       locale: locale,
       document_number: document_number,
       created_at: created_at,
       status: status,
-    )
+    ) } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -96,49 +98,51 @@
   // TITLE PAGE
   // ============================================================================
 
-  page(
-    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
-    header: none,
-    footer: none,
-  )[
-    #enhanced-title-page(
-      company: company,
-      logo: logo,
-      title: title,
-      document-type: "PROJEKTVORSCHLAG",
-      document-number: document_number,
-      accent-color: accent-color,
-      info-box-content: align(left)[
-        #grid(
-          columns: (auto, auto),
-          column-gutter: 30pt,
-          row-gutter: 14pt,
-          align: (right, left),
+  if show-title-page {
+    page(
+      margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
+      header: none,
+      footer: none,
+    )[
+      #enhanced-title-page(
+        company: company,
+        logo: logo,
+        title: title,
+        document-type: "PROJEKTVORSCHLAG",
+        document-number: document_number,
+        accent-color: accent-color,
+        info-box-content: align(left)[
+          #grid(
+            columns: (auto, auto),
+            column-gutter: 30pt,
+            row-gutter: 14pt,
+            align: (right, left),
 
-          [*Projekt:*], [#text(size: size-large, weight: "bold")[#project_name]],
-          [*Auftraggeber:*], [#client_name],
-          ..if budget != none {
-            ([*Budget:*], [#text(fill: accent-color, weight: "bold")[#budget]])
-          } else { () },
-          ..if timeline != none {
-            ([*Zeitrahmen:*], [#timeline])
-          } else { () },
-          [*Version:*], [#version],
-          [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
-          ..if created_at != none {
-            ([*Datum:*], [#created_at])
-          } else { () },
-          ..if valid_until != none {
-            ([*Gültig bis:*], [#valid_until])
-          } else { () },
-        )
-      ],
-      tags: tags,
-      authors: if authors.len() > 0 { "Erstellt von: " + authors.join(", ") } else { none },
-    )
-  ]
-  
-  pagebreak()
+            [*Projekt:*], [#text(size: size-large, weight: "bold")[#project_name]],
+            [*Auftraggeber:*], [#client_name],
+            ..if budget != none {
+              ([*Budget:*], [#text(fill: accent-color, weight: "bold")[#budget]])
+            } else { () },
+            ..if timeline != none {
+              ([*Zeitrahmen:*], [#timeline])
+            } else { () },
+            [*Version:*], [#version],
+            [*Status:*], [#text(fill: accent-color, weight: "bold")[#upper(status)]],
+            ..if created_at != none {
+              ([*Datum:*], [#created_at])
+            } else { () },
+            ..if valid_until != none {
+              ([*Gültig bis:*], [#valid_until])
+            } else { () },
+          )
+        ],
+        tags: tags,
+        authors: if authors.len() > 0 { "Erstellt von: " + authors.join(", ") } else { none },
+      )
+    ]
+    
+    pagebreak()
+  }
 
   // ============================================================================
   // TABLE OF CONTENTS

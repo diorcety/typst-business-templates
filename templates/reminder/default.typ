@@ -11,11 +11,13 @@
 // Load company data
 #let company = json("/data/company.json")
 
+#let show-footer = if "metadata" in data and "show_footer" in data.metadata { data.metadata.show_footer } else { true }
+
 #set page(
   paper: "a4",
   margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 80pt),
 
-  footer: accounting-footer(company: company)
+  footer: if show-footer { accounting-footer(company: company) }
 )
 
 #set text(font: "Helvetica", size: 10pt, lang: "de")

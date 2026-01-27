@@ -35,6 +35,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   // Use passed company/locale or empty defaults
@@ -65,13 +67,13 @@
       ]
     ],
 
-    footer: document-footer(
+    footer: if show-footer { document-footer(
       company: company,
       locale: locale,
       document_number: document_number,
       created_at: created_at,
       status: status,
-    )
+    ) } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -164,18 +166,20 @@
     meta.push((l-authors, authors.join(", ")))
   }
 
-  document-title-page(
-    company: company,
-    logo: logo,
-    title: title,
-    document-type: l-documentation,
-    document-number: document_number,
-    accent-color: accent-color,
-    metadata: meta,
-    tags: tags,
-  )
+  if show-title-page {
+    document-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: l-documentation,
+      document-number: document_number,
+      accent-color: accent-color,
+      metadata: meta,
+      tags: tags,
+    )
 
-  pagebreak()
+    pagebreak()
+  }
 
   // ============================================================================
   // TABLE OF CONTENTS

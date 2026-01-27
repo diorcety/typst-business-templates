@@ -22,6 +22,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   let company = if company != none { company } else { (:) }
@@ -50,14 +52,14 @@
       ]
     ],
 
-    footer: document-footer(
+    footer: if show-footer { document-footer(
       company: company,
       locale: locale,
       document_number: document_number,
       status: status,
       version: version,
       last_updated: effective_date,
-    )
+    ) } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -207,29 +209,31 @@
     metadata.insert(l-created-at, created_at)
   }
 
-  page(
-    margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
-    header: none,
-    footer: none,
-  )[
-    #parties-title-page(
-      company: company,
-      logo: logo,
-      title: title,
-      document-type: l-document-type,
-      document-number: document_number,
-      accent-color: accent-color,
-      party1-label: l-service-provider,
-      party1-name: party1-name,
-      party1-address: party1-address,
-      party2-label: l-customer,
-      party2-name: party2-name,
-      party2-address: party2-address,
-      metadata: metadata,
-    )
-  ]
+  if show-title-page {
+    page(
+      margin: (left: 50pt, right: 45pt, top: 50pt, bottom: 50pt),
+      header: none,
+      footer: none,
+    )[
+      #parties-title-page(
+        company: company,
+        logo: logo,
+        title: title,
+        document-type: l-document-type,
+        document-number: document_number,
+        accent-color: accent-color,
+        party1-label: l-service-provider,
+        party1-name: party1-name,
+        party1-address: party1-address,
+        party2-label: l-customer,
+        party2-name: party2-name,
+        party2-address: party2-address,
+        metadata: metadata,
+      )
+    ]
 
-  pagebreak()
+    pagebreak()
+  }
 
   // ============================================================================
   // TABLE OF CONTENTS

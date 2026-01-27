@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.10] - 2026-01-27
+
+### Added
+- **Display options for all templates:** `show-title-page` and `show-footer`
+  - Function-based templates (8): `show-title-page: true` and `show-footer: true` parameters
+    - task-list, documentation, concept, contract, protocol, specification, proposal, sla
+  - Inline/accounting templates (9): `show_footer` flag via `data.metadata.show_footer`
+    - invoice, offer, credit-note, delivery-note, letter, order-confirmation, quotation-request, reminder, time-sheet
+  - Both default to `true` — existing behavior is fully preserved
+  - Set to `false` to hide title page or footer
+
+### Removed
+- **Tag rendering removed from task-list template**
+  - Tags were visually disruptive and redundant with category headings
+  - Tag data in `.typ` files is still accepted but no longer rendered
+
 ## [0.6.9] - 2026-01-27
 
 ### Fixed

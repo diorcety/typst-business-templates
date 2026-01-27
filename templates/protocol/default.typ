@@ -21,6 +21,8 @@
   company: none,
   locale: none,
   logo: none,
+  show-title-page: true,
+  show-footer: true,
   body
 ) = {
   let company = if company != none { company } else { (:) }
@@ -48,11 +50,11 @@
       ]
     ],
 
-    footer: minimal-footer(
+    footer: if show-footer { minimal-footer(
       company: company,
       locale: locale,
       document_number: document_number,
-    )
+    ) } else { none }
   )
 
   set text(font: fonts.body, size: size-medium, lang: "de")
@@ -123,19 +125,21 @@
     ]
   }
 
-  document-title-page(
-    company: company,
-    logo: logo,
-    title: title,
-    document-type: "BESPRECHUNGSPROTOKOLL",
-    document-number: document_number,
-    accent-color: accent-color,
-    metadata: title-metadata,
-    tags: none,
-    custom-content: participants-content,
-  )
+  if show-title-page {
+    document-title-page(
+      company: company,
+      logo: logo,
+      title: title,
+      document-type: "BESPRECHUNGSPROTOKOLL",
+      document-number: document_number,
+      accent-color: accent-color,
+      metadata: title-metadata,
+      tags: none,
+      custom-content: participants-content,
+    )
 
-  pagebreak()
+    pagebreak()
+  }
 
   // ============================================================================
   // TABLE OF CONTENTS (optional)
