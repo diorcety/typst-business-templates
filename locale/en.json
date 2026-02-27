@@ -84,6 +84,15 @@
     "security_hint_4": "Use two-factor authentication where possible",
     "security_hint_5": "Report suspicious activities immediately"
   },
+  "contract": {
+    "contractor": "Contractor",
+    "client": "Client",
+    "valid_from": "Valid from",
+    "term_until": "Term until",
+    "created_on": "Created on",
+    "signatures": "Signatures",
+    "place_date_signature": "Place, date, signature"
+  },
   "documentation": {
     "title": "DOCUMENTATION",
     "document_number": "Document Number"

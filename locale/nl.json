@@ -84,6 +84,15 @@
     "security_hint_4": "Gebruik tweefactorauthenticatie waar mogelijk",
     "security_hint_5": "Meld verdachte activiteiten onmiddellijk"
   },
+  "contract": {
+    "contractor": "Aannemer",
+    "client": "Klant",
+    "valid_from": "Geldig vanaf",
+    "term_until": "Looptijd tot",
+    "created_on": "Aangemaakt op",
+    "signatures": "Handtekeningen",
+    "place_date_signature": "Plaats, datum, handtekening"
+  },
   "documentation": {
     "title": "Documentatie",
     "document_number": "Documentnummer"

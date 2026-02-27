@@ -84,6 +84,15 @@
     "security_hint_4": "Verwenden Sie 2-Faktor-Authentifizierung wo möglich",
     "security_hint_5": "Melden Sie verdächtige Aktivitäten sofort"
   },
+  "contract": {
+    "contractor": "Auftragnehmer",
+    "client": "Kunde",
+    "valid_from": "Gültig ab",
+    "term_until": "Laufzeit bis",
+    "created_on": "Erstellt am",
+    "signatures": "Unterschriften",
+    "place_date_signature": "Ort, Datum, Unterschrift"
+  },
   "documentation": {
     "title": "DOKUMENTATION",
     "document_number": "Dokumentnummer"

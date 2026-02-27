@@ -84,6 +84,15 @@
     "security_hint_4": "Utilizzare l'autenticazione a due fattori quando possibile",
     "security_hint_5": "Segnalare immediatamente qualsiasi attività sospetta"
   },
+  "contract": {
+    "contractor": "Appaltatore",
+    "client": "Cliente",
+    "valid_from": "Valido dal",
+    "term_until": "Valido fino al",
+    "created_on": "Creato il",
+    "signatures": "Firme",
+    "place_date_signature": "Luogo, data, firma"
+  },
   "documentation": {
     "title": "Documentazione",
     "document_number": "N° documento"

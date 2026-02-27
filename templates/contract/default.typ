@@ -21,14 +21,24 @@
   logo: none,
   show-title-page: true,
   show-footer: true,
+  status: "Draft",
   body
 ) = {
   let company = if company != none { company } else { (:) }
   let locale = if locale != none { locale } else { (common: (:), contract: (:)) }
-  
+
   let accent-color = get-accent-color(company)
   let primary-color = get-primary-color(company)
   let fonts = get-font-preset(company)
+
+  // Locale labels with fallbacks
+  let l-contractor = if "contract" in locale and "contractor" in locale.contract { locale.contract.contractor } else { "Contractor" }
+  let l-client = if "contract" in locale and "client" in locale.contract { locale.contract.client } else { "Client" }
+  let l-valid-from = if "contract" in locale and "valid_from" in locale.contract { locale.contract.valid_from } else { "Valid from" }
+  let l-term-until = if "contract" in locale and "term_until" in locale.contract { locale.contract.term_until } else { "Term until" }
+  let l-created-on = if "contract" in locale and "created_on" in locale.contract { locale.contract.created_on } else { "Created on" }
+  let l-signatures = if "contract" in locale and "signatures" in locale.contract { locale.contract.signatures } else { "Signatures" }
+  let l-place-date-signature = if "contract" in locale and "place_date_signature" in locale.contract { locale.contract.place_date_signature } else { "Place, date, signature" }
 
   set page(
     paper: "a4",
@@ -42,7 +52,7 @@
           align: (left, center, right),
           [#document_number],
           [#title],
-          [#if effective_date != none [Gültig ab: #effective_date]]
+          [#if effective_date != none [#l-valid-from: #effective_date]]
         )
         #v(5pt)
         #line(length: 100%, stroke: border-thin)
@@ -60,7 +70,7 @@
 
   set text(font: fonts.body, size: size-medium, lang: "de")
   set par(justify: true, leading: 0.65em)
-  set heading(numbering: "§1.")
+  set heading(numbering: "1.1")
 
   show heading.where(level: 1): it => {
     v(20pt)
@@ -91,22 +101,22 @@
         document-type: contract_type,
         document-number: document_number,
         accent-color: accent-color,
-        party1-label: "Auftragnehmer",
+        party1-label: l-contractor,
         party1-name: if parties.len() > 0 and "company" in parties.at(0) and parties.at(0).company != none { parties.at(0).company } else if parties.len() > 0 and "name" in parties.at(0) { parties.at(0).name } else { none },
         party1-address: if parties.len() > 0 and "address" in parties.at(0) { parties.at(0).address } else { none },
-        party2-label: "Auftraggeber",
+        party2-label: l-client,
         party2-name: if parties.len() > 1 and "company" in parties.at(1) and parties.at(1).company != none { parties.at(1).company } else if parties.len() > 1 and "name" in parties.at(1) { parties.at(1).name } else { none },
         party2-address: if parties.len() > 1 and "address" in parties.at(1) { parties.at(1).address } else { none },
         metadata: {
           let meta = (:)
           if effective_date != none {
-            meta.insert("Gültig ab", effective_date)
+            meta.insert(l-valid-from, effective_date)
           }
           if termination_date != none {
-            meta.insert("Laufzeit bis", termination_date)
+            meta.insert(l-term-until, termination_date)
           }
           if created_at != none {
-            meta.insert("Erstellt am", created_at)
+            meta.insert(l-created-on, created_at)
           }
           meta
         },
@@ -121,11 +131,12 @@
   // ============================================================================
 
   if show_toc {
+    let l-toc = if "common" in locale and "table_of_contents" in locale.common { locale.common.table_of_contents } else { "Table of Contents" }
     [
       #outline(
         title: [
           #set text(size: size-xxlarge, weight: "bold")
-          Inhaltsverzeichnis
+          #l-toc
         ],
         indent: 1em,
         depth: 3,
@@ -149,7 +160,7 @@
 
   v(1fr)
 
-  text(size: size-large, weight: "bold")[Unterschriften]
+  text(size: size-large, weight: "bold")[#l-signatures]
 
   v(30pt)
 
@@ -158,7 +169,7 @@
     column-gutter: 30pt,
     row-gutter: 80pt,
 
-    ..parties.map(party => 
+    ..parties.map(party =>
       box(
         width: 100%,
         stroke: (top: 0.5pt),
@@ -172,7 +183,7 @@
             #party.name\
           ]
           #v(0.3em)
-          #text(size: size-small)[Ort, Datum, Unterschrift]
+          #text(size: size-small)[#l-place-date-signature]
         ]
       ]
     ).flatten()
@@ -215,7 +226,7 @@
   } else {
     none
   }
-  
+
   let content-body = if "content_file" in data {
     include(data.content_file)
   } else if "content" in data {
@@ -223,7 +234,7 @@
   } else {
     []
   }
-  
+
   contract(
     title: data.metadata.title,
     document_number: data.metadata.document_number,
