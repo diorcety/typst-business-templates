@@ -61,7 +61,9 @@
   tasks: (),
   categories: (),
   notes: none,
-  
+
+  lang: "de",
+
   body
 ) = {
   
@@ -102,7 +104,7 @@
   set text(
     font: fonts.body,
     size: size-medium,
-    lang: "de"
+    lang: lang
   )
   
   set par(justify: true, leading: 0.65em)

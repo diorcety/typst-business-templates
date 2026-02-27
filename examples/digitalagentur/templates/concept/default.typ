@@ -23,6 +23,7 @@
   show_toc: true,
   company: none,
   locale: none,
+  lang: "de",
   body
 ) = {
   // Use passed company/locale or empty defaults
@@ -104,7 +105,7 @@
     ]
   )
 
-  set text(font: fonts.body, size: size-medium, lang: "de")
+  set text(font: fonts.body, size: size-medium, lang: lang)
   set par(justify: true, leading: 0.65em)
   set heading(numbering: "1.1")
 

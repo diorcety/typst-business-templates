@@ -23,6 +23,7 @@
   logo: none,
   show-title-page: true,
   show-footer: true,
+  lang: "de",
   body
 ) = {
   let company = if company != none { company } else { (:) }
@@ -57,7 +58,7 @@
     ) } else { none }
   )
 
-  set text(font: fonts.body, size: size-medium, lang: "de")
+  set text(font: fonts.body, size: size-medium, lang: lang)
   set par(justify: true, leading: 0.65em)
   set heading(numbering: "1.")
 
