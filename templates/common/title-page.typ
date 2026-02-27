@@ -301,8 +301,11 @@
         #if party1-address != none [
           #v(0.3em)
           #text(size: size-small)[
-            #party1-address.street #party1-address.house_number\
-            #party1-address.postal_code #party1-address.city
+            #if "street" in party1-address [#party1-address.street ]
+            #if "house_number" in party1-address [#party1-address.house_number]\
+            #if "postal_code" in party1-address [#party1-address.postal_code ]
+            #if "city" in party1-address [#party1-address.city] \
+            #if "country" in party1-address [#party1-address.country]
           ]
         ]
       ],
@@ -324,8 +327,11 @@
         #if party2-address != none [
           #v(0.3em)
           #text(size: size-small)[
-            #party2-address.street #party2-address.house_number\
-            #party2-address.postal_code #party2-address.city
+            #if "street" in party2-address [#party2-address.street ]
+            #if "house_number" in party2-address [#party2-address.house_number]\
+            #if "postal_code" in party2-address [#party2-address.postal_code ]
+            #if "city" in party2-address [#party2-address.city] \
+            #if "country" in party2-address [#party2-address.country]
           ]
         ]
       ]
